@@ -1,8 +1,10 @@
 defmodule Habitat.PackageDB do
-  alias Habitat.{Container, Package, Packages, Snapshots}
+  alias Habitat.Container
+
+  require Logger
 
   def ensure_prepared(container) do
-    if Snapshots.none?(), do: take_snapshot(container)
+    if empty?(container), do: take_snapshot(container)
   end
 
   # TODO: Make sure snapshots match currently installed packages
@@ -13,47 +15,104 @@ defmodule Habitat.PackageDB do
 
     if did_install or did_uninstall do
       take_snapshot(container)
+    else
+      Logger.info("No change to package list")
     end
   end
 
   defp install(container) do
-    wanted = container.spec.packages
-    explicit = Container.list_packages(container, :explicit) |> Package.names()
+    wanted = Container.list_packages(container, :wanted)
+    explicit = Container.list_packages(container, :explicit)
 
     pending = wanted -- explicit
     changed = !Enum.empty?(pending)
 
     if changed do
-      IO.puts("-- Installing packages:")
-      IO.inspect(pending)
+      Logger.info("Installing packages")
+      Logger.debug(pending)
 
-      container.package_manager.install(pending)
+      Container.install_packages(container, pending)
     end
 
     changed
   end
 
   defp uninstall(container) do
-    base = Snapshots.list_packages(1) |> Package.names()
-    wanted = container.spec.packages
-    explicit = Container.list_packages(container, :explicit) |> Package.names()
+    base = earliest_snapshot(container)
+    wanted = Container.list_packages(container, :wanted)
+    explicit = Container.list_packages(container, :explicit)
 
     pending = (explicit -- base) -- wanted
     changed = !Enum.empty?(pending)
 
     if changed do
-      IO.puts("-- Removing packages:")
-      IO.inspect(pending)
+      Logger.info("Uninstalling packages")
+      Logger.debug(pending)
 
-      container.package_manager.uninstall(pending)
+      Container.uninstall_packages(container, pending)
     end
 
     changed
   end
 
   defp take_snapshot(container) do
-    Container.list_packages(container)
-    |> Packages.ensure_all()
-    |> Snapshots.take()
+    {:ok, contents} = Container.list_packages(container) |> JSON.encode()
+
+    :ok =
+      container
+      |> path()
+      |> Path.join("#{snapshot_version()}.json")
+      |> File.write(contents)
+  end
+
+  defp snapshot_version() do
+    %{
+      year: year,
+      month: month,
+      day: day,
+      hour: hour,
+      minute: minute,
+      second: second,
+      microsecond: microsecond
+    } = NaiveDateTime.utc_now()
+
+    date = Calendar.ISO.date_to_string(year, month, day, :basic)
+    time = Calendar.ISO.time_to_string(hour, minute, second, microsecond, :basic)
+
+    "#{date}.#{time}"
+  end
+
+  defp snapshots(container) do
+    ensure_snapshot_root(container)
+
+    dir = path(container)
+
+    dir |> File.ls!() |> Enum.sort() |> Enum.map(&Path.join(dir, &1))
+  end
+
+  defp earliest_snapshot(container) do
+    container |> snapshots() |> List.first() |> snapshot_contents()
+  end
+
+  defp latest_snapshot(container) do
+    container |> snapshots() |> List.last() |> snapshot_contents()
+  end
+
+  defp snapshot_contents(file) do
+    Logger.info("Reading contents of snapshot #{file}")
+
+    File.read!(file) |> JSON.decode!()
+  end
+
+  defp ensure_snapshot_root(container) do
+    path(container) |> File.mkdir_p()
+  end
+
+  defp root_home(), do: Path.join(System.user_home(), ".local/share/habitat")
+
+  defp path(container), do: Path.join(root_home(), container.name)
+
+  defp empty?(container) do
+    container |> snapshots() |> Enum.empty?()
   end
 end

@@ -1,19 +1,17 @@
 defmodule Mix.Tasks.Habitat do
+  @shortdoc "Update system configuration"
   use Mix.Task
 
   alias Habitat.Container
 
-  @requirements ["ecto.create", "ecto.migrate", "app.start"]
-
+  @impl Mix.Task
   def run(_) do
-    Mix.Ecto.ensure_repo(Habitat.Repo, [])
-    units = Code.require_file("blueprint.exs")
+    units = Code.require_file("lib/blueprints.ex")
 
     {mod, _} = List.first(units)
 
-    container = mod.config() |> Container.new()
-
-    Container.sync_packages(container)
-    Container.configure(container)
+    for c <- mod.config() do
+      Container.configure(c)
+    end
   end
 end

@@ -1,55 +1,49 @@
 defmodule Habitat.Container do
-  alias Habitat.{Package, PackageDB, Snapshots}
-  alias Habitat.Traits
+  alias Habitat.{PackageDB, Traits}
 
-  defstruct [:package_manager, :spec]
+  require Logger
 
-  defmodule Spec do
-    defstruct [:packages, :specs]
+  defstruct [:home, :name, :os, :packages, :repo]
 
-    def new(packages) do
-      %__MODULE__{
-        packages: packages |> Enum.map(&to_name/1),
-        specs: packages |> Enum.map(&to_spec/1)
-      }
-    end
+  def configure(opts) do
+    container = struct(__MODULE__, opts)
 
-    defp to_name(name) when is_binary(name), do: name
-    defp to_name({name, _opts}), do: to_string(name)
-
-    defp to_spec(name) when is_binary(name), do: {name, []}
-    defp to_spec(spec), do: spec
-  end
-
-  def new(opts) do
-    case Keyword.get(opts, :os) do
-      :archlinux ->
-        %__MODULE__{
-          package_manager: Habitat.PackageManager.Pacman,
-          spec: Habitat.Container.Spec.new(Keyword.get(opts, :packages))
-        }
-    end
-  end
-
-  def sync_packages(container) do
-    IO.puts("-- Syncing packages")
+    Logger.info("Configuring container #{container.name}")
+    Logger.debug(container)
 
     PackageDB.ensure_prepared(container)
     PackageDB.sync(container)
-  end
 
-  def configure(container) do
-    IO.inspect(container)
-
-    for s <- container.spec.specs do
-      Traits.Export.post_install(s)
-    end
+    # for s <- container.spec.specs do
+    #   Traits.Export.post_install(s)
+    # end
   end
 
   def list_packages(container, filter \\ :all) do
-    container.package_manager.list(filter)
+    if filter == :wanted do
+      container.packages |> Enum.map(&unspec/1)
+    else
+      package_manager(container).list(container, filter)
+    end
   end
 
-  defp name_to_package(name) when is_binary(name), do: %Package{name: name}
-  defp name_to_package({name, _opts}), do: %Package{name: Atom.to_string(name)}
+  defp spec(name) when is_binary(name), do: {name, []}
+  defp spec(spec), do: spec
+
+  defp unspec(name) when is_binary(name), do: name
+  defp unspec({name, _opts}) when is_binary(name), do: name
+
+  def install_packages(container, packages) do
+    package_manager(container).install(container, packages)
+  end
+
+  def uninstall_packages(container, packages) do
+    package_manager(container).uninstall(container, packages)
+  end
+
+  def package_manager(container) do
+    case container.os do
+      :archlinux -> Habitat.PackageManager.Pacman
+    end
+  end
 end

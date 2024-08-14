@@ -1,32 +1,48 @@
 defmodule Habitat.PackageManager.Pacman do
-  def install(packages) do
-    {_, 0} = pacman(["--sync", "--needed"] ++ packages)
+  require Logger
+
+  def install(container, packages) do
+    {_, 0} = pacman(container, ["--sync", "--needed"] ++ packages)
   end
 
-  def uninstall(packages) do
-    {_, 0} = pacman(["--remove", "--nosave", "--recursive"] ++ packages)
+  def uninstall(container, packages) do
+    {_, 0} = pacman(container, ["--remove", "--nosave", "--recursive"] ++ packages)
   end
 
-  def list(filter) do
+  def list(container, filter) do
     flags = ["--query"] ++ if(filter == :explicit, do: ["--explicit"], else: [])
 
-    {pkgs, 0} = pacman(flags)
+    {pkgs, 0} = pacman(container, flags)
 
     pkgs
     |> String.trim()
     |> String.split("\n")
-    |> Enum.map(fn str -> String.split(str) |> List.to_tuple() |> Habitat.Package.new() end)
+    |> Enum.map(fn str -> String.split(str) |> List.first() end)
   end
 
-  defp pacman(args) do
-    cmd = ["pacman", "--noconfirm"] ++ args
+  defp pacman(container, args) do
+    cmd = pacman_cmd(container, args)
 
-    IO.puts("Running `#{Enum.join(cmd, " ")}`")
+    Logger.debug("[pacman] Running `#{Enum.join(cmd, " ")}`")
 
-    {out, code} = System.cmd("sudo", ["pacman", "--noconfirm"] ++ args)
+    {out, code} = System.cmd("distrobox-host-exec", cmd)
 
-    IO.inspect([out, code])
+    Logger.debug("[pacman] Output:\n#{String.trim(out)}")
+    Logger.debug("[pacman] Return value: #{code}")
 
     {out, code}
+  end
+
+  defp pacman_cmd(container, args) do
+    [
+      "distrobox",
+      "enter",
+      "--name",
+      container.name,
+      "--",
+      "sudo",
+      "pacman",
+      "--noconfirm"
+    ] ++ args
   end
 end
