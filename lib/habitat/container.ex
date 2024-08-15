@@ -13,9 +13,10 @@ defmodule Habitat.Container do
 
     {installed, uninstalled} = PackageDB.sync(container)
 
-    installed
+    container.packages
     |> Enum.map(&spec/1)
-    |> Enum.each(&Traits.Export.post_install(&1))
+    |> Enum.map(&Traits.Export.post_install(&1, container))
+    |> Enum.map(&Traits.Configure.post_install(&1, container))
   end
 
   def list_packages(container, filter \\ :all) do

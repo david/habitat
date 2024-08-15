@@ -1,7 +1,15 @@
 defmodule Habitat.Traits.Export do
-  def post_install({name, export: true}) do
+  require Logger
+
+  def post_install({name, export: true} = spec, _container) do
+    Logger.info("Exporting #{name}")  
+
+    System.cmd("distrobox-export", ["--delete", "--app", to_string(name)])
+
     {_, 0} = System.cmd("distrobox-export", ["--app", to_string(name)])
+
+    spec
   end
 
-  def post_install(_), do: nil
+  def post_install(spec, _container), do: spec
 end
