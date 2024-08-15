@@ -2,7 +2,7 @@ defmodule Habitat.PackageManager.Pacman do
   require Logger
 
   def install(container, packages) do
-    {_, 0} = pacman(container, ["--sync", "--needed"] ++ packages)
+    {_, 0} = pacman(container, ["--sync", "--needed", "--refresh"] ++ packages)
   end
 
   def uninstall(container, packages) do
