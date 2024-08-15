@@ -3,7 +3,7 @@ defmodule Habitat.Container do
 
   require Logger
 
-  defstruct [:home, :name, :os, :packages]
+  defstruct [:files, :home, :name, :os, :packages]
 
   def configure(opts) do
     container = struct(__MODULE__, opts)
@@ -16,7 +16,9 @@ defmodule Habitat.Container do
     container.packages
     |> Enum.map(&spec/1)
     |> Enum.map(&Traits.Export.post_install(&1, container))
-    |> Enum.map(&Traits.Configure.post_install(&1, container))
+    |> Enum.map(&Traits.Files.post_install(&1, container))
+
+    Traits.Files.post_install({nil, files: container.files}, container)
   end
 
   def list_packages(container, filter \\ :all) do
