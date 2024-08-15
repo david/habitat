@@ -11,7 +11,6 @@ defmodule Habitat.Container do
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
 
-    PackageDB.ensure_prepared(container)
     PackageDB.sync(container)
 
     container.packages
