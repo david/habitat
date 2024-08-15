@@ -10,7 +10,7 @@ defmodule Mix.Tasks.Habitat do
 
     {mod, _} = List.first(units)
 
-    for c <- mod.config() do
+    for c <- mod.containers() do
       Container.configure(c)
     end
   end
