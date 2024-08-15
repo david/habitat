@@ -8,6 +8,7 @@ defmodule Habitat.PackageDB do
   end
 
   alias Habitat.PackageDB.Snapshot
+
   # TODO: Make sure snapshots match currently installed packages
   def sync(container) do
     ensure_root(container)
@@ -20,6 +21,8 @@ defmodule Habitat.PackageDB do
     unless Enum.empty?(to_install) and Enum.empty?(to_uninstall) do
       take_snapshot(container)
     end
+
+    {to_install, to_uninstall}
   end
 
   defp changes(container) do

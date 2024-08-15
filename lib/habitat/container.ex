@@ -11,9 +11,9 @@ defmodule Habitat.Container do
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
 
-    PackageDB.sync(container)
+    {installed, uninstalled} = PackageDB.sync(container)
 
-    container.packages
+    installed
     |> Enum.map(&spec/1)
     |> Enum.each(&Traits.Export.post_install(&1))
   end
