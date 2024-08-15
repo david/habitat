@@ -3,7 +3,7 @@ defmodule Habitat.Container do
 
   require Logger
 
-  defstruct [:home, :name, :os, :packages, :repo]
+  defstruct [:home, :name, :os, :packages]
 
   def configure(opts) do
     container = struct(__MODULE__, opts)
