@@ -47,7 +47,7 @@ defmodule Habitat.Traits.Files do
         File.ln_s!(from, to)
 
       link ->
-        Logger.debug("#{to} is already a symbolic link to #{from}")
+        nil
 
       File.regular?(to) ->
         Logger.warning("#{to} is a regular file")
@@ -96,7 +96,7 @@ defmodule Habitat.Traits.Files do
         File.mkdir_p!(to)
 
       File.dir?(to) ->
-        Logger.debug("#{to} is already a directory")
+        nil
 
       true ->
         Logger.info("Creating directory #{to}")
