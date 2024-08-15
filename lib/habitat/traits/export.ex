@@ -1,22 +1,10 @@
 defmodule Habitat.Traits.Export do
   require Logger
 
-  def post_install({name, export: true} = spec, container) do
-    Logger.info("Exporting #{name}")
+  def post_install(container) do
+    for exp <- container.exports do
+      Logger.info("Exporting #{exp}")
 
-    System.cmd("distrobox-host-exec", [
-      "distrobox",
-      "enter",
-      "--name",
-      container.name,
-      "--",
-      "distrobox-export",
-      "--delete",
-      "--app",
-      to_string(name)
-    ])
-
-    {_, 0} =
       System.cmd("distrobox-host-exec", [
         "distrobox",
         "enter",
@@ -24,12 +12,22 @@ defmodule Habitat.Traits.Export do
         container.name,
         "--",
         "distrobox-export",
+        "--delete",
         "--app",
-        to_string(name)
+        exp
       ])
 
-    spec
+      {_, 0} =
+        System.cmd("distrobox-host-exec", [
+          "distrobox",
+          "enter",
+          "--name",
+          container.name,
+          "--",
+          "distrobox-export",
+          "--app",
+          exp
+        ])
+    end
   end
-
-  def post_install(spec, _container), do: spec
 end

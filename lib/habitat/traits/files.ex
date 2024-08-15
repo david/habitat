@@ -1,27 +1,23 @@
 defmodule Habitat.Traits.Files do
   require Logger
 
-  def post_install({_, [files: files]} = spec, container) do
-    for {from, to} <- files do
+  def post_install(container) do
+    for {to, from} <- container.files do
       link(Path.expand(from), String.replace(to, ~r/^~/, container.home))
     end
 
-    spec
-  end
+    for pkg <- container.packages do
+      from = "files" |> Path.expand() |> Path.join(pkg)
 
-  def post_install({package, _} = spec, container) do
-    from = "files" |> Path.expand() |> Path.join(package)
-
-    if File.dir?(from) do
-      to = Path.join([container.home, ".config", package])
-
-      link(from, to)
+      if File.dir?(from) do
+        link(from, Path.join([container.home, ".config", pkg]))
+      end
     end
-
-    spec
   end
 
   defp link(from, to) do
+    to |> Path.dirname() |> File.mkdir_p!()
+
     cond do
       !File.exists?(from) ->
         Logger.warning("#{from} does not exist")
