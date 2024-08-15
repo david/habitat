@@ -14,9 +14,9 @@ defmodule Habitat.Container do
     PackageDB.ensure_prepared(container)
     PackageDB.sync(container)
 
-    # for s <- container.spec.specs do
-    #   Traits.Export.post_install(s)
-    # end
+    container.packages
+    |> Enum.map(&spec/1)
+    |> Enum.each(&Traits.Export.post_install(&1))
   end
 
   def list_packages(container, filter \\ :all) do

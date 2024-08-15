@@ -94,10 +94,6 @@ defmodule Habitat.PackageDB do
     container |> snapshots() |> List.first() |> snapshot_contents()
   end
 
-  defp latest_snapshot(container) do
-    container |> snapshots() |> List.last() |> snapshot_contents()
-  end
-
   defp snapshot_contents(file) do
     Logger.info("Reading contents of snapshot #{file}")
 

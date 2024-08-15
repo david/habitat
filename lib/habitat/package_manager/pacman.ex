@@ -27,7 +27,6 @@ defmodule Habitat.PackageManager.Pacman do
 
     {out, code} = System.cmd("distrobox-host-exec", cmd)
 
-    Logger.debug("[pacman] Output:\n#{String.trim(out)}")
     Logger.debug("[pacman] Return value: #{code}")
 
     {out, code}
