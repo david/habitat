@@ -5,7 +5,9 @@ defmodule Mix.Tasks.Habitat.Configure do
   alias Habitat.Container
 
   @impl true
-  def run(_) do
-    for c <- blueprint().containers(), do: Container.configure(c)
+  def run(args) do
+    blueprint().containers()
+    |> Enum.filter(&(Enum.empty?(args) || &1.name in args))
+    |> Enum.each(&Container.configure/1)
   end
 end
