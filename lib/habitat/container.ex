@@ -46,10 +46,6 @@ defmodule Habitat.Container do
     )
   end
 
-  def list_packages(container, filter \\ :all) do
-    package_manager(container).list(container, filter)
-  end
-
   def install_packages(container, packages) do
     package_manager(container).install(container, packages)
   end
@@ -76,19 +72,16 @@ defmodule Habitat.Container do
     def load(file) do
       Logger.info("Reading snapshot #{file}")
 
-      %{"installed" => installed, "explicit" => explicit} = File.read!(file) |> JSON.decode!()
+      %{"packages" => packages} = File.read!(file) |> JSON.decode!()
 
-      %{installed: installed, explicit: explicit}
+      %{packages: packages}
     end
 
     def save(container) do
       Logger.info("Saving container state")
 
       {:ok, contents} =
-        %{
-          installed: Habitat.Container.list_packages(container),
-          explicit: container.packages
-        }
+        %{packages: container.packages}
         |> JSON.encode()
 
       :ok =

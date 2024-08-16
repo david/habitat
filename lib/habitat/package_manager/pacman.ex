@@ -9,17 +9,6 @@ defmodule Habitat.PackageManager.Pacman do
     {_, 0} = pacman(container, ["--remove", "--nosave", "--recursive"] ++ packages)
   end
 
-  def list(container, filter) do
-    flags = ["--query"] ++ if(filter == :explicit, do: ["--explicit"], else: [])
-
-    {pkgs, 0} = pacman(container, flags)
-
-    pkgs
-    |> String.trim()
-    |> String.split("\n")
-    |> Enum.map(fn str -> String.split(str) |> List.first() end)
-  end
-
   defp pacman(container, args) do
     cmd = pacman_cmd(container, args)
 

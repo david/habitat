@@ -20,7 +20,7 @@ defmodule Habitat.Tasks.Packages do
 
     latest =
       if Enum.empty?(snaps) do
-        %{explicit: []}
+        %{packages: []}
       else
         snaps |> List.first() |> Container.State.load()
       end
