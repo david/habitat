@@ -5,6 +5,22 @@ defmodule Habitat.Container do
 
   defstruct [:exports, :files, :home, :name, :os, :packages]
 
+  def create(container) do
+    Logger.info("Creating container #{container.name}")
+
+    {_, 0} =
+      System.cmd("distrobox-host-exec", [
+        "distrobox",
+        "create",
+        "--image",
+        to_string(container.os) <> ":latest",
+        "--name",
+        container.name,
+        "--home",
+        container.home
+      ])
+  end
+
   def cmd(container, args) do
     System.cmd(
       "distrobox-host-exec",
