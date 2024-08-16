@@ -1,5 +1,5 @@
 defmodule Habitat.Container do
-  alias Habitat.{PackageDB, Traits}
+  alias Habitat.{Tasks, Traits}
 
   require Logger
 
@@ -25,7 +25,7 @@ defmodule Habitat.Container do
     System.cmd("distrobox-host-exec", ["distrobox", "stop", container.name])
     System.cmd("distrobox-host-exec", ["distrobox", "rm", container.name])
 
-    PackageDB.delete(container)
+    Tasks.Packages.disable(container)
   end
 
   def configure(container) do
@@ -34,10 +34,9 @@ defmodule Habitat.Container do
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
 
-    {installed, uninstalled} = PackageDB.sync(container)
-
-    Traits.Export.post_install(container)
-    Traits.Files.post_install(container)
+    Tasks.Packages.sync(container)
+    Tasks.Exports.sync(container)
+    Tasks.Files.sync(container)
   end
 
   def cmd(container, args) do

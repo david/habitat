@@ -1,7 +1,7 @@
-defmodule Habitat.Traits.Files do
+defmodule Habitat.Tasks.Files do
   require Logger
 
-  def post_install(container) do
+  def sync(container) do
     for {to, from} <- container.files do
       link(from, String.replace(to, ~r/^~/, container.root))
     end

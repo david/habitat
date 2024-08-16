@@ -1,4 +1,4 @@
-defmodule Habitat.PackageDB do
+defmodule Habitat.Tasks.Packages do
   alias Habitat.Container
 
   require Logger
@@ -7,15 +7,7 @@ defmodule Habitat.PackageDB do
     defstruct [:installed, :explicit]
   end
 
-  alias Habitat.PackageDB.Snapshot
-
-  def delete(container) do
-    db_path = path(container)
-
-    Logger.debug("Deleting container database #{db_path}")
-
-    File.rm_rf!(path(container))
-  end
+  alias Habitat.Tasks.Packages.Snapshot
 
   # TODO: Make sure snapshots match currently installed packages
   def sync(container) do
@@ -29,8 +21,14 @@ defmodule Habitat.PackageDB do
     unless Enum.empty?(to_install) and Enum.empty?(to_uninstall) do
       take_snapshot(container)
     end
+  end
 
-    {to_install, to_uninstall}
+  def disable(container) do
+    db_path = path(container)
+
+    Logger.debug("Deleting container database #{db_path}")
+
+    File.rm_rf!(path(container))
   end
 
   defp changes(container) do

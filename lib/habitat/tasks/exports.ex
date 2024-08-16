@@ -1,9 +1,8 @@
-defmodule Habitat.Traits.Export do
+defmodule Habitat.Tasks.Exports do
+  alias Habitat.Container
   require Logger
 
-  alias Habitat.Container
-
-  def post_install(container) do
+  def sync(container) do
     for exp <- container.exports do
       Logger.info("Exporting #{exp}")
 
