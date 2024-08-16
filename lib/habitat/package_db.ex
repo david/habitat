@@ -35,7 +35,7 @@ defmodule Habitat.PackageDB do
         snaps |> List.first() |> snapshot()
       end
 
-    wanted = Container.list_packages(container, :wanted)
+    wanted = container.packages
     to_install = wanted -- latest.explicit
     to_uninstall = latest.explicit -- wanted
 
@@ -68,7 +68,7 @@ defmodule Habitat.PackageDB do
     {:ok, contents} =
       %{
         installed: Container.list_packages(container),
-        explicit: Container.list_packages(container, :wanted)
+        explicit: container.packages
       }
       |> JSON.encode()
 

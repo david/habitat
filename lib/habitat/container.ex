@@ -25,18 +25,8 @@ defmodule Habitat.Container do
   end
 
   def list_packages(container, filter \\ :all) do
-    if filter == :wanted do
-      container.packages |> Enum.map(&unspec/1)
-    else
-      package_manager(container).list(container, filter)
-    end
+    package_manager(container).list(container, filter)
   end
-
-  defp spec(name) when is_binary(name), do: {name, []}
-  defp spec(spec), do: spec
-
-  defp unspec(name) when is_binary(name), do: name
-  defp unspec({name, _opts}) when is_binary(name), do: name
 
   def install_packages(container, packages) do
     package_manager(container).install(container, packages)
