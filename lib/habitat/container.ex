@@ -3,8 +3,6 @@ defmodule Habitat.Container do
 
   require Logger
 
-  defstruct [:exports, :files, :home, :name, :os, :packages]
-
   def create(container) do
     Logger.info("Creating container #{container.name}")
 
@@ -17,7 +15,7 @@ defmodule Habitat.Container do
         "--name",
         container.name,
         "--home",
-        container.home
+        container.root
       ])
   end
 
@@ -30,15 +28,8 @@ defmodule Habitat.Container do
     PackageDB.delete(container)
   end
 
-  def cmd(container, args) do
-    System.cmd(
-      "distrobox-host-exec",
-      ["distrobox", "enter", "--name", container.name, "--"] ++ args
-    )
-  end
-
-  def configure(opts) do
-    container = struct(__MODULE__, opts)
+  def configure(container) do
+    container = Traits.Shell.pre_configure(container)
 
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
@@ -47,6 +38,13 @@ defmodule Habitat.Container do
 
     Traits.Export.post_install(container)
     Traits.Files.post_install(container)
+  end
+
+  def cmd(container, args) do
+    System.cmd(
+      "distrobox-host-exec",
+      ["distrobox", "enter", "--name", container.name, "--"] ++ args
+    )
   end
 
   def list_packages(container, filter \\ :all) do

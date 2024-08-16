@@ -19,7 +19,7 @@ defmodule Mix.Tasks.Habitat.Create do
 
     blueprint().containers()
     |> Enum.filter(fn c -> Enum.empty?(args) || c.name in args end)
-    |> tap(&Enum.each(&1, fn c -> File.mkdir_p!(c.home) end))
+    |> tap(&Enum.each(&1, fn c -> File.mkdir_p!(c.root) end))
     |> Enum.filter(&(&1.name not in created))
     |> Enum.each(&Container.create/1)
   end

@@ -3,19 +3,57 @@ defmodule Habitat.Traits.Files do
 
   def post_install(container) do
     for {to, from} <- container.files do
-      link(Path.expand(from), String.replace(to, ~r/^~/, container.home))
+      link(from, String.replace(to, ~r/^~/, container.root))
     end
 
     for pkg <- container.packages do
       from = "files" |> Path.expand() |> Path.join(pkg)
 
       if File.dir?(from) do
-        link(from, Path.join([container.home, ".config", pkg]))
+        link(from, Path.join([container.root, ".config", pkg]))
       end
     end
   end
 
+  defp link({:text, contents}, to) do
+    link =
+      case File.read_link(to) do
+        {:ok, ln} -> ln
+        {:error, _} -> nil
+      end
+
+    cond do
+      link ->
+        Logger.warning("#{to} is a symbolic link to #{link}")
+
+        File.rm!(to)
+        File.write(to, contents)
+
+      # TODO: This may be a file with the same contents, and should not be backed up
+      File.regular?(to) ->
+        Logger.warning("#{to} is a regular file")
+
+        backup(to)
+        File.rm!(to)
+        File.write(to, contents)
+
+      File.dir?(to) ->
+        Logger.warning("#{to} is a directory")
+
+        backup(to)
+        File.rm_rf!(to)
+        File.write(to, contents)
+
+      true ->
+        Logger.info("Writing file #{to}")
+
+        File.write(to, contents)
+    end
+  end
+
   defp link(from, to) do
+    from = Path.expand(from)
+
     to |> Path.dirname() |> File.mkdir_p!()
 
     cond do
