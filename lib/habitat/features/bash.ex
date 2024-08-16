@@ -1,7 +1,7 @@
-defmodule Habitat.Traits.Shell do
+defmodule Habitat.Features.Bash do
   require Logger
 
-  def pre_configure(container) do
+  def configure(%{features: %{bash: true}} = container) do
     Logger.info("Configuring container shell")
 
     container
@@ -9,7 +9,9 @@ defmodule Habitat.Traits.Shell do
     |> add_packages()
   end
 
-  defp add_files(%{shell: :bash} = container) do
+  def configure(container), do: container
+
+  defp add_files(container) do
     update_in(
       container,
       [:files],
@@ -25,7 +27,7 @@ defmodule Habitat.Traits.Shell do
     )
   end
 
-  defp add_packages(%{shell: :bash} = container) do
+  defp add_packages(container) do
     update_in(container, [:packages], &["bash" | &1])
   end
 end

@@ -1,5 +1,5 @@
 defmodule Habitat.Container do
-  alias Habitat.{Tasks, Traits}
+  alias Habitat.{Tasks, Features}
 
   require Logger
 
@@ -29,7 +29,7 @@ defmodule Habitat.Container do
   end
 
   def configure(container) do
-    container = Traits.Shell.pre_configure(container)
+    container = Features.Bash.configure(container)
 
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
