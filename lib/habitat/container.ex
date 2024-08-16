@@ -21,6 +21,15 @@ defmodule Habitat.Container do
       ])
   end
 
+  def delete(container) do
+    Logger.info("Deleting container #{container.name}")
+
+    System.cmd("distrobox-host-exec", ["distrobox", "stop", container.name])
+    System.cmd("distrobox-host-exec", ["distrobox", "rm", container.name])
+
+    PackageDB.delete(container)
+  end
+
   def cmd(container, args) do
     System.cmd(
       "distrobox-host-exec",

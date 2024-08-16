@@ -9,6 +9,14 @@ defmodule Habitat.PackageDB do
 
   alias Habitat.PackageDB.Snapshot
 
+  def delete(container) do
+    db_path = path(container)
+
+    Logger.debug("Deleting container database #{db_path}")
+
+    File.rm_rf!(path(container))
+  end
+
   # TODO: Make sure snapshots match currently installed packages
   def sync(container) do
     ensure_root(container)
