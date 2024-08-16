@@ -117,10 +117,8 @@ defmodule Habitat.Tasks.Packages do
   end
 
   defp ensure_root(container) do
-    path(container) |> File.mkdir_p()
+    container |> path() |> File.mkdir_p()
   end
 
-  defp root_home(), do: Path.join(System.user_home(), ".local/share/habitat")
-
-  defp path(container), do: Path.join(root_home(), container.name)
+  defp path(container), do: Path.join([container.root, ".local", "share", "habitat"])
 end
