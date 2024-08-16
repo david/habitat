@@ -25,7 +25,7 @@ defmodule Habitat.Container do
     System.cmd("distrobox-host-exec", ["distrobox", "stop", container.name])
     System.cmd("distrobox-host-exec", ["distrobox", "rm", container.name])
 
-    Tasks.Packages.disable(container)
+    __MODULE__.State.delete(container)
   end
 
   def configure(container) do
@@ -61,6 +61,74 @@ defmodule Habitat.Container do
   def package_manager(container) do
     case container.os do
       :archlinux -> Habitat.PackageManager.Pacman
+    end
+  end
+
+  defmodule State do
+    def delete(container) do
+      db_path = root(container.root)
+
+      Logger.debug("Deleting container database #{db_path}")
+
+      File.rm_rf!(db_path)
+    end
+
+    def load(file) do
+      Logger.info("Reading snapshot #{file}")
+
+      %{"installed" => installed, "explicit" => explicit} = File.read!(file) |> JSON.decode!()
+
+      %{installed: installed, explicit: explicit}
+    end
+
+    def save(container) do
+      Logger.info("Saving container state")
+
+      {:ok, contents} =
+        %{
+          installed: Habitat.Container.list_packages(container),
+          explicit: container.packages
+        }
+        |> JSON.encode()
+
+      :ok =
+        container.root
+        |> root()
+        |> Path.join("#{version()}.json")
+        |> File.write(contents)
+    end
+
+    def files(container) do
+      r = root(container.root)
+
+      r
+      |> tap(&ensure_root/1)
+      |> File.ls!()
+      |> Enum.sort()
+      |> Enum.map(&Path.join(r, &1))
+    end
+
+    defp ensure_root(root) do
+      File.mkdir_p(root)
+    end
+
+    defp root(base), do: Path.join([base, ".local", "share", "habitat"])
+
+    defp version() do
+      %{
+        year: year,
+        month: month,
+        day: day,
+        hour: hour,
+        minute: minute,
+        second: second,
+        microsecond: microsecond
+      } = NaiveDateTime.utc_now()
+
+      date = Calendar.ISO.date_to_string(year, month, day, :basic)
+      time = Calendar.ISO.time_to_string(hour, minute, second, microsecond, :basic)
+
+      "#{date}.#{time}"
     end
   end
 end
