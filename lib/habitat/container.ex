@@ -34,9 +34,11 @@ defmodule Habitat.Container do
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
 
-    Tasks.Packages.sync(container)
+    Tasks.Packages.sync(container, __MODULE__.State.latest(container))
     Tasks.Exports.sync(container)
     Tasks.Files.sync(container)
+
+    __MODULE__.State.save(container)
   end
 
   def cmd(container, args) do
@@ -69,12 +71,13 @@ defmodule Habitat.Container do
       File.rm_rf!(db_path)
     end
 
-    def load(file) do
-      Logger.info("Reading snapshot #{file}")
+    def latest(container) do
+      file =
+        container.root
+        |> files()
+        |> List.first()
 
-      %{"packages" => packages} = File.read!(file) |> JSON.decode!()
-
-      %{packages: packages}
+      (file && load(file)) || %{packages: []}
     end
 
     def save(container) do
@@ -91,13 +94,22 @@ defmodule Habitat.Container do
         |> File.write(contents)
     end
 
-    def files(container) do
-      r = root(container.root)
+    defp load(file) do
+      Logger.info("Reading snapshot #{file}")
+
+      %{"packages" => packages} = File.read!(file) |> JSON.decode!()
+
+      %{packages: packages}
+    end
+
+    defp files(root) do
+      r = root(root)
 
       r
       |> tap(&ensure_root/1)
       |> File.ls!()
       |> Enum.sort()
+      |> Enum.reverse()
       |> Enum.map(&Path.join(r, &1))
     end
 

@@ -4,32 +4,18 @@ defmodule Habitat.Tasks.Packages do
   require Logger
 
   # TODO: Make sure snapshots match currently installed packages
-  def sync(container) do
-    {to_install, to_uninstall} = changes(container)
+  def sync(curr, prev) do
+    {to_install, to_uninstall} = changes(curr, prev)
 
-    uninstall(container, to_uninstall)
-    install(container, to_install)
-
-    unless Enum.empty?(to_install) and Enum.empty?(to_uninstall) do
-      Container.State.save(container)
-    end
+    uninstall(curr, to_uninstall)
+    install(curr, to_install)
   end
 
-  defp changes(container) do
-    snaps = Container.State.files(container)
-
-    latest =
-      if Enum.empty?(snaps) do
-        %{packages: []}
-      else
-        snaps |> List.first() |> Container.State.load()
-      end
-
-    wanted = container.packages
-    to_install = wanted -- latest.explicit
-    to_uninstall = latest.explicit -- wanted
-
-    {to_install, to_uninstall}
+  defp changes(curr, prev) do
+    {
+      curr.packages -- prev.packages,
+      prev.packages -- curr.packages
+    }
   end
 
   defp install(_container, []) do
