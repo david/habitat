@@ -34,9 +34,11 @@ defmodule Habitat.Container do
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
 
-    Tasks.Packages.sync(container, __MODULE__.State.latest(container))
-    Tasks.Exports.sync(container)
-    Tasks.Files.sync(container)
+    latest = __MODULE__.State.latest(container)
+
+    Tasks.Packages.sync(container, latest)
+    Tasks.Exports.sync(container, latest)
+    Tasks.Files.sync(container, latest)
 
     __MODULE__.State.save(container)
   end
@@ -77,14 +79,14 @@ defmodule Habitat.Container do
         |> files()
         |> List.first()
 
-      (file && load(file)) || %{packages: []}
+      (file && load(file)) || %{exports: [], files: %{}, packages: []}
     end
 
     def save(container) do
       Logger.info("Saving container state")
 
       {:ok, contents} =
-        %{packages: container.packages}
+        Map.take(container, [:exports, :files, :packages])
         |> JSON.encode()
 
       :ok =
@@ -97,9 +99,10 @@ defmodule Habitat.Container do
     defp load(file) do
       Logger.info("Reading snapshot #{file}")
 
-      %{"packages" => packages} = File.read!(file) |> JSON.decode!()
+      %{"exports" => exports, "files" => files, "packages" => packages} =
+        File.read!(file) |> JSON.decode!()
 
-      %{packages: packages}
+      %{exports: exports, files: files, packages: packages}
     end
 
     defp files(root) do

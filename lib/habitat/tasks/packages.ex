@@ -3,19 +3,9 @@ defmodule Habitat.Tasks.Packages do
 
   require Logger
 
-  # TODO: Make sure snapshots match currently installed packages
   def sync(curr, prev) do
-    {to_install, to_uninstall} = changes(curr, prev)
-
-    uninstall(curr, to_uninstall)
-    install(curr, to_install)
-  end
-
-  defp changes(curr, prev) do
-    {
-      curr.packages -- prev.packages,
-      prev.packages -- curr.packages
-    }
+    uninstall(curr, prev.packages -- curr.packages)
+    install(curr, curr.packages -- prev.packages)
   end
 
   defp install(_container, []) do

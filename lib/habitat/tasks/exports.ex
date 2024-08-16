@@ -2,13 +2,19 @@ defmodule Habitat.Tasks.Exports do
   alias Habitat.Container
   require Logger
 
-  def sync(container) do
-    for exp <- container.exports do
-      Logger.info("Exporting #{exp}")
+  def sync(curr, prev) do
+    to_unexport = prev.exports -- curr.exports
+    Logger.info("Unexporting #{inspect(to_unexport)}")
 
-      Container.cmd(container, ["distrobox-export", "--delete", "--app", exp])
+    for unexp <- to_unexport do
+      Container.cmd(curr, ["distrobox-export", "--delete", "--app", unexp])
+    end
 
-      {_, 0} = Container.cmd(container, ["distrobox-export", "--app", exp])
+    to_export = curr.exports -- prev.exports
+    Logger.info("Exporting #{inspect(to_export)}")
+
+    for exp <- to_export do
+      {_, 0} = Container.cmd(curr, ["distrobox-export", "--app", exp])
     end
   end
 end

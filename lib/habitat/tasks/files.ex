@@ -1,21 +1,29 @@
 defmodule Habitat.Tasks.Files do
   require Logger
 
-  def sync(container) do
-    for {to, from} <- container.files do
-      link(from, String.replace(to, ~r/^~/, container.root))
+  def sync(curr, prev) do
+    to_manage = Map.keys(prev.files) -- Map.keys(curr.files)
+
+    for {to, from} <- to_manage do
+      manage(from, String.replace(to, ~r/^~/, curr.root))
     end
 
-    for pkg <- container.packages do
+    to_unmanage = Map.keys(curr.files) -- Map.keys(prev.files)
+
+    for {to, _} <- to_unmanage do
+      unmanage(to)
+    end
+
+    for pkg <- curr.packages do
       from = "files" |> Path.expand() |> Path.join(pkg)
 
       if File.dir?(from) do
-        link(from, Path.join([container.root, ".config", pkg]))
+        manage(from, Path.join([curr.root, ".config", pkg]))
       end
     end
   end
 
-  defp link({:text, contents}, to) do
+  defp manage({:text, contents}, to) do
     link =
       case File.read_link(to) do
         {:ok, ln} -> ln
@@ -51,7 +59,7 @@ defmodule Habitat.Tasks.Files do
     end
   end
 
-  defp link(from, to) do
+  defp manage(from, to) do
     from = Path.expand(from)
 
     to |> Path.dirname() |> File.mkdir_p!()
@@ -166,5 +174,10 @@ defmodule Habitat.Tasks.Files do
         Logger.info("Creating backup #{to} of #{from}")
         File.cp!(from, to)
     end
+  end
+
+  def unmanage(to) do
+    # TODO: Make this safer?
+    File.rm_rf!(to)
   end
 end
