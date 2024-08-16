@@ -23,7 +23,7 @@ defmodule Habitat.Traits.Files do
         Logger.warning("#{from} does not exist")
 
       File.dir?(from) ->
-        link_dir(from, to)
+        mkdir(to)
         link_all(from, to)
 
       true ->
@@ -72,7 +72,7 @@ defmodule Habitat.Traits.Files do
     end
   end
 
-  defp link_dir(from, to) do
+  defp mkdir(to) do
     link =
       case File.read_link(to) do
         {:ok, ln} -> ln
