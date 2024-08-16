@@ -5,6 +5,13 @@ defmodule Habitat.Container do
 
   defstruct [:exports, :files, :home, :name, :os, :packages]
 
+  def cmd(container, args) do
+    System.cmd(
+      "distrobox-host-exec",
+      ["distrobox", "enter", "--name", container.name, "--"] ++ args
+    )
+  end
+
   def configure(opts) do
     container = struct(__MODULE__, opts)
 
