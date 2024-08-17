@@ -1,183 +1,148 @@
 defmodule Habitat.Tasks.Files do
   require Logger
 
+  defmodule Glob do
+    def glob({_, _} = from, to) do
+      [{from, to}]
+    end
+
+    def glob(wildcard, to) do
+      if wildcard?(wildcard) do
+        [{"", to}] ++
+          (wildcard
+           |> Path.expand()
+           |> Path.wildcard()
+           |> Enum.map(&{&1, translate(&1, to, wildcard)}))
+      else
+        [{Path.expand(wildcard), to}]
+      end
+    end
+
+    defp translate(from, to, wildcard) do
+      static =
+        wildcard
+        |> Path.split()
+        |> Enum.take_while(&(!wildcard?(&1)))
+        |> Path.join()
+        |> Path.expand()
+
+      Path.join(to, String.replace(from, static, ""))
+    end
+
+    defp wildcard?(s) when is_binary(s) do
+      s =~ ~r/\*/ || s =~ ~r/\[.+\]/ || s =~ ~r/\{.+\}/
+    end
+
+    defp wildcard?(_), do: false
+  end
+
+  alias __MODULE__.Glob
+
+  def expand_mappings(container) do
+    update_in(
+      container,
+      [:files],
+      &Enum.flat_map(&1, fn {from, to} ->
+        Glob.glob(
+          from,
+          to |> String.replace("~", container.root) |> Path.expand()
+        )
+      end)
+    )
+  end
+
   def sync(curr, prev) do
-    to_manage = Map.keys(prev.files) -- Map.keys(curr.files)
+    Logger.info("Syncing files")
 
-    for {to, from} <- to_manage do
-      manage(from, String.replace(to, ~r/^~/, curr.root))
-    end
+    mappings = curr.files |> Map.new(fn {k, v} -> {v, k} end)
+    curr_tos = Map.keys(mappings)
+    prev_tos = prev.files
 
-    to_unmanage = Map.keys(curr.files) -- Map.keys(prev.files)
+    to_unmanage = prev_tos -- curr_tos
 
-    for {to, _} <- to_unmanage do
-      unmanage(to)
-    end
+    Logger.info("Unmanaging #{inspect(to_unmanage)}")
 
-    for pkg <- curr.packages do
-      from = "files" |> Path.expand() |> Path.join(pkg)
+    to_unmanage
+    |> Enum.sort_by(&(-path_weight(&1)))
+    |> Enum.each(&unmanage/1)
 
-      if File.dir?(from) do
-        manage(from, Path.join([curr.root, ".config", pkg]))
-      end
+    to_manage = curr_tos -- prev_tos
+
+    Logger.info("Managing #{inspect(to_manage)}")
+
+    to_manage
+    |> Enum.sort_by(&path_weight/1)
+    |> Enum.each(fn to -> manage(to, mappings[to]) end)
+  end
+
+  # Put directories first, sorted by how close they are to the root, then files
+  defp path_weight(path) do
+    if File.dir?(path) do
+      path |> Path.split() |> Enum.count()
+    else
+      100_000
     end
   end
 
-  defp manage({:text, contents}, to) do
-    link =
-      case File.read_link(to) do
-        {:ok, ln} -> ln
-        {:error, _} -> nil
-      end
-
+  defp manage(to, from) do
     cond do
-      link ->
-        Logger.warning("#{to} is a symbolic link to #{link}")
+      from == "" ->
+        File.mkdir_p!(to)
 
-        File.rm!(to)
-        File.write(to, contents)
-
-      # TODO: This may be a file with the same contents, and should not be backed up
-      File.regular?(to) ->
-        Logger.warning("#{to} is a regular file")
-
-        backup(to)
-        File.rm!(to)
-        File.write(to, contents)
-
-      File.dir?(to) ->
-        Logger.warning("#{to} is a directory")
-
-        backup(to)
-        File.rm_rf!(to)
-        File.write(to, contents)
-
-      true ->
-        Logger.info("Writing file #{to}")
-
-        File.write(to, contents)
-    end
-  end
-
-  defp manage(from, to) do
-    from = Path.expand(from)
-
-    to |> Path.dirname() |> File.mkdir_p!()
-
-    cond do
-      !File.exists?(from) ->
-        Logger.warning("#{from} does not exist")
-
-      File.dir?(from) ->
-        mkdir(to)
-        link_all(from, to)
-
-      true ->
-        link_file(from, to)
-    end
-  end
-
-  defp link_file(from, to) do
-    link =
-      case File.read_link(to) do
-        {:ok, ln} -> ln
-        {:error, _} -> nil
-      end
-
-    cond do
-      link && link != from ->
-        Logger.warning("#{to} is a symbolic link to #{link}")
-        Logger.warning("Replacing with symbolic link to #{from}")
-
-        File.rm!(to)
-        File.ln_s!(from, to)
-
-      link ->
+      is_binary(from) && File.dir?(from) && File.dir?(to) ->
         nil
 
-      File.regular?(to) ->
-        Logger.warning("#{to} is a regular file")
-        Logger.warning("Backing up and replacing with symbolic link to #{from}")
-
-        backup(to)
-        File.rm!(to)
-        File.ln_s!(from, to)
-
       File.dir?(to) ->
-        Logger.warning("#{to} is a directory")
-        Logger.warning("Backing up and replacing with symbolic link to #{from}")
+        Logger.warning("#{to} is a directory. Skipping.")
 
-        backup(to)
-        File.rm_rf!(to)
-        File.ln_s!(from, to)
+      is_binary(from) && File.dir?(from) ->
+        Logger.debug("Creating directory #{to}")
 
-      true ->
-        Logger.info("Creating symbolic link from #{from} to #{to}")
+        File.mkdir!(to)
 
-        File.ln_s!(from, to)
-    end
-  end
+      is_binary(from) ->
+        from = Path.expand(from)
 
-  defp mkdir(to) do
-    link =
-      case File.read_link(to) do
-        {:ok, ln} -> ln
-        {:error, _} -> nil
-      end
+        link =
+          case File.read_link(to) do
+            {:ok, ln} -> if Path.expand(ln) == from, do: :skip, else: ln
+            {:error, _} -> nil
+          end
 
-    cond do
-      link ->
-        Logger.warning("#{to} is a symbolic link to #{link}")
-        Logger.warning("Replacing with directory")
+        case link do
+          nil ->
+            Logger.debug("Creating symbolic link from #{from} to #{to}")
 
-        File.rm!(to)
-        File.mkdir_p!(to)
+            File.ln_s!(from, to)
 
-      File.regular?(to) ->
-        Logger.warning("#{to} is a regular file")
-        Logger.warning("Backing up #{to} and replacing with directory")
+          :skip ->
+            nil
 
-        backup(to)
-        File.rm!(to)
-        File.mkdir_p!(to)
+          _ ->
+            Logger.warning("#{to} is a symbolic link to #{link}. Skipping.")
+        end
 
-      File.dir?(to) ->
+      ({:text, contents} = from) && File.exists?(to) && contents == File.read!(to) ->
         nil
 
-      true ->
-        Logger.info("Creating directory #{to}")
+      ({:text, _} = from) && File.exists?(to) ->
+        Logger.warning("#{to} exists. Skipping.")
 
-        File.mkdir_p!(to)
-    end
-  end
-
-  defp link_all(from, to) do
-    File.ls!(from)
-    |> Enum.map(&Path.join(from, &1))
-    |> Enum.each(&link_file(&1, Path.join(to, Path.basename(&1))))
-  end
-
-  defp backup(from, version \\ 1) do
-    to = "#{from}.#{version}.bak"
-
-    cond do
-      File.exists?(to) ->
-        Logger.warning("Backup #{to} exists")
-        Logger.warning("Trying another backup file name")
-        backup(from, version + 1)
-
-      File.dir?(from) ->
-        Logger.info("Creating backup #{to} of #{from}")
-        File.cp_r!(from, to)
-
-      true ->
-        Logger.info("Creating backup #{to} of #{from}")
-        File.cp!(from, to)
+      {:text, contents} = from ->
+        File.write!(to, contents)
     end
   end
 
   def unmanage(to) do
-    # TODO: Make this safer?
-    File.rm_rf!(to)
+    cond do
+      File.dir?(to) ->
+        File.rmdir!(to)
+
+      File.exists?(to) ->
+        File.rm!(to)
+
+      true ->
+        nil
+    end
   end
 end

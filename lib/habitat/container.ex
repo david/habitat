@@ -29,18 +29,21 @@ defmodule Habitat.Container do
   end
 
   def configure(container) do
-    container = Features.Bash.configure(container)
-
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
 
     latest = __MODULE__.State.latest(container)
 
-    Tasks.Packages.sync(container, latest)
-    Tasks.Exports.sync(container, latest)
-    Tasks.Files.sync(container, latest)
+    container =
+      container
+      |> Features.Bash.configure()
+      |> Tasks.Files.expand_mappings()
 
-    __MODULE__.State.save(container)
+    Tasks.Packages.sync(container, latest)
+    Tasks.Files.sync(container, latest)
+    Tasks.Exports.sync(container, latest)
+
+    __MODULE__.State.save(container, latest)
   end
 
   def cmd(container, args) do
@@ -79,21 +82,28 @@ defmodule Habitat.Container do
         |> files()
         |> List.first()
 
-      (file && load(file)) || %{exports: [], files: %{}, packages: []}
+      (file && load(file)) || %{exports: [], files: [], packages: []}
     end
 
-    def save(container) do
+    def save(curr, prev) do
       Logger.info("Saving container state")
 
-      {:ok, contents} =
-        Map.take(container, [:exports, :files, :packages])
-        |> JSON.encode()
+      next =
+        curr
+        |> update_in([:files], &Enum.map(&1, fn {_, to} -> to end))
+        |> Map.take([:exports, :files, :packages])
 
-      :ok =
-        container.root
+      if next != prev do
+        contents =
+          next
+          |> JSON.encode!()
+          |> tap(&Logger.debug(&1))
+
+        curr.root
         |> root()
         |> Path.join("#{version()}.json")
-        |> File.write(contents)
+        |> File.write!(contents)
+      end
     end
 
     defp load(file) do

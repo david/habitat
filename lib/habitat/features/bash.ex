@@ -2,7 +2,7 @@ defmodule Habitat.Features.Bash do
   require Logger
 
   def configure(%{features: %{bash: true}} = container) do
-    Logger.info("Configuring container shell")
+    Logger.info("Configuring bash")
 
     container
     |> add_files()
@@ -18,10 +18,8 @@ defmodule Habitat.Features.Bash do
       &Map.merge(
         &1,
         %{
-          "~/.config/bash/bashrc" => "files/bash/bashrc",
-          "~/.config/bash/bash_profile" => "files/bash/bash_profile",
-          "~/.bashrc" => {:text, "source ~/.config/bash/bashrc"},
-          "~/.bash_profile" => {:text, "source ~/.config/bash/bash_profile"}
+          {:text, "source ~/.config/bash/bashrc"} => "~/.bashrc",
+          {:text, "source ~/.config/bash/bash_profile"} => "~/.bash_profile"
         }
       )
     )
