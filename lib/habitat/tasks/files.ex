@@ -72,7 +72,7 @@ defmodule Habitat.Tasks.Files do
 
     to_manage
     |> Enum.sort_by(&path_weight/1)
-    |> Enum.each(fn to -> manage(to, mappings[to]) end)
+    |> Enum.each(&manage(&1, mappings[&1]))
   end
 
   # Put directories first, sorted by how close they are to the root, then files
