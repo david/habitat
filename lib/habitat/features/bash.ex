@@ -5,27 +5,38 @@ defmodule Habitat.Features.Bash do
     Logger.info("Configuring bash")
 
     container
-    |> add_files()
-    |> add_packages()
+    |> update_in([:files], &(&1 ++ files()))
+    |> update_in([:packages], &["bash" | &1])
   end
 
   def configure(container), do: container
 
-  defp add_files(container) do
-    update_in(
-      container,
-      [:files],
-      &Map.merge(
-        &1,
-        %{
-          {:text, "source ~/.config/bash/bashrc"} => "~/.bashrc",
-          {:text, "source ~/.config/bash/bash_profile"} => "~/.bash_profile"
-        }
-      )
-    )
+  defp files() do
+    [
+      {{:text, bash_profile()}, "~/.bash_profile"},
+      {{:text, bashrc()}, "~/.bashrc"}
+    ]
   end
 
-  defp add_packages(container) do
-    update_in(container, [:packages], &["bash" | &1])
+  defp bashrc() do
+    """
+    [[ $- == *i* ]] || return
+
+    if [[ -d ~/.config/bash/rc.d ]] ; then
+      for f in ~/.config/bash/rc.d/* ; do
+        source $f
+      done
+    fi
+    """
+  end
+
+  defp bash_profile() do
+    """
+    if [[ -d ~/.config/bash/profile.d ]] ; then
+      for f in ~/.config/bash/profile.d/* ; do
+        source $f
+      done
+    fi
+    """
   end
 end

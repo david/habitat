@@ -36,7 +36,9 @@ defmodule Habitat.Container do
 
     container =
       container
+      |> Features.Atuin.configure()
       |> Features.Bash.configure()
+      |> Features.Zoxide.configure()
       |> Tasks.Files.expand_mappings()
 
     Tasks.Packages.sync(container, latest)
