@@ -2,19 +2,20 @@ defmodule Habitat.Tasks.Files do
   require Logger
 
   defmodule Glob do
-    def glob({_, _} = from, to) do
-      [{from, to}]
+    def glob({_, _} = from, to, root) do
+      [{from, expand(to, root)}]
     end
 
-    def glob(wildcard, to) do
+    def glob(wildcard, to, root) do
+      wildcard = Path.expand(wildcard)
+
       if wildcard?(wildcard) do
-        [{"", to}] ++
-          (wildcard
-           |> Path.expand()
-           |> Path.wildcard()
-           |> Enum.map(&{&1, translate(&1, to, wildcard)}))
+        wildcard
+        |> Path.wildcard()
+        |> Enum.reject(&File.dir?(&1))
+        |> Enum.map(&{&1, &1 |> translate(to, wildcard) |> expand(root)})
       else
-        [{Path.expand(wildcard), to}]
+        [{wildcard, expand(to, root)}]
       end
     end
 
@@ -24,7 +25,6 @@ defmodule Habitat.Tasks.Files do
         |> Path.split()
         |> Enum.take_while(&(!wildcard?(&1)))
         |> Path.join()
-        |> Path.expand()
 
       Path.join(to, String.replace(from, static, ""))
     end
@@ -34,6 +34,10 @@ defmodule Habitat.Tasks.Files do
     end
 
     defp wildcard?(_), do: false
+
+    defp expand(path, root) do
+      path |> String.replace("~", root) |> Path.expand()
+    end
   end
 
   alias __MODULE__.Glob
@@ -45,7 +49,8 @@ defmodule Habitat.Tasks.Files do
       &Enum.flat_map(&1, fn {from, to} ->
         Glob.glob(
           from,
-          to |> String.replace("~", container.root) |> Path.expand()
+          to |> String.replace("~", container.root) |> Path.expand(),
+          container.root
         )
       end)
     )
@@ -59,77 +64,35 @@ defmodule Habitat.Tasks.Files do
     prev_tos = prev.files
 
     to_unmanage = prev_tos -- curr_tos
-
     Logger.info("Unmanaging #{inspect(to_unmanage)}")
-
-    to_unmanage
-    |> Enum.sort_by(&(-path_weight(&1)))
-    |> Enum.each(&unmanage/1)
+    Enum.each(to_unmanage, &unmanage/1)
 
     to_manage = curr_tos -- prev_tos
-
     Logger.info("Managing #{inspect(to_manage)}")
-
-    to_manage
-    |> Enum.sort_by(&path_weight/1)
-    |> Enum.each(&manage(&1, mappings[&1]))
-  end
-
-  # Put directories first, sorted by how close they are to the root, then files
-  defp path_weight(path) do
-    if File.dir?(path) do
-      path |> Path.split() |> Enum.count()
-    else
-      100_000
-    end
+    Enum.each(to_manage, &manage(&1, mappings[&1]))
   end
 
   defp manage(to, from) do
     cond do
-      from == "" ->
-        File.mkdir_p!(to)
+      from == :dir ->
+        Logger.debug("Creating directory #{to}")
+        File.mkdir_p!(Path.expand(to))
 
-      is_binary(from) && File.dir?(from) && File.dir?(to) ->
-        nil
+      match?({:text, _}, from) ->
+        {:text, contents} = from
+        Logger.debug("Writing text to #{to}")
+        to |> Path.dirname() |> File.mkdir_p!()
+        File.write!(Path.expand(to), contents)
 
       File.dir?(to) ->
-        Logger.warning("#{to} is a directory. Skipping.")
+        Logger.warning("#{to}: Cowardly refusing to override a directory with a symbolic link")
 
-      is_binary(from) && File.dir?(from) ->
-        Logger.debug("Creating directory #{to}")
+      true ->
+        if File.exists?(to), do: File.rm!(to)
 
-        File.mkdir!(to)
-
-      is_binary(from) ->
-        from = Path.expand(from)
-
-        link =
-          case File.read_link(to) do
-            {:ok, ln} -> if Path.expand(ln) == from, do: :skip, else: ln
-            {:error, _} -> nil
-          end
-
-        case link do
-          nil ->
-            Logger.debug("Creating symbolic link from #{from} to #{to}")
-
-            File.ln_s!(from, to)
-
-          :skip ->
-            nil
-
-          _ ->
-            Logger.warning("#{to} is a symbolic link to #{link}. Skipping.")
-        end
-
-      ({:text, contents} = from) && File.exists?(to) && contents == File.read!(to) ->
-        nil
-
-      ({:text, _} = from) && File.exists?(to) ->
-        Logger.warning("#{to} exists. Skipping.")
-
-      {:text, contents} = from ->
-        File.write!(to, contents)
+        Logger.debug("Creating symbolic link from #{from} to #{to}")
+        to |> Path.dirname() |> File.mkdir_p!()
+        from |> Path.expand() |> File.ln_s!(Path.expand(to))
     end
   end
 
