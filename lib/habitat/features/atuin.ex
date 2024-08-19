@@ -12,8 +12,16 @@ defmodule Habitat.Features.Atuin do
   def configure(container), do: container
 
   defp files(%{bash: true}) do
+    contents("bash")
+  end
+
+  defp files(%{zsh: true}) do
+    contents("zsh")
+  end
+
+  defp contents(shell) do
     [
-      {{:text, "eval \"$(atuin init bash)\""}, "~/.config/bash/rc.d/80_atuin.sh"}
+      {{:text, "eval \"$(atuin init #{shell})\""}, "~/.config/#{shell}/rc.d/80_atuin.sh"}
     ]
   end
 end

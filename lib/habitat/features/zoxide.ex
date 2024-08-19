@@ -12,8 +12,16 @@ defmodule Habitat.Features.Zoxide do
   def configure(container), do: container
 
   defp files(%{bash: true}) do
+    contents("bash")
+  end
+
+  defp files(%{zsh: true}) do
+    contents("zsh")
+  end
+
+  defp contents(shell) do
     [
-      {{:text, "eval \"$(zoxide init bash)\""}, "~/.config/bash/rc.d/80_zoxide.sh"}
+      {{:text, "eval \"$(zoxide init #{shell})\""}, "~/.config/#{shell}/rc.d/80_zoxide.sh"}
     ]
   end
 end
