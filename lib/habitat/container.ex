@@ -36,14 +36,18 @@ defmodule Habitat.Container do
 
     container =
       container
+      |> Tasks.Hooks.init()
       |> Features.Atuin.configure()
       |> Features.Bash.configure()
       |> Features.Zoxide.configure()
+      |> Features.Zsh.configure()
       |> Tasks.Files.expand_mappings()
 
     Tasks.Packages.sync(container, latest)
     Tasks.Files.sync(container, latest)
     Tasks.Exports.sync(container, latest)
+
+    Tasks.Hooks.post_sync(container)
 
     __MODULE__.State.save(container, latest)
   end
