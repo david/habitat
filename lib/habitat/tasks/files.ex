@@ -60,14 +60,14 @@ defmodule Habitat.Tasks.Files do
     Logger.info("Syncing files")
 
     mappings = curr.files |> Map.new(fn {k, v} -> {v, k} end)
-    curr_tos = Map.keys(mappings)
-    prev_tos = prev.files
+    curr_tos = mappings |> Map.keys() |> MapSet.new()
+    prev_tos = MapSet.new(prev.files)
 
-    to_unmanage = prev_tos -- curr_tos
+    to_unmanage = MapSet.difference(prev_tos, curr_tos)
     Logger.info("Unmanaging #{inspect(to_unmanage)}")
     Enum.each(to_unmanage, &unmanage/1)
 
-    to_manage = curr_tos -- prev_tos
+    to_manage = curr_tos
     Logger.info("Managing #{inspect(to_manage)}")
     Enum.each(to_manage, &manage(&1, mappings[&1]))
   end
