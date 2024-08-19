@@ -39,6 +39,7 @@ defmodule Habitat.Container do
       |> Tasks.Hooks.init()
       |> Features.Atuin.configure()
       |> Features.Bash.configure()
+      |> Features.Starship.configure()
       |> Features.Zoxide.configure()
       |> Features.Zsh.configure()
       |> Tasks.Files.expand_mappings()
