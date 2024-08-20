@@ -1,5 +1,5 @@
 defmodule Habitat.Container do
-  alias Habitat.{Tasks, Features}
+  alias Habitat.{Tasks, Programs}
 
   require Logger
 
@@ -37,11 +37,11 @@ defmodule Habitat.Container do
     container =
       container
       |> Tasks.Hooks.init()
-      |> Features.Atuin.configure()
-      |> Features.Bash.configure()
-      |> Features.Starship.configure()
-      |> Features.Zoxide.configure()
-      |> Features.Zsh.configure()
+      |> Programs.Atuin.configure()
+      |> Programs.Bash.configure()
+      |> Programs.Starship.configure()
+      |> Programs.Zoxide.configure()
+      |> Programs.Zsh.configure()
       |> Tasks.Files.expand_mappings()
 
     Tasks.Packages.sync(container, latest)

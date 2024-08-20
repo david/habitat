@@ -1,8 +1,8 @@
-defmodule Habitat.Features.Zsh do
+defmodule Habitat.Programs.Zsh do
   alias Habitat.Container
   require Logger
 
-  def configure(%{features: %{zsh: true}, shell: shell} = container) do
+  def configure(%{programs: %{zsh: true}, shell: shell} = container) do
     Logger.info("Configuring zsh")
 
     container

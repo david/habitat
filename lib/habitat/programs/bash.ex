@@ -1,7 +1,7 @@
-defmodule Habitat.Features.Bash do
+defmodule Habitat.Programs.Bash do
   require Logger
 
-  def configure(%{features: %{bash: true}} = container) do
+  def configure(%{programs: %{bash: true}} = container) do
     Logger.info("Configuring bash")
 
     container
