@@ -11,10 +11,10 @@ defmodule Habitat.Programs.Zoxide do
 
   def configure(container), do: container
 
-  defp bash_files(%{bash: bash}) when bash, do: contents("bash")
+  defp bash_files(%{bash: bash}) when not is_nil(bash), do: contents("bash")
   defp bash_files(_), do: []
 
-  defp zsh_files(%{zsh: zsh}) when zsh, do: contents("zsh")
+  defp zsh_files(%{zsh: zsh}) when not is_nil(zsh), do: contents("zsh")
   defp zsh_files(_), do: []
 
   defp contents(shell) do

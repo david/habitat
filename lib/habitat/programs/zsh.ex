@@ -2,7 +2,7 @@ defmodule Habitat.Programs.Zsh do
   alias Habitat.Container
   require Logger
 
-  def configure(%{programs: %{zsh: true}, shell: shell} = container) do
+  def configure(%{programs: %{zsh: zsh}, shell: shell} = container) when not is_nil(zsh) do
     Logger.info("Configuring zsh")
 
     container
