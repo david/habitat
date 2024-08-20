@@ -5,23 +5,19 @@ defmodule Habitat.Programs.Zoxide do
     Logger.info("Configuring zoxide")
 
     container
-    |> update_in([:files], &(&1 ++ files(programs)))
+    |> update_in([:files], &(&1 ++ bash_files(programs) ++ zsh_files(programs)))
     |> update_in([:packages], &["zoxide" | &1])
   end
 
   def configure(container), do: container
 
-  defp files(programs) do
-    Enum.filter(
-      [
-        if(programs.bash, do: contents("bash")),
-        if(programs.zsh, do: contents("zsh"))
-      ],
-      &Function.identity/1
-    )
-  end
+  defp bash_files(%{bash: bash}) when bash, do: contents("bash")
+  defp bash_files(_), do: []
+
+  defp zsh_files(%{zsh: zsh}) when zsh, do: contents("zsh")
+  defp zsh_files(_), do: []
 
   defp contents(shell) do
-    {{:text, "eval \"$(zoxide init #{shell})\""}, "~/.config/#{shell}/rc.d/80_zoxide.sh"}
+    [{{:text, "eval \"$(zoxide init #{shell})\""}, "~/.config/#{shell}/rc.d/80_zoxide.sh"}]
   end
 end
