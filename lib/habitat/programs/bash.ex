@@ -1,12 +1,13 @@
 defmodule Habitat.Programs.Bash do
   require Logger
+  use Habitat.Feature
 
   def configure(%{programs: %{bash: true}} = container) do
     Logger.info("Configuring bash")
 
     container
-    |> update_in([:files], &(&1 ++ files()))
-    |> update_in([:packages], &["bash" | &1])
+    |> put_files(files())
+    |> put_package("bash")
   end
 
   def configure(container), do: container

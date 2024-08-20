@@ -1,23 +1,15 @@
 defmodule Habitat.Programs.Zoxide do
   require Logger
+  use Habitat.Feature
 
-  def configure(%{programs: %{zoxide: true} = programs} = container) do
+  def configure(%{programs: %{zoxide: true}} = container) do
     Logger.info("Configuring zoxide")
 
     container
-    |> update_in([:files], &(&1 ++ bash_files(programs) ++ zsh_files(programs)))
-    |> update_in([:packages], &["zoxide" | &1])
+    |> put_shell_config(:bash, "zoxide", "eval \"$(zoxide init bash)\"")
+    |> put_shell_config(:zsh, "zoxide", "eval \"$(zoxide init zsh)\"")
+    |> put_package("zoxide")
   end
 
   def configure(container), do: container
-
-  defp bash_files(%{bash: bash}) when not is_nil(bash), do: contents("bash")
-  defp bash_files(_), do: []
-
-  defp zsh_files(%{zsh: zsh}) when not is_nil(zsh), do: contents("zsh")
-  defp zsh_files(_), do: []
-
-  defp contents(shell) do
-    [{{:text, "eval \"$(zoxide init #{shell})\""}, "~/.config/#{shell}/rc.d/80_zoxide.sh"}]
-  end
 end
