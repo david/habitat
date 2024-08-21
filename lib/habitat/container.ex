@@ -11,7 +11,7 @@ defmodule Habitat.Container do
         "distrobox",
         "create",
         "--image",
-        to_string(container.os) <> ":latest",
+        to_string(container.os.image()) <> ":latest",
         "--name",
         container.name,
         "--home",
@@ -61,17 +61,11 @@ defmodule Habitat.Container do
   end
 
   def install_packages(container, packages) do
-    package_manager(container).install(container, packages)
+    container.os.install(container, packages)
   end
 
   def uninstall_packages(container, packages) do
-    package_manager(container).uninstall(container, packages)
-  end
-
-  def package_manager(container) do
-    case container.os do
-      :archlinux -> Habitat.PackageManager.Pacman
-    end
+    container.os.uninstall(container, packages)
   end
 
   defmodule State do
