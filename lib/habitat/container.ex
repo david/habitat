@@ -38,16 +38,19 @@ defmodule Habitat.Container do
 
     container =
       container
+      |> Tasks.Mise.init()
       |> Tasks.Hooks.init()
       |> Programs.Atuin.configure()
       |> Programs.Bash.configure()
+      |> Programs.Mise.configure()
       |> Programs.Starship.configure()
       |> Programs.Zoxide.configure()
       |> Programs.Zsh.configure()
       |> Tasks.Files.expand_mappings()
 
-    Tasks.Packages.sync(container, latest)
     Tasks.Files.sync(container, latest)
+    Tasks.Packages.sync(container, latest)
+    Tasks.Mise.sync(container, latest)
     Tasks.Exports.sync(container, latest)
 
     Tasks.Hooks.post_sync(container)
@@ -85,7 +88,7 @@ defmodule Habitat.Container do
         |> files()
         |> List.first()
 
-      (file && load(file)) || %{exports: [], files: [], packages: []}
+      (file && load(file)) || %{exports: [], files: [], mise: [], packages: []}
     end
 
     def save(curr, prev) do
@@ -94,7 +97,7 @@ defmodule Habitat.Container do
       next =
         curr
         |> update_in([:files], &Enum.map(&1, fn {_, to} -> to end))
-        |> Map.take([:exports, :files, :packages])
+        |> Map.take([:exports, :files, :mise, :packages])
 
       if next != prev do
         contents =
@@ -112,10 +115,10 @@ defmodule Habitat.Container do
     defp load(file) do
       Logger.info("Reading snapshot #{file}")
 
-      %{"exports" => exports, "files" => files, "packages" => packages} =
+      %{"exports" => exports, "files" => files, "mise" => mise, "packages" => packages} =
         File.read!(file) |> JSON.decode!()
 
-      %{exports: exports, files: files, packages: packages}
+      %{exports: exports, files: files, mise: mise, packages: packages}
     end
 
     defp files(root) do

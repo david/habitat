@@ -8,10 +8,11 @@ defmodule Habitat.Feature do
   end
 
   defmodule Guards do
-    defguard is_enabled(val) when val == true or is_map(val)
+    defguard is_enabled(val) when not is_nil(val) and val != false
   end
 
   defmodule DSL do
+    alias Habitat.Tasks.Mise
     import Habitat.Feature.Guards
 
     def put_file(container, from, to) do
@@ -24,6 +25,10 @@ defmodule Habitat.Feature do
 
     def put_package(container, package) do
       update_in(container, [:packages], &[package | &1])
+    end
+
+    def put_package(container, :mise, package, opts \\ []) do
+      Mise.put_package(container, package, opts)
     end
 
     def put_packages(container, packages) do

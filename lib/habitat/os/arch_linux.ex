@@ -1,5 +1,6 @@
 defmodule Habitat.OS.ArchLinux do
   alias Habitat.Container
+  alias Habitat.PackageManager.Pacman
 
   @chaotic_aur_key "3056513887B78AEB"
   @chaotic_aur_keyring "https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst"
@@ -7,6 +8,14 @@ defmodule Habitat.OS.ArchLinux do
   @key_server "hkp://keyserver.ubuntu.com:80"
 
   def image(), do: "archlinux"
+
+  def install(container, packages) do
+    Pacman.install(container, packages)
+  end
+
+  def uninstall(container, packages) do
+    Pacman.uninstall(container, packages)
+  end
 
   def post_create(container) do
     add_chaotic_aur(container)
