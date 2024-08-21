@@ -17,6 +17,8 @@ defmodule Habitat.Container do
         "--home",
         container.root
       ])
+
+    container.os.post_create(container)
   end
 
   def delete(container) do
