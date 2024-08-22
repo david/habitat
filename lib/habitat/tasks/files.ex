@@ -42,6 +42,10 @@ defmodule Habitat.Tasks.Files do
 
   alias __MODULE__.Glob
 
+  def init(container) do
+    Map.put_new(container, :files, [])
+  end
+
   def pre_sync(container) do
     update_in(
       container,

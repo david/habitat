@@ -1,6 +1,10 @@
 defmodule Habitat.Tasks.Packages do
   require Logger
 
+  def init(container) do
+    Map.put_new(container, :packages, [])
+  end
+
   def sync(curr, prev) do
     uninstall(curr, prev.packages -- curr.packages)
     install(curr, curr.packages -- prev.packages)

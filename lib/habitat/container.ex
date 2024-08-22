@@ -38,7 +38,10 @@ defmodule Habitat.Container do
 
     container =
       container
+      |> Tasks.Files.init()
+      |> Tasks.Packages.init()
       |> Tasks.Mise.init()
+      |> Tasks.Exports.init()
       |> Programs.Atuin.pre_sync()
       |> Programs.Bash.pre_sync()
       |> Programs.Mise.pre_sync()

@@ -2,6 +2,10 @@ defmodule Habitat.Tasks.Exports do
   alias Habitat.Container
   require Logger
 
+  def init(container) do
+    Map.put_new(container, :exports, [])
+  end
+
   def sync(curr, prev) do
     to_unexport = prev.exports -- curr.exports
     Logger.info("Unexporting #{inspect(to_unexport)}")
