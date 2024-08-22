@@ -1,53 +1,53 @@
-defmodule Habitat.Programs.StarshipTest do
+defmodule Habitat.Programs.ZoxideTest do
   use ExUnit.Case
 
-  alias Habitat.Programs.Starship
+  alias Habitat.Programs.Zoxide
 
-  doctest Starship
+  doctest Zoxide
 
   test "adds the correct package" do
     container =
-      Starship.sync(%{
-        programs: %{starship: true},
+      Zoxide.sync(%{
+        programs: %{zoxide: true},
         packages: []
       })
 
-    assert "starship" in container.packages
+    assert "zoxide" in container.packages
   end
 
   describe "with bash" do
     test "adds shell config" do
       container =
-        Starship.sync(%{
+        Zoxide.sync(%{
           files: [],
-          programs: %{starship: true, bash: true},
+          programs: %{zoxide: true, bash: true},
           packages: []
         })
 
       {from, _} =
         Enum.find(container.files, fn {_, to} ->
-          String.match?(to, ~r(bash.+starship.sh))
+          String.match?(to, ~r(bash.+zoxide.sh))
         end)
 
-      assert {:text, "eval \"$(starship init bash)\""} == from
+      assert {:text, "eval \"$(zoxide init bash)\""} == from
     end
   end
 
   describe "with zsh" do
     test "adds shell config" do
       container =
-        Starship.sync(%{
+        Zoxide.sync(%{
           files: [],
-          programs: %{starship: true, zsh: true},
+          programs: %{zoxide: true, zsh: true},
           packages: []
         })
 
       {from, _} =
         Enum.find(container.files, fn {_, to} ->
-          String.match?(to, ~r(zsh.+starship.sh))
+          String.match?(to, ~r(zsh.+zoxide.sh))
         end)
 
-      assert {:text, "eval \"$(starship init zsh)\""} == from
+      assert {:text, "eval \"$(zoxide init zsh)\""} == from
     end
   end
 end
