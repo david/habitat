@@ -1,6 +1,4 @@
 defmodule Habitat.Tasks.Packages do
-  alias Habitat.Container
-
   require Logger
 
   def sync(curr, prev) do
