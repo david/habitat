@@ -65,14 +65,6 @@ defmodule Habitat.Container do
     )
   end
 
-  def install_packages(container, packages) do
-    container.os.install(container, packages)
-  end
-
-  def uninstall_packages(container, packages) do
-    container.os.uninstall(container, packages)
-  end
-
   defmodule State do
     def delete(container) do
       db_path = root(container.root)

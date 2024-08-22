@@ -15,7 +15,7 @@ defmodule Habitat.Tasks.Packages do
   defp install(container, packages) do
     Logger.info("Installing packages: #{inspect(packages)}")
 
-    Container.install_packages(container, packages)
+    container.os.install(container, packages)
   end
 
   defp uninstall(_container, []) do
@@ -25,6 +25,6 @@ defmodule Habitat.Tasks.Packages do
   defp uninstall(container, packages) do
     Logger.info("Uninstalling packages #{inspect(packages)}")
 
-    Container.uninstall_packages(container, packages)
+    container.os.uninstall(container, packages)
   end
 end
