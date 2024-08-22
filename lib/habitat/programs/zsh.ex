@@ -9,17 +9,16 @@ defmodule Habitat.Programs.Zsh do
     container
     |> put_files(files())
     |> put_package("zsh")
-    |> put_hook(:post_sync, :zsh, fn
-      %{shell: :zsh} ->
-        {user, 0} = Container.cmd(container, ["whoami"])
-        Container.cmd(container, ["sudo", "chsh", "--shell", "/usr/bin/zsh", String.trim(user)])
-
-      _ ->
-        container
-    end)
   end
 
   def pre_sync(container), do: container
+
+  def post_sync(%{shell: :zsh}) do
+    {user, 0} = Container.cmd(container, ["whoami"])
+    Container.cmd(container, ["sudo", "chsh", "--shell", "/usr/bin/zsh", String.trim(user)])
+  end
+
+  def post_sync(container), do: container
 
   defp packages(opts) do
     ["zsh"] ++ plugins(opts)

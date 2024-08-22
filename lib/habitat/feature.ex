@@ -35,14 +35,6 @@ defmodule Habitat.Feature do
       update_in(container, [:packages], &(&1 ++ packages))
     end
 
-    def put_hook(container, hook, name, callback) do
-      update_in(container, [:hooks, hook], &Map.put(&1, name, callback))
-    end
-
-    def put_hooks(container, hooks) do
-      update_in(container, [:hooks], &Map.merge(&1, hooks))
-    end
-
     def put_text(container, to, text) do
       put_file(container, {:text, text}, to)
     end

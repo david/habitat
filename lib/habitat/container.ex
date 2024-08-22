@@ -39,7 +39,6 @@ defmodule Habitat.Container do
     container =
       container
       |> Tasks.Mise.init()
-      |> Tasks.Hooks.pre_sync()
       |> Programs.Atuin.pre_sync()
       |> Programs.Bash.pre_sync()
       |> Programs.Mise.pre_sync()
@@ -53,7 +52,7 @@ defmodule Habitat.Container do
     Tasks.Mise.sync(container, latest)
     Tasks.Exports.sync(container, latest)
 
-    Tasks.Hooks.post_sync(container)
+    Programs.Zsh.post_sync(container)
 
     __MODULE__.State.save(container, latest)
   end
