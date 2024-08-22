@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Habitat.Configure do
+defmodule Mix.Tasks.Habitat.Sync do
   @shortdoc "Update system configuration"
   use Mix.Task
   import Mix.Habitat
@@ -8,6 +8,6 @@ defmodule Mix.Tasks.Habitat.Configure do
   def run(args) do
     blueprint().containers()
     |> Enum.filter(&(Enum.empty?(args) || &1.name in args))
-    |> Enum.each(&Container.configure/1)
+    |> Enum.each(&Container.sync/1)
   end
 end

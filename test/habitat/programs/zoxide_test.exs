@@ -7,7 +7,7 @@ defmodule Habitat.Programs.StarshipTest do
 
   test "adds the correct package" do
     container =
-      Starship.configure(%{
+      Starship.sync(%{
         programs: %{starship: true},
         packages: []
       })
@@ -18,7 +18,7 @@ defmodule Habitat.Programs.StarshipTest do
   describe "with bash" do
     test "adds shell config" do
       container =
-        Starship.configure(%{
+        Starship.sync(%{
           files: [],
           programs: %{starship: true, bash: true},
           packages: []
@@ -36,7 +36,7 @@ defmodule Habitat.Programs.StarshipTest do
   describe "with zsh" do
     test "adds shell config" do
       container =
-        Starship.configure(%{
+        Starship.sync(%{
           files: [],
           programs: %{starship: true, zsh: true},
           packages: []

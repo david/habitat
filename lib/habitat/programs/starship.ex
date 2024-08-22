@@ -2,7 +2,7 @@ defmodule Habitat.Programs.Starship do
   require Logger
   use Habitat.Feature
 
-  def configure(%{programs: %{starship: true}} = container) do
+  def pre_sync(%{programs: %{starship: true}} = container) do
     Logger.info("Configuring starship")
 
     container
@@ -11,5 +11,5 @@ defmodule Habitat.Programs.Starship do
     |> put_package("starship")
   end
 
-  def configure(container), do: container
+  def pre_sync(container), do: container
 end

@@ -6,6 +6,6 @@ defmodule Mix.Tasks.Habitat.Rebuild do
   @impl true
   def run(args) do
     Mix.Task.run("habitat.reset", args)
-    Mix.Task.run("habitat.configure", args)
+    Mix.Task.run("habitat.sync", args)
   end
 end

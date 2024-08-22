@@ -42,7 +42,7 @@ defmodule Habitat.Tasks.Files do
 
   alias __MODULE__.Glob
 
-  def expand_mappings(container) do
+  def pre_sync(container) do
     update_in(
       container,
       [:files],

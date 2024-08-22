@@ -1,7 +1,7 @@
 defmodule Habitat.Programs.Atuin do
   use Habitat.Feature
 
-  def configure(%{programs: %{atuin: true}} = container) do
+  def pre_sync(%{programs: %{atuin: true}} = container) do
     Logger.info("Configuring atuin")
 
     container
@@ -10,5 +10,5 @@ defmodule Habitat.Programs.Atuin do
     |> put_package("atuin")
   end
 
-  def configure(container), do: container
+  def pre_sync(container), do: container
 end

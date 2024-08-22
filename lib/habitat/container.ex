@@ -30,7 +30,7 @@ defmodule Habitat.Container do
     __MODULE__.State.delete(container)
   end
 
-  def configure(container) do
+  def sync(container) do
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
 
@@ -39,14 +39,14 @@ defmodule Habitat.Container do
     container =
       container
       |> Tasks.Mise.init()
-      |> Tasks.Hooks.init()
-      |> Programs.Atuin.configure()
-      |> Programs.Bash.configure()
-      |> Programs.Mise.configure()
-      |> Programs.Starship.configure()
-      |> Programs.Zoxide.configure()
-      |> Programs.Zsh.configure()
-      |> Tasks.Files.expand_mappings()
+      |> Tasks.Hooks.pre_sync()
+      |> Programs.Atuin.pre_sync()
+      |> Programs.Bash.pre_sync()
+      |> Programs.Mise.pre_sync()
+      |> Programs.Starship.pre_sync()
+      |> Programs.Zoxide.pre_sync()
+      |> Programs.Zsh.pre_sync()
+      |> Tasks.Files.pre_sync()
 
     Tasks.Files.sync(container, latest)
     Tasks.Packages.sync(container, latest)

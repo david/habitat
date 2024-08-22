@@ -2,7 +2,7 @@ defmodule Habitat.Programs.Zoxide do
   require Logger
   use Habitat.Feature
 
-  def configure(%{programs: %{zoxide: true}} = container) do
+  def pre_sync(%{programs: %{zoxide: true}} = container) do
     Logger.info("Configuring zoxide")
 
     container
@@ -11,5 +11,5 @@ defmodule Habitat.Programs.Zoxide do
     |> put_package("zoxide")
   end
 
-  def configure(container), do: container
+  def pre_sync(container), do: container
 end

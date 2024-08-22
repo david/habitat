@@ -7,7 +7,7 @@ defmodule Habitat.Programs.AtuinTest do
 
   test "adds the correct package" do
     container =
-      Atuin.configure(%{
+      Atuin.sync(%{
         programs: %{atuin: true},
         packages: []
       })
@@ -18,7 +18,7 @@ defmodule Habitat.Programs.AtuinTest do
   describe "with bash" do
     test "adds shell config" do
       container =
-        Atuin.configure(%{
+        Atuin.sync(%{
           files: [],
           programs: %{atuin: true, bash: true},
           packages: []
@@ -36,7 +36,7 @@ defmodule Habitat.Programs.AtuinTest do
   describe "with zsh" do
     test "adds shell config" do
       container =
-        Atuin.configure(%{
+        Atuin.sync(%{
           files: [],
           programs: %{atuin: true, zsh: true},
           packages: []

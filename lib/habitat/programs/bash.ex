@@ -2,7 +2,7 @@ defmodule Habitat.Programs.Bash do
   require Logger
   use Habitat.Feature
 
-  def configure(%{programs: %{bash: true}} = container) do
+  def pre_sync(%{programs: %{bash: true}} = container) do
     Logger.info("Configuring bash")
 
     container
@@ -10,7 +10,7 @@ defmodule Habitat.Programs.Bash do
     |> put_package("bash")
   end
 
-  def configure(container), do: container
+  def pre_sync(container), do: container
 
   defp files() do
     [

@@ -7,7 +7,7 @@ defmodule Habitat.Programs.ZoxideTest do
 
   test "adds the correct package" do
     container =
-      Zoxide.configure(%{
+      Zoxide.sync(%{
         programs: %{zoxide: true},
         packages: []
       })
@@ -18,7 +18,7 @@ defmodule Habitat.Programs.ZoxideTest do
   describe "with bash" do
     test "adds shell config" do
       container =
-        Zoxide.configure(%{
+        Zoxide.sync(%{
           files: [],
           programs: %{zoxide: true, bash: true},
           packages: []
@@ -36,7 +36,7 @@ defmodule Habitat.Programs.ZoxideTest do
   describe "with zsh" do
     test "adds shell config" do
       container =
-        Zoxide.configure(%{
+        Zoxide.sync(%{
           files: [],
           programs: %{zoxide: true, zsh: true},
           packages: []
