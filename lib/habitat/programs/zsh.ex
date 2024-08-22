@@ -17,7 +17,6 @@ defmodule Habitat.Programs.Zsh do
       _ ->
         container
     end)
-    |> tap(&IO.inspect/1)
   end
 
   def configure(container), do: container
