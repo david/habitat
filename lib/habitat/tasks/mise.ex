@@ -29,7 +29,7 @@ defmodule Habitat.Tasks.Mise do
     Logger.info("Installing packages: #{inspect(packages)}")
 
     for p <- packages do
-      Container.cmd(container, ["mise", "use", "-g", p])
+      Container.cmd(container, ["mise", "use", "--yes", "--global", p])
     end
   end
 
