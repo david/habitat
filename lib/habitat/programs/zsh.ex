@@ -13,7 +13,7 @@ defmodule Habitat.Programs.Zsh do
 
   def pre_sync(container), do: container
 
-  def post_sync(%{shell: :zsh}) do
+  def post_sync(%{shell: :zsh} = container) do
     {user, 0} = Container.cmd(container, ["whoami"])
     Container.cmd(container, ["sudo", "chsh", "--shell", "/usr/bin/zsh", String.trim(user)])
   end
