@@ -7,10 +7,10 @@ defmodule Habitat.Programs.StarshipTest do
 
   test "adds the correct package" do
     container =
-      Starship.sync(%{
-        programs: %{starship: true},
-        packages: []
-      })
+      Starship.pre_sync(
+        %{programs: [:starship], packages: []},
+        %{}
+      )
 
     assert "starship" in container.packages
   end
@@ -18,11 +18,10 @@ defmodule Habitat.Programs.StarshipTest do
   describe "with bash" do
     test "adds shell config" do
       container =
-        Starship.sync(%{
-          files: [],
-          programs: %{starship: true, bash: true},
-          packages: []
-        })
+        Starship.pre_sync(
+          %{files: [], programs: [:starship, :bash], packages: []},
+          %{}
+        )
 
       {from, _} =
         Enum.find(container.files, fn {_, to} ->
@@ -36,11 +35,10 @@ defmodule Habitat.Programs.StarshipTest do
   describe "with zsh" do
     test "adds shell config" do
       container =
-        Starship.sync(%{
-          files: [],
-          programs: %{starship: true, zsh: true},
-          packages: []
-        })
+        Starship.pre_sync(
+          %{files: [], programs: [:starship, :zsh], packages: []},
+          %{}
+        )
 
       {from, _} =
         Enum.find(container.files, fn {_, to} ->

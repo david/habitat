@@ -3,7 +3,7 @@ defmodule Habitat.Programs.Zsh do
   require Logger
   use Habitat.Feature
 
-  def pre_sync(%{programs: %{zsh: zsh}} = container) when zsh do
+  def pre_sync(container, _) do
     Logger.info("Configuring zsh")
 
     container
@@ -11,14 +11,10 @@ defmodule Habitat.Programs.Zsh do
     |> put_package("zsh")
   end
 
-  def pre_sync(container), do: container
-
-  def post_sync(%{shell: :zsh} = container) do
+  def post_sync(%{shell: :zsh} = container, _) do
     {user, 0} = Container.cmd(container, ["whoami"])
     Container.cmd(container, ["sudo", "chsh", "--shell", "/usr/bin/zsh", String.trim(user)])
   end
-
-  def post_sync(container), do: container
 
   defp packages(opts) do
     ["zsh"] ++ plugins(opts)

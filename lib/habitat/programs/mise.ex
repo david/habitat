@@ -1,7 +1,7 @@
 defmodule Habitat.Programs.Mise do
   use Habitat.Feature
 
-  def pre_sync(%{programs: %{mise: true}} = container) do
+  def pre_sync(container, _) do
     Logger.info("Configuring mise")
 
     container
@@ -9,6 +9,4 @@ defmodule Habitat.Programs.Mise do
     |> put_shell_config(:zsh, "mise", "eval \"$(mise activate zsh)\"")
     |> put_package("mise")
   end
-
-  def pre_sync(container), do: container
 end

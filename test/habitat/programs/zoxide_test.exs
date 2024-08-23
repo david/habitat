@@ -7,10 +7,10 @@ defmodule Habitat.Programs.ZoxideTest do
 
   test "adds the correct package" do
     container =
-      Zoxide.sync(%{
-        programs: %{zoxide: true},
-        packages: []
-      })
+      Zoxide.pre_sync(
+        %{programs: [:zoxide], packages: []},
+        %{}
+      )
 
     assert "zoxide" in container.packages
   end
@@ -18,11 +18,10 @@ defmodule Habitat.Programs.ZoxideTest do
   describe "with bash" do
     test "adds shell config" do
       container =
-        Zoxide.sync(%{
-          files: [],
-          programs: %{zoxide: true, bash: true},
-          packages: []
-        })
+        Zoxide.pre_sync(
+          %{files: [], programs: [:zoxide, :bash], packages: []},
+          %{}
+        )
 
       {from, _} =
         Enum.find(container.files, fn {_, to} ->
@@ -36,11 +35,10 @@ defmodule Habitat.Programs.ZoxideTest do
   describe "with zsh" do
     test "adds shell config" do
       container =
-        Zoxide.sync(%{
-          files: [],
-          programs: %{zoxide: true, zsh: true},
-          packages: []
-        })
+        Zoxide.pre_sync(
+          %{files: [], programs: [:zoxide, :zsh], packages: []},
+          %{}
+        )
 
       {from, _} =
         Enum.find(container.files, fn {_, to} ->

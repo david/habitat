@@ -1,7 +1,7 @@
 defmodule Habitat.Programs.Atuin do
   use Habitat.Feature
 
-  def pre_sync(%{programs: %{atuin: true}} = container) do
+  def pre_sync(container, _) do
     Logger.info("Configuring atuin")
 
     container
@@ -9,6 +9,4 @@ defmodule Habitat.Programs.Atuin do
     |> put_shell_config(:zsh, "atuin", "eval \"$(atuin init zsh)\"")
     |> put_package("atuin")
   end
-
-  def pre_sync(container), do: container
 end

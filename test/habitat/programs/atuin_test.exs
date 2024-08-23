@@ -7,10 +7,10 @@ defmodule Habitat.Programs.AtuinTest do
 
   test "adds the correct package" do
     container =
-      Atuin.sync(%{
-        programs: %{atuin: true},
-        packages: []
-      })
+      Atuin.pre_sync(
+        %{programs: [:atuin], packages: []},
+        %{}
+      )
 
     assert "atuin" in container.packages
   end
@@ -18,11 +18,10 @@ defmodule Habitat.Programs.AtuinTest do
   describe "with bash" do
     test "adds shell config" do
       container =
-        Atuin.sync(%{
-          files: [],
-          programs: %{atuin: true, bash: true},
-          packages: []
-        })
+        Atuin.pre_sync(
+          %{files: [], programs: [:atuin, :bash], packages: []},
+          %{}
+        )
 
       {from, _} =
         Enum.find(container.files, fn {_, to} ->
@@ -36,11 +35,10 @@ defmodule Habitat.Programs.AtuinTest do
   describe "with zsh" do
     test "adds shell config" do
       container =
-        Atuin.sync(%{
-          files: [],
-          programs: %{atuin: true, zsh: true},
-          packages: []
-        })
+        Atuin.pre_sync(
+          %{files: [], programs: [:atuin, :zsh], packages: []},
+          %{}
+        )
 
       {from, _} =
         Enum.find(container.files, fn {_, to} ->
