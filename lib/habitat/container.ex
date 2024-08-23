@@ -45,6 +45,7 @@ defmodule Habitat.Container do
       |> Programs.Atuin.pre_sync()
       |> Programs.Bash.pre_sync()
       |> Programs.Mise.pre_sync()
+      |> Programs.Mysql.pre_sync()
       |> Programs.Starship.pre_sync()
       |> Programs.Zoxide.pre_sync()
       |> Programs.Zsh.pre_sync()
@@ -55,6 +56,7 @@ defmodule Habitat.Container do
     Tasks.Mise.sync(container, latest)
     Tasks.Exports.sync(container, latest)
 
+    Programs.Mysql.post_sync(container)
     Programs.Zsh.post_sync(container)
 
     __MODULE__.State.save(container, latest)
