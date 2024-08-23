@@ -50,8 +50,7 @@ defmodule Habitat.Container do
     Tasks.Mise.sync(container, latest)
     Tasks.Exports.sync(container, latest)
 
-    Programs.Mysql.post_sync(container, %{})
-    Programs.Zsh.post_sync(container, %{})
+    Programs.post_sync(container)
 
     __MODULE__.State.save(container, latest)
   end
