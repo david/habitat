@@ -8,6 +8,10 @@ defmodule Habitat.Feature do
     end
   end
 
+  def put_env(container, env) do
+    Shells.put_env(container, env)
+  end
+
   def put_file(container, from, to) do
     Files.put(container, from, to)
   end
@@ -34,5 +38,9 @@ defmodule Habitat.Feature do
 
   def put_shell_config(container, shell, name, body) do
     Shells.put(container, shell, name, body)
+  end
+
+  def put_shell_config(container, shell, priority, name, body) do
+    Shells.put(container, shell, priority, name, body)
   end
 end

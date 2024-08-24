@@ -5,8 +5,10 @@ defmodule Habitat.Programs.Mise do
     Logger.info("Configuring mise")
 
     container
-    |> put_shell_config(:bash, "mise", "eval \"$(mise activate bash)\"")
-    |> put_shell_config(:zsh, "mise", "eval \"$(mise activate zsh)\"")
+    |> put_env(%{
+      "MISE_DATA_DIR" => "/usr/mise",
+      "PATH" => "${MISE_DATA_DIR}/shims:${PATH}"
+    })
     |> put_package("mise")
   end
 end
