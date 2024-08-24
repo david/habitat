@@ -13,28 +13,13 @@ defmodule Habitat.Tasks.Packages do
     update_in(container, [:packages], &(&1 ++ packages))
   end
 
-  def sync(curr, prev) do
-    uninstall(curr, prev.packages -- curr.packages)
-    install(curr, curr.packages -- prev.packages)
+  def sync(curr, _) do
+    install(curr)
   end
 
-  defp install(_container, []) do
-    Logger.info("Nothing to install")
-  end
+  defp install(%{packages: []}), do: nil
 
-  defp install(container, packages) do
-    Logger.info("Installing packages: #{inspect(packages)}")
-
+  defp install(%{packages: packages} = container) do
     container.os.install(container, packages)
-  end
-
-  defp uninstall(_container, []) do
-    Logger.info("Nothing to uninstall")
-  end
-
-  defp uninstall(container, packages) do
-    Logger.info("Uninstalling packages #{inspect(packages)}")
-
-    container.os.uninstall(container, packages)
   end
 end
