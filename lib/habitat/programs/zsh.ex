@@ -1,5 +1,4 @@
 defmodule Habitat.Programs.Zsh do
-  alias Habitat.Container
   require Logger
   use Habitat.Feature
 
@@ -10,11 +9,6 @@ defmodule Habitat.Programs.Zsh do
     |> put_string(zprofile(), "~/.zprofile")
     |> put_string(zshrc(), "~/.zshrc")
     |> put_package("zsh")
-  end
-
-  def post_sync(%{shell: :zsh} = container, _) do
-    {user, 0} = Container.cmd(container, ["whoami"])
-    Container.cmd(container, ["sudo", "chsh", "--shell", "/usr/bin/zsh", String.trim(user)])
   end
 
   defp packages(opts) do

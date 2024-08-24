@@ -18,6 +18,13 @@ defmodule Habitat.Programs do
     |> Enum.each(fn {mod, spec} -> mod.post_sync(container, spec) end)
   end
 
+  def to_module(name) do
+    name
+    |> to_string()
+    |> Macro.camelize()
+    |> then(&Module.concat("Habitat.Programs", &1))
+  end
+
   defp programs(container) do
     container.programs
     |> Enum.map(&normalize/1)
@@ -26,11 +33,4 @@ defmodule Habitat.Programs do
 
   defp normalize(name) when is_atom(name), do: {to_module(name), []}
   defp normalize({name, spec}), do: {to_module(name), spec}
-
-  defp to_module(name) do
-    name
-    |> to_string()
-    |> Macro.camelize()
-    |> then(&Module.concat("Habitat.Programs", &1))
-  end
 end

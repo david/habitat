@@ -38,11 +38,13 @@ defmodule Habitat.Container do
 
     container =
       container
-      |> Tasks.Files.init()
-      |> Tasks.Packages.init()
-      |> Tasks.Mise.init()
       |> Tasks.Exports.init()
+      |> Tasks.Files.init()
+      |> Tasks.Mise.init()
+      |> Tasks.Packages.init()
+      |> Tasks.Shells.init()
       |> Programs.pre_sync()
+      |> Tasks.Shells.pre_sync()
       |> Tasks.Files.pre_sync()
 
     Tasks.Files.sync(container, latest)

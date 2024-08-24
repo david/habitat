@@ -1,6 +1,5 @@
 defmodule Habitat.Feature do
-  alias Habitat.Programs
-  alias Habitat.Tasks.{Files, Mise, Packages}
+  alias Habitat.Tasks.{Files, Mise, Packages, Shells}
 
   defmacro __using__(_) do
     quote do
@@ -33,17 +32,7 @@ defmodule Habitat.Feature do
     Files.put_string(container, string, to)
   end
 
-  def put_shell_config(container, shell, priority \\ :low, name, body) do
-    if Programs.enabled?(container, shell) do
-      prefix =
-        case priority do
-          :high -> "000"
-          :low -> "zzz"
-        end
-
-      put_file(container, {:text, body}, "~/.config/#{shell}/rc.d/#{prefix}.#{name}.sh")
-    else
-      container
-    end
+  def put_shell_config(container, shell, name, body) do
+    Shells.put(container, shell, name, body)
   end
 end
