@@ -32,15 +32,15 @@ defmodule Habitat.Programs.Mysql do
     datadir = Path.join([container.root, ".local", "share", "mysql-data"])
 
     unless File.exists?(datadir) do
-      Container.cmd(container, [
-        "mise",
-        "exec",
+      Mise.exec(
+        container,
         "mysql",
-        "--",
-        "mysqld",
-        "--initialize-insecure",
-        "--datadir=#{datadir}"
-      ])
+        [
+          "mysqld",
+          "--initialize-insecure",
+          "--datadir=#{datadir}"
+        ]
+      )
     end
   end
 end

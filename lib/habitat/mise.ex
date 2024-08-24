@@ -7,6 +7,14 @@ defmodule Habitat.Mise do
     Map.put_new(container, :mise, [])
   end
 
+  def exec(container, plugin, command) do
+    Container.cmd(
+      container,
+      ["mise", "exec", plugin, "--"] ++ command,
+      %{"MISE_DATA_DIR" => data_dir()}
+    )
+  end
+
   def pre_sync(container) do
     Logger.info("Configuring mise")
 
