@@ -5,6 +5,14 @@ defmodule Habitat.Tasks.Packages do
     Map.put_new(container, :packages, [])
   end
 
+  def put(container, package) when is_binary(package) do
+    update_in(container, [:packages], &[package | &1])
+  end
+
+  def put(container, packages) when is_list(packages) do
+    update_in(container, [:packages], &(&1 ++ packages))
+  end
+
   def sync(curr, prev) do
     uninstall(curr, prev.packages -- curr.packages)
     install(curr, curr.packages -- prev.packages)

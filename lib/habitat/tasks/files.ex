@@ -46,6 +46,18 @@ defmodule Habitat.Tasks.Files do
     Map.put_new(container, :files, [])
   end
 
+  def put(container, from, to) do
+    update_in(container, [:files], &[{from, to} | &1])
+  end
+
+  def put(container, mappings) do
+    update_in(container, [:files], &(&1 ++ mappings))
+  end
+
+  def put_text(container, text, to) do
+    put(container, {:text, text}, to)
+  end
+
   def pre_sync(container) do
     update_in(
       container,

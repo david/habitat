@@ -1,6 +1,6 @@
 defmodule Habitat.Feature do
   alias Habitat.Programs
-  alias Habitat.Tasks.Mise
+  alias Habitat.Tasks.{Files, Mise, Packages}
 
   defmacro __using__(_) do
     quote do
@@ -10,27 +10,27 @@ defmodule Habitat.Feature do
   end
 
   def put_file(container, from, to) do
-    update_in(container, [:files], &[{from, to} | &1])
+    Files.put(container, from, to)
   end
 
   def put_files(container, files) do
-    update_in(container, [:files], &(&1 ++ files))
+    Files.put(container, files)
   end
 
   def put_package(container, package) do
-    update_in(container, [:packages], &[package | &1])
+    Packages.put(container, package)
+  end
+
+  def put_packages(container, packages) do
+    Packages.put(container, packages)
   end
 
   def put_package(container, :mise, package, opts \\ []) do
     Mise.put_package(container, package, opts)
   end
 
-  def put_packages(container, packages) do
-    update_in(container, [:packages], &(&1 ++ packages))
-  end
-
   def put_text(container, to, text) do
-    put_file(container, {:text, text}, to)
+    Files.put_text(container, text, to)
   end
 
   def put_shell_config(container, shell, priority \\ :low, name, body) do
