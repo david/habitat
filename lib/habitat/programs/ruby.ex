@@ -7,10 +7,6 @@ defmodule Habitat.Programs.Ruby do
 
     container
     |> Packages.put(["rust", "libffi", "libyaml", "openssl", "zlib"])
-    |> Mise.put("ruby", version: version(spec))
+    |> Mise.put("ruby", spec)
   end
-
-  defp version([]), do: nil
-  defp version(v) when is_binary(v), do: v
-  defp version(opts) when is_list(opts), do: Keyword.get(opts, :version, version([]))
 end

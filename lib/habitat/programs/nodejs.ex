@@ -6,7 +6,7 @@ defmodule Habitat.Programs.Nodejs do
     Logger.info("Configuring nodejs")
 
     container
-    |> Mise.put("node", version: version(spec))
+    |> Mise.put("node", spec)
     |> put_yarn(spec)
   end
 
@@ -17,8 +17,4 @@ defmodule Habitat.Programs.Nodejs do
       container
     end
   end
-
-  defp version([]), do: nil
-  defp version(v) when is_binary(v), do: v
-  defp version(opts) when is_list(opts), do: Keyword.get(opts, :version, version([]))
 end

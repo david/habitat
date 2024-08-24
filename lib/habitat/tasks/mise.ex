@@ -13,9 +13,11 @@ defmodule Habitat.Tasks.Mise do
 
   def put(container, package, opts \\ []) do
     version =
-      case Keyword.get(opts, :version) do
+      case opts do
+        v when is_binary(v) -> "@#{v}"
+        l when is_list(l) -> "@" <> Keyword.get(l, :version)
+        [] -> ""
         nil -> ""
-        v -> "@#{v}"
       end
 
     update_in(container, [:mise], &["#{package}#{version}" | &1])

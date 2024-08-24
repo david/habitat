@@ -8,12 +8,8 @@ defmodule Habitat.Programs.Mysql do
 
     container
     |> Packages.put(["libaio", "numactl"])
-    |> Mise.put("mysql", version: version(spec))
+    |> Mise.put("mysql", spec)
   end
-
-  defp version([]), do: nil
-  defp version(v) when is_binary(v), do: v
-  defp version(opts) when is_list(opts), do: Keyword.get(opts, :version, version([]))
 
   def post_sync(container, _) do
     fix_ncurses(container)
