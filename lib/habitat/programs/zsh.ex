@@ -7,7 +7,8 @@ defmodule Habitat.Programs.Zsh do
     Logger.info("Configuring zsh")
 
     container
-    |> put_files(files())
+    |> put_string(zprofile(), "~/.zprofile")
+    |> put_string(zshrc(), "~/.zshrc")
     |> put_package("zsh")
   end
 
@@ -25,13 +26,6 @@ defmodule Habitat.Programs.Zsh do
   end
 
   defp plugins(_), do: []
-
-  defp files() do
-    [
-      {{:string, zprofile()}, "~/.zprofile"},
-      {{:string, zshrc()}, "~/.zshrc"}
-    ]
-  end
 
   defp zshrc() do
     """

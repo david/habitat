@@ -6,15 +6,9 @@ defmodule Habitat.Programs.Bash do
     Logger.info("Configuring bash")
 
     container
-    |> put_files(files())
+    |> put_string(bash_profile(), "~/.bash_profile")
+    |> put_string(bashrc(), "~/.bashrc")
     |> put_package("bash")
-  end
-
-  defp files() do
-    [
-      {{:string, bash_profile()}, "~/.bash_profile"},
-      {{:string, bashrc()}, "~/.bashrc"}
-    ]
   end
 
   defp bashrc() do
