@@ -40,12 +40,6 @@ defmodule Habitat.Programs.Zsh do
         source $f
       done
     fi
-
-    if [[ -d ~/.local/opt ]] ; then
-      for f in ~/.local/opt/* ; do
-        export PATH="$PATH:$f/bin"
-      done
-    fi
     """
   end
 end
