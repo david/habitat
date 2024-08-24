@@ -1,14 +1,15 @@
 defmodule Habitat.Programs.Mise do
-  use Habitat.Feature
+  alias Habitat.Tasks.{Packages, Shells}
+  require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring mise")
 
     container
-    |> put_env(%{
+    |> Shells.put_env(%{
       "MISE_DATA_DIR" => "/usr/mise",
       "PATH" => "${MISE_DATA_DIR}/shims:${PATH}"
     })
-    |> put_package("mise")
+    |> Packages.put("mise")
   end
 end

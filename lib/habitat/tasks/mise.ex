@@ -11,7 +11,7 @@ defmodule Habitat.Tasks.Mise do
     install(curr, curr.mise -- prev.mise)
   end
 
-  def put_package(container, package, opts \\ []) do
+  def put(container, package, opts \\ []) do
     version =
       case Keyword.get(opts, :version) do
         nil -> ""

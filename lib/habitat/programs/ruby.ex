@@ -1,12 +1,13 @@
 defmodule Habitat.Programs.Ruby do
-  use Habitat.Feature
+  alias Habitat.Tasks.{Mise, Packages}
+  require Logger
 
   def pre_sync(container, spec) do
     Logger.info("Configuring ruby")
 
     container
-    |> put_packages(["rust", "libffi", "libyaml", "openssl", "zlib"])
-    |> put_package(:mise, "ruby", version: version(spec))
+    |> Packages.put(["rust", "libffi", "libyaml", "openssl", "zlib"])
+    |> Mise.put("ruby", version: version(spec))
   end
 
   defp version([]), do: nil

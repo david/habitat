@@ -1,17 +1,18 @@
 defmodule Habitat.Programs.Nodejs do
-  use Habitat.Feature
+  alias Habitat.Tasks.Mise
+  require Logger
 
   def pre_sync(container, spec) do
     Logger.info("Configuring nodejs")
 
     container
-    |> put_package(:mise, "node", version: version(spec))
+    |> Mise.put("node", version: version(spec))
     |> put_yarn(spec)
   end
 
   defp put_yarn(container, spec) do
     if Keyword.get(spec, :package_manager) == :yarn do
-      put_package(container, :mise, "npm:yarn")
+      Mise.put(container, "npm:yarn")
     else
       container
     end

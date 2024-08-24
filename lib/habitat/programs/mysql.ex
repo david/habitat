@@ -1,13 +1,14 @@
 defmodule Habitat.Programs.Mysql do
   alias Habitat.Container
-  use Habitat.Feature
+  alias Habitat.Tasks.{Mise, Packages}
+  require Logger
 
   def pre_sync(container, spec) do
     Logger.info("Configuring mysql")
 
     container
-    |> put_packages(["libaio", "numactl"])
-    |> put_package(:mise, "mysql", version: version(spec))
+    |> Packages.put(["libaio", "numactl"])
+    |> Mise.put("mysql", version: version(spec))
   end
 
   defp version([]), do: nil

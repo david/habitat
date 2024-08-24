@@ -1,5 +1,6 @@
 defmodule Habitat.Tasks.Shells do
-  alias Habitat.{Container, Feature, Programs}
+  alias Habitat.{Container, Programs}
+  alias Habitat.Tasks.{Files, Shells}
 
   def init(container) do
     container
@@ -15,7 +16,7 @@ defmodule Habitat.Tasks.Shells do
           :low -> "zzz"
         end
 
-      Feature.put_string(container, body, "~/.config/#{shell}/rc.d/#{prefix}.#{name}.sh")
+      Files.put_string(container, body, "~/.config/#{shell}/rc.d/#{prefix}.#{name}.sh")
     else
       container
     end
@@ -43,7 +44,7 @@ defmodule Habitat.Tasks.Shells do
       |> Enum.map(fn {k, v} -> "#{k}=\"#{v}\"" end)
       |> Enum.join("\n")
 
-    Feature.put_shell_config(container, shell, :high, "environment", vars)
+    Shells.put(container, shell, :high, "environment", vars)
   end
 
   def sync(%{shells: shells} = container) do
