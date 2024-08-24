@@ -10,7 +10,7 @@ defmodule Habitat.Tasks.Files.GlobTest do
 
   test "ignores tuple sources" do
     to = ".config/dir1/file1.txt"
-    from = {:text, "hello"}
+    from = {:string, "hello"}
 
     assert [{from, "#{@to}/#{to}"}] == Glob.glob(from, "~/#{to}", @to)
   end

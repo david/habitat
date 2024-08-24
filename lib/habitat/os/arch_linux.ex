@@ -47,14 +47,14 @@ defmodule Habitat.OS.ArchLinux do
     pacman_conf = File.read!("/etc/pacman.conf")
 
     unless pacman_conf =~ ~r/chaotic-aur/ do
-      text =
+      string =
         """
         #{pacman_conf}
         [chaotic-aur]
         Include = /etc/pacman.d/chaotic-mirrorlist
         """
 
-      File.write!("/tmp/pacman.conf", text)
+      File.write!("/tmp/pacman.conf", string)
 
       {_, 0} = Container.cmd(container, ["sudo", "cp", "/tmp/pacman.conf", "/etc/pacman.conf"])
     end

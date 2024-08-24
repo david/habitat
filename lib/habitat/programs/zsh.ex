@@ -28,8 +28,8 @@ defmodule Habitat.Programs.Zsh do
 
   defp files() do
     [
-      {{:text, zprofile()}, "~/.zprofile"},
-      {{:text, zshrc()}, "~/.zshrc"}
+      {{:string, zprofile()}, "~/.zprofile"},
+      {{:string, zshrc()}, "~/.zshrc"}
     ]
   end
 

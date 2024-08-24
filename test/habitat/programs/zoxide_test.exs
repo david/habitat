@@ -28,7 +28,7 @@ defmodule Habitat.Programs.ZoxideTest do
           String.match?(to, ~r(bash.+zoxide.sh))
         end)
 
-      assert {:text, "eval \"$(zoxide init bash)\""} == from
+      assert {:string, "eval \"$(zoxide init bash)\""} == from
     end
   end
 
@@ -45,7 +45,7 @@ defmodule Habitat.Programs.ZoxideTest do
           String.match?(to, ~r(zsh.+zoxide.sh))
         end)
 
-      assert {:text, "eval \"$(zoxide init zsh)\""} == from
+      assert {:string, "eval \"$(zoxide init zsh)\""} == from
     end
   end
 end

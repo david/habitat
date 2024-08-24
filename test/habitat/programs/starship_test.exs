@@ -28,7 +28,7 @@ defmodule Habitat.Programs.StarshipTest do
           String.match?(to, ~r(bash.+starship.sh))
         end)
 
-      assert {:text, "eval \"$(starship init bash)\""} == from
+      assert {:string, "eval \"$(starship init bash)\""} == from
     end
   end
 
@@ -45,7 +45,7 @@ defmodule Habitat.Programs.StarshipTest do
           String.match?(to, ~r(zsh.+starship.sh))
         end)
 
-      assert {:text, "eval \"$(starship init zsh)\""} == from
+      assert {:string, "eval \"$(starship init zsh)\""} == from
     end
   end
 end

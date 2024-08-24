@@ -54,8 +54,8 @@ defmodule Habitat.Tasks.Files do
     update_in(container, [:files], &(&1 ++ mappings))
   end
 
-  def put_text(container, text, to) do
-    put(container, {:text, text}, to)
+  def put_string(container, string, to) do
+    put(container, {:string, string}, to)
   end
 
   def pre_sync(container) do
@@ -94,9 +94,9 @@ defmodule Habitat.Tasks.Files do
         Logger.debug("Creating directory #{to}")
         File.mkdir_p!(Path.expand(to))
 
-      match?({:text, _}, from) ->
-        {:text, contents} = from
-        Logger.debug("Writing text to #{to}")
+      match?({:string, _}, from) ->
+        {:string, contents} = from
+        Logger.debug("Writing string to #{to}")
         to |> Path.dirname() |> File.mkdir_p!()
         File.write!(Path.expand(to), contents)
 

@@ -66,7 +66,7 @@ defmodule Habitat.Tasks.FilesTest do
       file |> Path.dirname() |> File.mkdir_p!()
       File.write!(file, "hello")
 
-      container = Map.put(container(), :files, [{{:text, "bye"}, file}])
+      container = Map.put(container(), :files, [{{:string, "bye"}, file}])
 
       Files.sync(container, %{files: []})
 
@@ -94,7 +94,7 @@ defmodule Habitat.Tasks.FilesTest do
       file |> Path.dirname() |> File.mkdir_p!()
       File.write!(file, "hello")
 
-      container = Map.put(container(), :files, [{{:text, "bye"}, file}])
+      container = Map.put(container(), :files, [{{:string, "bye"}, file}])
 
       Files.sync(container, %{files: [file]})
 

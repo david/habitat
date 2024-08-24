@@ -12,8 +12,8 @@ defmodule Habitat.Programs.Bash do
 
   defp files() do
     [
-      {{:text, bash_profile()}, "~/.bash_profile"},
-      {{:text, bashrc()}, "~/.bashrc"}
+      {{:string, bash_profile()}, "~/.bash_profile"},
+      {{:string, bashrc()}, "~/.bashrc"}
     ]
   end
 

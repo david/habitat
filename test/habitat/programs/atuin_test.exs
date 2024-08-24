@@ -28,7 +28,7 @@ defmodule Habitat.Programs.AtuinTest do
           String.match?(to, ~r(bash.+atuin.sh))
         end)
 
-      assert {:text, "eval \"$(atuin init bash)\""} == from
+      assert {:string, "eval \"$(atuin init bash)\""} == from
     end
   end
 
@@ -45,7 +45,7 @@ defmodule Habitat.Programs.AtuinTest do
           String.match?(to, ~r(zsh.+atuin.sh))
         end)
 
-      assert {:text, "eval \"$(atuin init zsh)\""} == from
+      assert {:string, "eval \"$(atuin init zsh)\""} == from
     end
   end
 end

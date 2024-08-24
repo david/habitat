@@ -29,8 +29,8 @@ defmodule Habitat.Feature do
     Mise.put_package(container, package, opts)
   end
 
-  def put_text(container, to, text) do
-    Files.put_text(container, text, to)
+  def put_string(container, to, string) do
+    Files.put_string(container, string, to)
   end
 
   def put_shell_config(container, shell, priority \\ :low, name, body) do
