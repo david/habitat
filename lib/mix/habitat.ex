@@ -1,8 +1,8 @@
 defmodule Mix.Habitat do
   def blueprint do
     "blueprint.exs"
-    |> Code.require_file()
-    |> List.first()
+    |> Code.eval_file()
     |> elem(0)
+    |> elem(1)
   end
 end
