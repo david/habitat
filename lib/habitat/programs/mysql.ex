@@ -32,14 +32,18 @@ defmodule Habitat.Programs.Mysql do
   end
 
   def initialize_database(container) do
-    Container.cmd(container, [
-      "mise",
-      "exec",
-      "mysql",
-      "--",
-      "mysqld",
-      "--initialize-insecure",
-      "--datadir=#{Path.join([container.root, ".local", "share", "databases"])}"
-    ])
+    datadir = Path.join([container.root, ".local", "share", "mysql-data"])
+
+    unless File.exists?(datadir) do
+      Container.cmd(container, [
+        "mise",
+        "exec",
+        "mysql",
+        "--",
+        "mysqld",
+        "--initialize-insecure",
+        "--datadir=#{datadir}"
+      ])
+    end
   end
 end
