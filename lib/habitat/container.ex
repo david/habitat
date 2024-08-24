@@ -26,15 +26,11 @@ defmodule Habitat.Container do
 
     System.cmd("distrobox-host-exec", ["distrobox", "stop", container.name])
     System.cmd("distrobox-host-exec", ["distrobox", "rm", container.name])
-
-    __MODULE__.State.delete(container)
   end
 
   def sync(container) do
     Logger.info("Configuring container #{container.name}")
     Logger.debug(container)
-
-    latest = __MODULE__.State.latest(container)
 
     container =
       container
@@ -48,11 +44,11 @@ defmodule Habitat.Container do
       |> Shells.pre_sync()
       |> Files.pre_sync()
 
-    Files.sync(container, latest)
-    Packages.sync(container, latest)
-    Mise.sync(container, latest)
-    Exports.sync(container, latest)
-    Shells.sync(container, latest)
+    Files.sync(container)
+    Packages.sync(container)
+    Mise.sync(container)
+    Exports.sync(container)
+    Shells.sync(container)
 
     Programs.post_sync(container)
   end
@@ -70,88 +66,5 @@ defmodule Habitat.Container do
     {user, 0} = __MODULE__.cmd(container, ["whoami"])
 
     String.trim(user)
-  end
-
-  defmodule State do
-    def delete(container) do
-      db_path = root(container.root)
-
-      Logger.debug("Deleting container database #{db_path}")
-
-      File.rm_rf!(db_path)
-    end
-
-    def latest(container) do
-      file =
-        container.root
-        |> files()
-        |> List.first()
-
-      (file && load(file)) || %{exports: [], files: [], mise: [], packages: []}
-    end
-
-    def save(curr, prev) do
-      Logger.info("Saving container state")
-
-      next =
-        curr
-        |> update_in([:files], &Enum.map(&1, fn {_, to} -> to end))
-        |> Map.take([:exports, :files, :mise, :packages])
-
-      if next != prev do
-        contents =
-          next
-          |> JSON.encode!()
-          |> tap(&Logger.debug(&1))
-
-        curr.root
-        |> root()
-        |> Path.join("#{version()}.json")
-        |> File.write!(contents)
-      end
-    end
-
-    defp load(file) do
-      Logger.info("Reading snapshot #{file}")
-
-      %{"exports" => exports, "files" => files, "mise" => mise, "packages" => packages} =
-        File.read!(file) |> JSON.decode!()
-
-      %{exports: exports, files: files, mise: mise, packages: packages}
-    end
-
-    defp files(root) do
-      r = root(root)
-
-      r
-      |> tap(&ensure_root/1)
-      |> File.ls!()
-      |> Enum.sort()
-      |> Enum.reverse()
-      |> Enum.map(&Path.join(r, &1))
-    end
-
-    defp ensure_root(root) do
-      File.mkdir_p(root)
-    end
-
-    defp root(base), do: Path.join([base, ".local", "share", "habitat"])
-
-    defp version() do
-      %{
-        year: year,
-        month: month,
-        day: day,
-        hour: hour,
-        minute: minute,
-        second: second,
-        microsecond: microsecond
-      } = NaiveDateTime.utc_now()
-
-      date = Calendar.ISO.date_to_string(year, month, day, :basic)
-      time = Calendar.ISO.time_to_string(hour, minute, second, microsecond, :basic)
-
-      "#{date}.#{time}"
-    end
   end
 end

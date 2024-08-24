@@ -46,7 +46,7 @@ defmodule Habitat.Shells do
     Shells.put(container, shell, :high, "environment", vars)
   end
 
-  def sync(%{shells: shells} = container, _) do
+  def sync(%{shells: shells} = container) do
     user = Container.username(container)
     default = hd(shells)
 

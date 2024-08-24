@@ -18,7 +18,7 @@ defmodule Habitat.Mise do
     |> Packages.put("mise")
   end
 
-  def sync(curr, prev) do
+  def sync(curr) do
     Container.cmd(curr, ["sudo", "mkdir", "-p", data_dir()])
     Container.cmd(curr, ["sudo", "chown", Container.username(curr), data_dir()])
 

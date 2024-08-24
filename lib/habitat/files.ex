@@ -72,16 +72,11 @@ defmodule Habitat.Files do
     )
   end
 
-  def sync(curr, prev) do
+  def sync(curr) do
     Logger.info("Syncing files")
 
     mappings = curr.files |> Map.new(fn {k, v} -> {v, k} end)
     curr_tos = mappings |> Map.keys() |> MapSet.new()
-    prev_tos = MapSet.new(prev.files)
-
-    to_unmanage = MapSet.difference(prev_tos, curr_tos)
-    Logger.info("Unmanaging #{inspect(to_unmanage)}")
-    Enum.each(to_unmanage, &unmanage/1)
 
     to_manage = curr_tos
     Logger.info("Managing #{inspect(to_manage)}")
@@ -109,19 +104,6 @@ defmodule Habitat.Files do
         Logger.debug("Creating symbolic link from #{from} to #{to}")
         to |> Path.dirname() |> File.mkdir_p!()
         from |> Path.expand() |> File.ln_s!(Path.expand(to))
-    end
-  end
-
-  def unmanage(to) do
-    cond do
-      File.dir?(to) ->
-        File.rmdir!(to)
-
-      File.exists?(to) ->
-        File.rm!(to)
-
-      true ->
-        nil
     end
   end
 end

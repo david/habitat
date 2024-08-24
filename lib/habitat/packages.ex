@@ -13,7 +13,7 @@ defmodule Habitat.Packages do
     update_in(container, [:packages], &(&1 ++ packages))
   end
 
-  def sync(curr, _) do
+  def sync(curr) do
     install(curr)
   end
 
