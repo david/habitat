@@ -1,6 +1,5 @@
-defmodule Habitat.Tasks.Shells do
-  alias Habitat.{Container, Programs}
-  alias Habitat.Tasks.{Files, Shells}
+defmodule Habitat.Shells do
+  alias Habitat.{Container, Files, Programs, Shells}
 
   def init(container) do
     container

@@ -1,6 +1,6 @@
 defmodule Habitat.Programs.Mysql do
-  alias Habitat.Container
-  alias Habitat.Tasks.{Mise, Packages}
+  alias Habitat.{Container, Mise, Packages}
+
   require Logger
 
   def pre_sync(container, spec) do

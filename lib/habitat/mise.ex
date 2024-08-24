@@ -1,6 +1,5 @@
-defmodule Habitat.Tasks.Mise do
-  alias Habitat.Container
-  alias Habitat.Tasks.{Packages, Shells}
+defmodule Habitat.Mise do
+  alias Habitat.{Container, Packages, Shells}
 
   require Logger
 

@@ -1,5 +1,6 @@
-defmodule Habitat.Tasks.Exports do
+defmodule Habitat.Exports do
   alias Habitat.Container
+
   require Logger
 
   def init(container) do

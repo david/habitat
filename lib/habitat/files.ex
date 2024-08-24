@@ -1,4 +1,4 @@
-defmodule Habitat.Tasks.Files do
+defmodule Habitat.Files do
   require Logger
 
   defmodule Glob do

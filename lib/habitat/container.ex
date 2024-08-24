@@ -1,5 +1,5 @@
 defmodule Habitat.Container do
-  alias Habitat.{Tasks, Programs}
+  alias Habitat.{Exports, Files, Mise, Packages, Programs, Shells}
 
   require Logger
 
@@ -38,25 +38,23 @@ defmodule Habitat.Container do
 
     container =
       container
-      |> Tasks.Exports.init()
-      |> Tasks.Files.init()
-      |> Tasks.Mise.init()
-      |> Tasks.Packages.init()
-      |> Tasks.Shells.init()
+      |> Exports.init()
+      |> Files.init()
+      |> Mise.init()
+      |> Packages.init()
+      |> Shells.init()
       |> Programs.pre_sync()
-      |> Tasks.Mise.pre_sync()
-      |> Tasks.Shells.pre_sync()
-      |> Tasks.Files.pre_sync()
+      |> Mise.pre_sync()
+      |> Shells.pre_sync()
+      |> Files.pre_sync()
 
-    Tasks.Files.sync(container, latest)
-    Tasks.Packages.sync(container, latest)
-    Tasks.Mise.sync(container, latest)
-    Tasks.Exports.sync(container, latest)
-    Tasks.Shells.sync(container, latest)
+    Files.sync(container, latest)
+    Packages.sync(container, latest)
+    Mise.sync(container, latest)
+    Exports.sync(container, latest)
+    Shells.sync(container, latest)
 
     Programs.post_sync(container)
-
-    __MODULE__.State.save(container, latest)
   end
 
   def cmd(container, args, env \\ %{}) do

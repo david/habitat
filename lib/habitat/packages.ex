@@ -1,4 +1,4 @@
-defmodule Habitat.Tasks.Packages do
+defmodule Habitat.Packages do
   require Logger
 
   def init(container) do

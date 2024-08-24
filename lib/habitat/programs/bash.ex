@@ -1,6 +1,7 @@
 defmodule Habitat.Programs.Bash do
+  alias Habitat.{Files, Packages}
+
   require Logger
-  alias Habitat.Tasks.{Files, Packages}
 
   def pre_sync(container, _) do
     Logger.info("Configuring bash")

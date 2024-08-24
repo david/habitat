@@ -1,5 +1,6 @@
 defmodule Habitat.Programs.Nodejs do
-  alias Habitat.Tasks.Mise
+  alias Habitat.Mise
+
   require Logger
 
   def pre_sync(container, spec) do

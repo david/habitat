@@ -1,5 +1,6 @@
 defmodule Habitat.Programs.Atuin do
-  alias Habitat.Tasks.{Packages, Shells}
+  alias Habitat.{Packages, Shells}
+
   require Logger
 
   def pre_sync(container, _) do

@@ -1,6 +1,7 @@
 defmodule Habitat.Programs.Zoxide do
+  alias Habitat.{Packages, Shells}
+
   require Logger
-  alias Habitat.Tasks.{Packages, Shells}
 
   def pre_sync(container, _) do
     Logger.info("Configuring zoxide")

@@ -1,5 +1,6 @@
 defmodule Habitat.Programs.Ruby do
-  alias Habitat.Tasks.{Mise, Packages}
+  alias Habitat.{Mise, Packages}
+
   require Logger
 
   def pre_sync(container, spec) do
