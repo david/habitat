@@ -44,6 +44,7 @@ defmodule Habitat.Container do
       |> Tasks.Packages.init()
       |> Tasks.Shells.init()
       |> Programs.pre_sync()
+      |> Tasks.Mise.pre_sync()
       |> Tasks.Shells.pre_sync()
       |> Tasks.Files.pre_sync()
 
@@ -51,17 +52,26 @@ defmodule Habitat.Container do
     Tasks.Packages.sync(container, latest)
     Tasks.Mise.sync(container, latest)
     Tasks.Exports.sync(container, latest)
+    Tasks.Shells.sync(container, latest)
 
     Programs.post_sync(container)
 
     __MODULE__.State.save(container, latest)
   end
 
-  def cmd(container, args) do
+  def cmd(container, args, env \\ %{}) do
+    env_strs = for {k, v} <- env, do: "#{k}=#{v}"
+
     System.cmd(
       "distrobox-host-exec",
-      ["distrobox", "enter", "--name", container.name, "--"] ++ args
+      ["distrobox", "enter", "--name", container.name, "--", "env"] ++ env_strs ++ args
     )
+  end
+
+  def username(container) do
+    {user, 0} = __MODULE__.cmd(container, ["whoami"])
+
+    String.trim(user)
   end
 
   defmodule State do

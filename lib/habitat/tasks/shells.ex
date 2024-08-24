@@ -47,8 +47,8 @@ defmodule Habitat.Tasks.Shells do
     Shells.put(container, shell, :high, "environment", vars)
   end
 
-  def sync(%{shells: shells} = container) do
-    {user, 0} = Container.cmd(container, ["whoami"])
+  def sync(%{shells: shells} = container, _) do
+    user = Container.username(container)
     default = hd(shells)
 
     # Use sudo and username because otherwise this won't work inside distrobox
