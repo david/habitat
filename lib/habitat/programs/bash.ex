@@ -30,6 +30,8 @@ defmodule Habitat.Programs.Bash do
         source $f
       done
     fi
+
+    source ~/.bashrc
     """
   end
 end
