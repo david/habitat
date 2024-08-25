@@ -13,13 +13,9 @@ defmodule Habitat.Packages do
     update_in(container, [:packages], &(&1 ++ packages))
   end
 
-  def sync(curr) do
-    install(curr)
-  end
+  def sync(%{packages: []} = container), do: container
 
-  defp install(%{packages: []}), do: nil
-
-  defp install(%{packages: packages} = container) do
+  def sync(%{packages: packages} = container) do
     container.os.install(container, packages)
   end
 end
