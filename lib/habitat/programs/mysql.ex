@@ -1,14 +1,13 @@
 defmodule Habitat.Programs.Mysql do
-  alias Habitat.{Container, Mise, Packages}
+  alias Habitat.Container
 
   require Logger
 
-  def pre_sync(container, spec) do
+  def pre_sync(container, _) do
     Logger.info("Configuring mysql")
 
     container
-    |> Packages.put(["libaio", "numactl"])
-    |> Mise.put("mysql", spec)
+    # |> Packages.put(["libaio", "numactl"])
   end
 
   def post_sync(container, _) do
@@ -32,15 +31,15 @@ defmodule Habitat.Programs.Mysql do
     datadir = Path.join([container.root, ".local", "share", "mysql-data"])
 
     unless File.exists?(datadir) do
-      Mise.exec(
-        container,
-        "mysql",
-        [
-          "mysqld",
-          "--initialize-insecure",
-          "--datadir=#{datadir}"
-        ]
-      )
+      # Mise.exec(
+      #  container,
+      #  "mysql",
+      #  [
+      #    "mysqld",
+      #    "--initialize-insecure",
+      #    "--datadir=#{datadir}"
+      #  ]
+      # )
     end
   end
 end
