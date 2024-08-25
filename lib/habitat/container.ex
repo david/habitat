@@ -50,13 +50,13 @@ defmodule Habitat.Container do
     Programs.post_sync(container)
   end
 
-  def cmd(container, args, env \\ %{}) do
-    env_strs = for {k, v} <- env, do: "#{k}=#{v}"
+  def cmd(container, args, opts \\ []) do
+    cmd =
+      ["distrobox", "enter", "--name", container.name, "--", "env"] ++
+        if(Keyword.get(opts, :root), do: ["sudo"], else: []) ++
+        args
 
-    System.cmd(
-      "distrobox-host-exec",
-      ["distrobox", "enter", "--name", container.name, "--", "env"] ++ env_strs ++ args
-    )
+    System.cmd("distrobox-host-exec", cmd)
   end
 
   def username(container) do
