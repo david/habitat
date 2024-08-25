@@ -58,16 +58,33 @@ defmodule Habitat.Files do
     put(container, {:string, string}, to)
   end
 
+  def put_dir(container, dir) do
+    update_in(container, [:files], &(&1 ++ [{nil, {:dir, expand(dir, container.root)}}]))
+  end
+
+  def put_symlink(container, src, target) do
+    full_target = target |> expand(container.root) |> Path.expand()
+    full_src = src |> expand(container.root) |> Path.expand()
+
+    update_in(container, [:files], &(&1 ++ [{full_src, full_target}]))
+  end
+
   def pre_sync(container) do
     update_in(
       container,
       [:files],
       &Enum.flat_map(&1, fn {from, to} ->
-        Glob.glob(
-          from,
-          to |> String.replace("~", container.root) |> Path.expand(),
-          container.root
-        )
+        case to do
+          {:dir, dir} ->
+            [{from, {:dir, dir}}]
+
+          _ ->
+            Glob.glob(
+              from,
+              to |> String.replace("~", container.root) |> Path.expand(),
+              container.root
+            )
+        end
       end)
     )
   end
@@ -80,14 +97,16 @@ defmodule Habitat.Files do
 
     to_manage = curr_tos
     Logger.info("Managing #{inspect(to_manage)}")
+
     Enum.each(to_manage, &manage(&1, mappings[&1]))
   end
 
   defp manage(to, from) do
     cond do
-      from == :dir ->
-        Logger.debug("Creating directory #{to}")
-        File.mkdir_p!(Path.expand(to))
+      match?({:dir, _}, to) ->
+        {:dir, dir} = to
+        Logger.debug("Creating directory #{dir}")
+        File.mkdir_p!(dir)
 
       match?({:string, _}, from) ->
         {:string, contents} = from
@@ -99,11 +118,16 @@ defmodule Habitat.Files do
         Logger.warning("#{to}: Cowardly refusing to override a directory with a symbolic link")
 
       true ->
-        if File.exists?(to), do: File.rm!(to)
-
         Logger.debug("Creating symbolic link from #{from} to #{to}")
+
+        File.rm(to)
+
         to |> Path.dirname() |> File.mkdir_p!()
         from |> Path.expand() |> File.ln_s!(Path.expand(to))
     end
+  end
+
+  defp expand(path, root) do
+    path |> String.replace("~", root) |> Path.expand()
   end
 end
