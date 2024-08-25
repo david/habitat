@@ -1,14 +1,14 @@
-defmodule Habitat.Programs.AtuinTest do
+defmodule Habitat.Modules.AtuinTest do
   use ExUnit.Case
 
-  alias Habitat.Programs.Atuin
+  alias Habitat.Modules.Atuin
 
   doctest Atuin
 
   test "adds the correct package" do
     container =
       Atuin.pre_sync(
-        %{programs: [:atuin], packages: []},
+        %{modules: [:atuin], packages: []},
         %{}
       )
 
@@ -19,7 +19,7 @@ defmodule Habitat.Programs.AtuinTest do
     test "adds shell config" do
       container =
         Atuin.pre_sync(
-          %{files: [], programs: [:atuin, :bash], packages: []},
+          %{files: [], modules: [:atuin, :bash], packages: []},
           %{}
         )
 
@@ -36,7 +36,7 @@ defmodule Habitat.Programs.AtuinTest do
     test "adds shell config" do
       container =
         Atuin.pre_sync(
-          %{files: [], programs: [:atuin, :zsh], packages: []},
+          %{files: [], modules: [:atuin, :zsh], packages: []},
           %{}
         )
 

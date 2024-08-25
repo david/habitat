@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Mysql do
+defmodule Habitat.Modules.Mysql do
   alias Habitat.Container
 
   require Logger

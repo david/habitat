@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Ruby do
+defmodule Habitat.Modules.Ruby do
   alias Habitat.Packages
 
   require Logger

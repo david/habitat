@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Git do
+defmodule Habitat.Modules.Git do
   alias Habitat.Packages
 
   require Logger

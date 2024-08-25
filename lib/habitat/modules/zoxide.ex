@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Zoxide do
+defmodule Habitat.Modules.Zoxide do
   alias Habitat.{Packages, Shells}
 
   require Logger

@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Bash do
+defmodule Habitat.Modules.Bash do
   alias Habitat.{Files, Packages}
 
   require Logger

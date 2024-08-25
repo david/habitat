@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Starship do
+defmodule Habitat.Modules.Starship do
   alias Habitat.{Packages, Shells}
 
   require Logger

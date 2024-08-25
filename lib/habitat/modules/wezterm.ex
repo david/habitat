@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Wezterm do
+defmodule Habitat.Modules.Wezterm do
   alias Habitat.{Exports, Packages}
 
   require Logger

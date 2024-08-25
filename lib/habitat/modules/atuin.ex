@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Atuin do
+defmodule Habitat.Modules.Atuin do
   alias Habitat.{Packages, Shells}
 
   require Logger

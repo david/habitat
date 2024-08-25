@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Lsd do
+defmodule Habitat.Modules.Lsd do
   alias Habitat.Packages
 
   require Logger

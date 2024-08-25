@@ -1,14 +1,14 @@
-defmodule Habitat.Programs.ZoxideTest do
+defmodule Habitat.Modules.ZoxideTest do
   use ExUnit.Case
 
-  alias Habitat.Programs.Zoxide
+  alias Habitat.Modules.Zoxide
 
   doctest Zoxide
 
   test "adds the correct package" do
     container =
       Zoxide.pre_sync(
-        %{programs: [:zoxide], packages: []},
+        %{modules: [:zoxide], packages: []},
         %{}
       )
 
@@ -19,7 +19,7 @@ defmodule Habitat.Programs.ZoxideTest do
     test "adds shell config" do
       container =
         Zoxide.pre_sync(
-          %{files: [], programs: [:zoxide, :bash], packages: []},
+          %{files: [], modules: [:zoxide, :bash], packages: []},
           %{}
         )
 
@@ -36,7 +36,7 @@ defmodule Habitat.Programs.ZoxideTest do
     test "adds shell config" do
       container =
         Zoxide.pre_sync(
-          %{files: [], programs: [:zoxide, :zsh], packages: []},
+          %{files: [], modules: [:zoxide, :zsh], packages: []},
           %{}
         )
 

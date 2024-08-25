@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Neovim do
+defmodule Habitat.Modules.Neovim do
   alias Habitat.Packages
 
   require Logger

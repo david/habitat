@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Lazygit do
+defmodule Habitat.Modules.Lazygit do
   alias Habitat.Packages
 
   require Logger

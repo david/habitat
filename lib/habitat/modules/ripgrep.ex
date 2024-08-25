@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Ripgrep do
+defmodule Habitat.Modules.Ripgrep do
   alias Habitat.Packages
 
   require Logger

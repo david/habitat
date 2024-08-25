@@ -1,14 +1,14 @@
-defmodule Habitat.Programs.StarshipTest do
+defmodule Habitat.Modules.StarshipTest do
   use ExUnit.Case
 
-  alias Habitat.Programs.Starship
+  alias Habitat.Modules.Starship
 
   doctest Starship
 
   test "adds the correct package" do
     container =
       Starship.pre_sync(
-        %{programs: [:starship], packages: []},
+        %{modules: [:starship], packages: []},
         %{}
       )
 
@@ -19,7 +19,7 @@ defmodule Habitat.Programs.StarshipTest do
     test "adds shell config" do
       container =
         Starship.pre_sync(
-          %{files: [], programs: [:starship, :bash], packages: []},
+          %{files: [], modules: [:starship, :bash], packages: []},
           %{}
         )
 
@@ -36,7 +36,7 @@ defmodule Habitat.Programs.StarshipTest do
     test "adds shell config" do
       container =
         Starship.pre_sync(
-          %{files: [], programs: [:starship, :zsh], packages: []},
+          %{files: [], modules: [:starship, :zsh], packages: []},
           %{}
         )
 

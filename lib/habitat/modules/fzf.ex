@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Fzf do
+defmodule Habitat.Modules.Fzf do
   alias Habitat.Packages
 
   require Logger

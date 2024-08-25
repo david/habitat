@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Zsh do
+defmodule Habitat.Modules.Zsh do
   alias Habitat.{Files, Packages}
 
   require Logger

@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.WlClipboard do
+defmodule Habitat.Modules.WlClipboard do
   alias Habitat.Packages
 
   require Logger

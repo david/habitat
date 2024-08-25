@@ -1,4 +1,4 @@
-defmodule Habitat.Programs.Nodejs do
+defmodule Habitat.Modules.Nodejs do
   require Logger
 
   def pre_sync(container, spec) do

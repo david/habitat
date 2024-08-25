@@ -1,5 +1,5 @@
 defmodule Habitat.Shells do
-  alias Habitat.{Container, Files, Programs, Shells}
+  alias Habitat.{Container, Files, Modules, Shells}
 
   def init(container) do
     container
@@ -34,7 +34,7 @@ defmodule Habitat.Shells do
   end
 
   defp select_shell(container, shell) do
-    Programs.to_module(shell).pre_sync(container, %{})
+    Modules.to_module(shell).pre_sync(container, %{})
   end
 
   def prepare_env(%{env: env} = container, shell) do
