@@ -1,11 +1,11 @@
 defmodule Habitat.Modules.Neovim do
-  alias Habitat.Packages
+  use Habitat.Module
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring neovim")
 
-    Packages.put(container, "neovim")
+    install(container, "neovim")
   end
 end

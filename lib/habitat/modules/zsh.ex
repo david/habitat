@@ -1,15 +1,18 @@
 defmodule Habitat.Modules.Zsh do
-  alias Habitat.{Files, Packages}
+  use Habitat.Module
+
+  alias Habitat.Files
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring zsh")
 
+    install("zsh")
+
     container
     |> Files.put_string(zprofile(), "~/.zprofile")
     |> Files.put_string(zshrc(), "~/.zshrc")
-    |> Packages.put("zsh")
   end
 
   defp zshrc() do

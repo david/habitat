@@ -1,15 +1,17 @@
 defmodule Habitat.Modules.Bash do
-  alias Habitat.{Files, Packages}
+  use Habitat.Module
+  alias Habitat.{Files}
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring bash")
 
+    install(container, "bash")
+
     container
     |> Files.put_string(bash_profile(), "~/.bash_profile")
     |> Files.put_string(bashrc(), "~/.bashrc")
-    |> Packages.put("bash")
   end
 
   defp bashrc() do

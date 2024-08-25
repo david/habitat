@@ -1,11 +1,11 @@
 defmodule Habitat.Modules.Lazygit do
-  alias Habitat.Packages
+  use Habitat.Module
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring lazygit")
 
-    Packages.put(container, "lazygit")
+    install(container, "lazygit")
   end
 end

@@ -1,12 +1,11 @@
 defmodule Habitat.Modules.Ruby do
-  alias Habitat.Packages
+  use Habitat.Module
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring ruby")
 
-    container
-    |> Packages.put(["rust", "libffi", "libyaml", "openssl", "zlib"])
+    # install(["rust", "libffi", "libyaml", "openssl", "zlib"])
   end
 end

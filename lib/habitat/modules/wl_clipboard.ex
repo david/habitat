@@ -1,11 +1,11 @@
 defmodule Habitat.Modules.WlClipboard do
-  alias Habitat.Packages
+  use Habitat.Module
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring wl-clipboard")
 
-    Packages.put(container, "wl-clipboard")
+    install(container, "wl-clipboard")
   end
 end

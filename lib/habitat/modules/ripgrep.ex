@@ -1,11 +1,11 @@
 defmodule Habitat.Modules.Ripgrep do
-  alias Habitat.Packages
+  use Habitat.Module
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring ripgrep")
 
-    Packages.put(container, "ripgrep")
+    install(container, "ripgrep")
   end
 end

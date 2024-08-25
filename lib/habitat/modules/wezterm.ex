@@ -1,12 +1,14 @@
 defmodule Habitat.Modules.Wezterm do
-  alias Habitat.{Exports, Packages}
+  use Habitat.Module
+
+  alias Habitat.Exports
 
   require Logger
 
   def pre_sync(container, opts) do
     Logger.info("Configuring wezterm")
 
-    container = Packages.put(container, "wezterm")
+    install(container, "wezterm")
 
     if Keyword.get(opts, :export) do
       Exports.put(container, "wezterm")

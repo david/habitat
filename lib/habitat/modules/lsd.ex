@@ -1,11 +1,11 @@
 defmodule Habitat.Modules.Lsd do
-  alias Habitat.Packages
+  use Habitat.Module
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring lsd")
 
-    Packages.put(container, "lsd")
+    install(container, "lsd")
   end
 end

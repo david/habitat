@@ -1,11 +1,11 @@
 defmodule Habitat.Modules.Bat do
-  alias Habitat.Packages
+  use Habitat.Module
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring bat")
 
-    Packages.put(container, "bat")
+    install(container, "bat")
   end
 end

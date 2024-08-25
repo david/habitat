@@ -1,11 +1,11 @@
 defmodule Habitat.Modules.Git do
-  alias Habitat.Packages
+  use Habitat.Module
 
   require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring git")
 
-    Packages.put(container, "git")
+    install(container, "git")
   end
 end
