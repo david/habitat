@@ -12,16 +12,6 @@ defmodule Habitat.Programs.Zsh do
     |> Packages.put("zsh")
   end
 
-  defp packages(opts) do
-    ["zsh"] ++ plugins(opts)
-  end
-
-  defp plugins(%{plugins: plugins}) when is_list(plugins) do
-    Enum.map(plugins || [], &{:gh, &1})
-  end
-
-  defp plugins(_), do: []
-
   defp zshrc() do
     """
     [[ $- == *i* ]] || return
