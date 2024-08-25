@@ -8,6 +8,6 @@ defmodule Habitat.OS.Tumbleweed do
   end
 
   def post_create(container) do
-    Zypper.install(container, "which", force: true)
+    Zypper.install(container, ["which"], force: true)
   end
 end
