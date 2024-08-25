@@ -1,22 +1,12 @@
 defmodule Habitat.Container do
-  alias Habitat.{Exports, Files, Packages, Modules, Shells}
+  alias Habitat.{Distrobox, Exports, Files, Packages, Modules, Shells}
 
   require Logger
 
   def create(container) do
     Logger.info("Creating container #{container.name}")
 
-    {_, 0} =
-      System.cmd("distrobox-host-exec", [
-        "distrobox",
-        "create",
-        "--image",
-        to_string(container.os.image()) <> ":latest",
-        "--name",
-        container.name,
-        "--home",
-        container.root
-      ])
+    Distrobox.create(container)
 
     container.os.post_create(container)
   end
@@ -24,8 +14,8 @@ defmodule Habitat.Container do
   def delete(container) do
     Logger.info("Deleting container #{container.name}")
 
-    System.cmd("distrobox-host-exec", ["distrobox", "stop", container.name])
-    System.cmd("distrobox-host-exec", ["distrobox", "rm", container.name])
+    Distrobox.stop(container)
+    Distrobox.rm(container)
   end
 
   def sync(container) do
@@ -51,12 +41,7 @@ defmodule Habitat.Container do
   end
 
   def cmd(container, args, opts \\ []) do
-    cmd =
-      ["distrobox", "enter", "--name", container.name, "--", "env"] ++
-        if(Keyword.get(opts, :root), do: ["sudo"], else: []) ++
-        args
-
-    System.cmd("distrobox-host-exec", cmd)
+    Distrobox.cmd(container, args, opts)
   end
 
   def username(container) do
