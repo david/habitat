@@ -3,11 +3,7 @@ defmodule Habitat.Modules.Zoxide do
 
   alias Habitat.Shells
 
-  require Logger
-
   def pre_sync(container, _) do
-    Logger.info("Configuring zoxide")
-
     install(container, "zoxide")
 
     container

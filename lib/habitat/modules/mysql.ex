@@ -1,11 +1,7 @@
 defmodule Habitat.Modules.Mysql do
   alias Habitat.Container
 
-  require Logger
-
   def pre_sync(container, _) do
-    Logger.info("Configuring mysql")
-
     container
     # |> Packages.put(["libaio", "numactl"])
   end

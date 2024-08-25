@@ -2,11 +2,7 @@ defmodule Habitat.Modules.Bash do
   use Habitat.Module
   alias Habitat.{Files}
 
-  require Logger
-
   def pre_sync(container, _) do
-    Logger.info("Configuring bash")
-
     install(container, "bash")
 
     container

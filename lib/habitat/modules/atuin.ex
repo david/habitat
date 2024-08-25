@@ -2,11 +2,7 @@ defmodule Habitat.Modules.Atuin do
   use Habitat.Module
   alias Habitat.Shells
 
-  require Logger
-
   def pre_sync(container, _) do
-    Logger.info("Configuring atuin")
-
     install(container, "atuin")
 
     container

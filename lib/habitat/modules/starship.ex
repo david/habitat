@@ -1,13 +1,9 @@
 defmodule Habitat.Modules.Starship do
   use Habitat.Module
 
-  alias Habitat.{Shells}
-
-  require Logger
+  alias Habitat.Shells
 
   def pre_sync(container, _) do
-    Logger.info("Configuring starship")
-
     install(container, "starship")
 
     container

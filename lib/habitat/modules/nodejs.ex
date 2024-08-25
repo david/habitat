@@ -1,9 +1,5 @@
 defmodule Habitat.Modules.Nodejs do
-  require Logger
-
   def pre_sync(container, spec) do
-    Logger.info("Configuring nodejs")
-
     container
     |> put_yarn(spec)
   end
