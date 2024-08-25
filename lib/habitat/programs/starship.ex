@@ -1,6 +1,7 @@
 defmodule Habitat.Programs.Starship do
-  require Logger
   alias Habitat.{Packages, Shells}
+
+  require Logger
 
   def pre_sync(container, _) do
     Logger.info("Configuring starship")
