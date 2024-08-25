@@ -1,4 +1,6 @@
 defmodule Habitat.Module do
+  alias Habitat.OS
+
   defmacro __using__(_) do
     quote do
       import unquote(__MODULE__)
@@ -6,7 +8,7 @@ defmodule Habitat.Module do
   end
 
   def install(container, package) when is_binary(package) do
-    :ok = container.os.install(container, [package])
+    :ok = OS.get(container.os).install(container, [package])
 
     container
   end

@@ -1,4 +1,6 @@
 defmodule Habitat.Packages do
+  alias Habitat.OS
+
   require Logger
 
   def init(container) do
@@ -16,6 +18,6 @@ defmodule Habitat.Packages do
   def sync(%{packages: []} = container), do: container
 
   def sync(%{packages: packages} = container) do
-    container.os.install(container, packages)
+    OS.get(container.os).install(container, packages)
   end
 end

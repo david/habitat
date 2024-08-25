@@ -1,4 +1,6 @@
 defmodule Habitat.Distrobox do
+  alias Habitat.OS
+
   def cmd(%{name: name}, args, opts \\ []) do
     cmd =
       ["distrobox", "enter", "--name", name, "--", "env"] ++
@@ -14,7 +16,7 @@ defmodule Habitat.Distrobox do
         "distrobox",
         "create",
         "--image",
-        to_string(os.image()) <> ":latest",
+        to_string(OS.get(os).image()) <> ":latest",
         "--name",
         name,
         "--home",

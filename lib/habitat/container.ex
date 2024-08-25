@@ -1,5 +1,5 @@
 defmodule Habitat.Container do
-  alias Habitat.{Distrobox, Exports, Files, Packages, Modules, Shells}
+  alias Habitat.{Distrobox, Exports, Files, Packages, Modules, OS, Shells}
 
   require Logger
 
@@ -8,7 +8,7 @@ defmodule Habitat.Container do
 
     Distrobox.create(container)
 
-    container.os.post_create(container)
+    OS.get(container.os).post_create(container)
   end
 
   def delete(container) do
