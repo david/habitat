@@ -1,47 +1,6 @@
 defmodule Habitat.Files do
   require Logger
 
-  defmodule Glob do
-    def glob({_, _} = from, to, root) do
-      [{from, expand(to, root)}]
-    end
-
-    def glob(wildcard, to, root) do
-      wildcard = Path.expand(wildcard)
-
-      if wildcard?(wildcard) do
-        wildcard
-        |> Path.wildcard()
-        |> Enum.reject(&File.dir?(&1))
-        |> Enum.map(&{&1, &1 |> translate(to, wildcard) |> expand(root)})
-      else
-        [{wildcard, expand(to, root)}]
-      end
-    end
-
-    defp translate(from, to, wildcard) do
-      static =
-        wildcard
-        |> Path.split()
-        |> Enum.take_while(&(!wildcard?(&1)))
-        |> Path.join()
-
-      Path.join(to, String.replace(from, static, ""))
-    end
-
-    defp wildcard?(s) when is_binary(s) do
-      s =~ ~r/\*/ || s =~ ~r/\[.+\]/ || s =~ ~r/\{.+\}/
-    end
-
-    defp wildcard?(_), do: false
-
-    defp expand(path, root) do
-      path |> String.replace("~", root) |> Path.expand()
-    end
-  end
-
-  alias __MODULE__.Glob
-
   def init(container) do
     Map.put_new(container, :files, [])
   end
@@ -66,64 +25,124 @@ defmodule Habitat.Files do
     full_target = target |> expand(container.root) |> Path.expand()
     full_src = src |> expand(container.root) |> Path.expand()
 
-    update_in(container, [:files], &(&1 ++ [{full_src, full_target}]))
+    update_in(container, [:files], &(&1 ++ [{full_src, {:symlink, full_target}}]))
   end
 
-  def pre_sync(container) do
-    update_in(
-      container,
-      [:files],
-      &Enum.flat_map(&1, fn {from, to} ->
-        case to do
-          {:dir, dir} ->
-            [{from, {:dir, dir}}]
+  def pre_sync(container), do: container
 
-          _ ->
-            Glob.glob(
-              from,
-              to |> String.replace("~", container.root) |> Path.expand(),
-              container.root
-            )
-        end
-      end)
-    )
-  end
-
-  def sync(curr) do
+  def sync(container) do
     Logger.info("Syncing files")
 
-    mappings = curr.files |> Map.new(fn {k, v} -> {v, k} end)
-    curr_tos = mappings |> Map.keys() |> MapSet.new()
-
-    to_manage = curr_tos
-    Logger.info("Managing #{inspect(to_manage)}")
-
-    Enum.each(to_manage, &manage(&1, mappings[&1]))
+    for {src, target} <- container.files, do: sync_path(container, src, target)
   end
 
-  defp manage(to, from) do
+  def sync_path(container, src, target) do
     cond do
-      match?({:dir, _}, to) ->
-        {:dir, dir} = to
-        Logger.debug("Creating directory #{dir}")
-        File.mkdir_p!(dir)
+      src == nil && match?({_, _}, target) ->
+        create_path(container, target)
 
-      match?({:string, _}, from) ->
-        {:string, contents} = from
-        Logger.debug("Writing string to #{to}")
-        to |> Path.dirname() |> File.mkdir_p!()
-        File.write!(Path.expand(to), contents)
+      match?({:string, _}, src) && is_binary(target) ->
+        write_string(container, elem(src, 1), target)
 
-      File.dir?(to) ->
-        Logger.warning("#{to}: Cowardly refusing to override a directory with a symbolic link")
+      File.dir?(src) ->
+        sync_dir(container, Path.expand(src), target)
 
-      true ->
-        Logger.debug("Creating symbolic link from #{from} to #{to}")
+      File.regular?(src) ->
+        sync_file(container, Path.expand(src), target)
+    end
+  end
 
-        File.rm(to)
+  defp create_path(container, {:dir, target}) do
+    target |> expand(container.root) |> File.mkdir_p!()
+  end
 
-        to |> Path.dirname() |> File.mkdir_p!()
-        from |> Path.expand() |> File.ln_s!(Path.expand(to))
+  defp write_string(container, contents, target) do
+    target = expand(target, container.root)
+
+    case File.lstat(target) do
+      {:ok, %{type: :symlink}} ->
+        linked = File.read_link!(target)
+        Logger.warning("Boldly replacing symlink from #{target} to #{linked} with a plain file")
+
+        File.rm!(target)
+        write_string(container, contents, target)
+
+      {:ok, %{type: :directory}} ->
+        Logger.warning("Cowardly refusing to replace directory #{target} with a file")
+
+      _ ->
+        File.write!(target, contents)
+    end
+  end
+
+  defp sync_file(container, src, target) do
+    target = expand(target, container.root)
+
+    case File.lstat(target) do
+      {:ok, %{type: :regular}} ->
+        Logger.warning("Cowardly refusing to replace file #{target} with a symlink")
+
+      {:ok, %{type: :directory}} ->
+        Logger.warning("Cowardly refusing to replace directory #{target} with a symlink")
+
+      {:ok, %{type: :symlink}} ->
+        src = Path.expand(src)
+        linked = File.read_link!(target)
+
+        unless linked == src do
+          Logger.warning(
+            "Boldly replacing symlink from #{target} to #{linked} with symlink to #{src}"
+          )
+
+          File.rm(target)
+          sync_file(container, src, target)
+        end
+
+      _ ->
+        File.ln_s!(src, target)
+    end
+  end
+
+  defp sync_dir(container, src, {:symlink, target}) do
+    target = expand(target, container.root)
+
+    case File.lstat(target) do
+      {:ok, %{type: :regular}} ->
+        Logger.warning("Cowardly refusing to replace file #{target} with a symlink")
+
+      {:ok, %{type: :directory}} ->
+        Logger.warning("Cowardly refusing to replace directory #{target} with a symlink")
+
+      _ ->
+        File.rm(target)
+        File.ln_s!(src, target)
+    end
+  end
+
+  defp sync_dir(container, src, target) do
+    target = expand(target, container.root)
+
+    case File.lstat(target) do
+      {:ok, %{type: :symlink}} ->
+        linked = File.read_link!(target)
+        Logger.warning("Boldly replacing symlink from #{target} to #{linked} with a directory")
+
+        File.rm!(target)
+        sync_dir(container, target, src)
+
+      {:ok, %{type: :regular}} ->
+        Logger.warning("Cowardly refusing to replace file #{target} with a directory")
+
+      _ ->
+        File.mkdir_p!(target)
+
+        for f <- File.ls!(src) do
+          sync_path(
+            container,
+            Path.join(src, f),
+            Path.join(target, f)
+          )
+        end
     end
   end
 
