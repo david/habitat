@@ -9,4 +9,5 @@
   "exqlite": {:hex, :exqlite, "0.23.0", "6e851c937a033299d0784994c66da24845415072adbc455a337e20087bce9033", [:make, :mix], [{:cc_precompiler, "~> 0.1", [hex: :cc_precompiler, repo: "hexpm", optional: false]}, {:db_connection, "~> 2.1", [hex: :db_connection, repo: "hexpm", optional: false]}, {:elixir_make, "~> 0.8", [hex: :elixir_make, repo: "hexpm", optional: false]}, {:table, "~> 0.1.0", [hex: :table, repo: "hexpm", optional: true]}], "hexpm", "404341cceec5e6466aaed160cf0b58be2019b60af82588c215e1224ebd3ec831"},
   "json": {:hex, :json, "1.4.1", "8648f04a9439765ad449bc56a3ff7d8b11dd44ff08ffcdefc4329f7c93843dfa", [:mix], [], "hexpm", "9abf218dbe4ea4fcb875e087d5f904ef263d012ee5ed21d46e9dbca63f053d16"},
   "telemetry": {:hex, :telemetry, "1.2.1", "68fdfe8d8f05a8428483a97d7aab2f268aaff24b49e0f599faa091f1d4e7f61c", [:rebar3], [], "hexpm", "dad9ce9d8effc621708f99eac538ef1cbe05d6a874dd741de2e689c47feafed5"},
+  "temp": {:hex, :temp, "0.4.8", "89769b507614e50969aee1ee51bc799cf658bdde7aa73ec3909cbf68d93b7525", [:mix], [], "hexpm", "1e86d2361df398d3803e0d495042a9a4548d2b7316b83c0d60ad54250b03c5db"},
 }

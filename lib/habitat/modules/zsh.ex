@@ -5,35 +5,9 @@ defmodule Habitat.Modules.Zsh do
 
   require Logger
 
-  def pre_sync(container, _) do
-    Logger.info("Configuring zsh")
-
-    install("zsh")
-
-    container
-    |> Files.put_string(zprofile(), "~/.zprofile")
-    |> Files.put_string(zshrc(), "~/.zshrc")
-  end
-
-  defp zshrc() do
-    """
-    [[ $- == *i* ]] || return
-
-    if [[ -d ~/.config/zsh/rc.d ]] ; then
-      for f in ~/.config/zsh/rc.d/* ; do
-        source $f
-      done
-    fi
-    """
-  end
-
-  defp zprofile() do
-    """
-    if [[ -d ~/.config/zsh/profile.d ]] ; then
-      for f in ~/.config/zsh/profile.d/* ; do
-        source $f
-      done
-    fi
-    """
+  def pre_sync(container_id, _, _) do
+    install(container_id, "zsh")
+    put_string(container_id, "~/.zprofile", "source ~/.zshrc")
+    put_string(container_id, "~/.zshrc", "")
   end
 end

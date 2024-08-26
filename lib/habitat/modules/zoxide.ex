@@ -3,11 +3,9 @@ defmodule Habitat.Modules.Zoxide do
 
   alias Habitat.Shells
 
-  def pre_sync(container, _) do
-    install(container, "zoxide")
-
-    container
-    |> Shells.put(:bash, "zoxide", "eval \"$(zoxide init bash)\"")
-    |> Shells.put(:zsh, "zoxide", "eval \"$(zoxide init zsh)\"")
+  def pre_sync(container_id, _, _) do
+    install(container_id, "zoxide")
+    append(container_id, "~/.bashrc", "eval \"$(zoxide init bash)\"")
+    append(container_id, "~/.zshrc", "eval \"$(zoxide init zsh)\"")
   end
 end

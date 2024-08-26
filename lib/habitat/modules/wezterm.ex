@@ -1,15 +1,15 @@
 defmodule Habitat.Modules.Wezterm do
   use Habitat.Module
 
-  alias Habitat.Exports
+  def pre_sync(container_id, opts, _) do
+    install(container_id, "wezterm")
 
-  def pre_sync(container, opts) do
-    install(container, "wezterm")
+    if config = Keyword.get(opts, :config) do
+      put_path(container_id, "~/.config/wezterm", config)
+    end
 
     if Keyword.get(opts, :export) do
-      Exports.put(container, "wezterm")
-    else
-      container
+      export(container_id, "wezterm")
     end
   end
 end

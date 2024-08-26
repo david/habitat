@@ -2,13 +2,18 @@ defmodule Mix.Tasks.Habitat.Delete do
   @shortdoc "Delete one or more containers"
 
   use Mix.Task
-  import Mix.Habitat
-  alias Habitat.Container
+
+  alias Habitat.{Blueprint, Container}
+
+  @requirements ["app.start"]
 
   @impl true
   def run(args) do
-    blueprint().containers()
-    |> Enum.filter(&(&1.name in args))
-    |> Enum.each(&Container.delete/1)
+    for arg <- args, id = String.to_atom(arg) do
+      {:ok, _} = Blueprint.get_container(id)
+
+      Container.stop(id)
+      Container.delete(id)
+    end
   end
 end

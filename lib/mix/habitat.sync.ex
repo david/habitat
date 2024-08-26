@@ -1,13 +1,19 @@
 defmodule Mix.Tasks.Habitat.Sync do
   @shortdoc "Update system configuration"
   use Mix.Task
-  import Mix.Habitat
-  alias Habitat.Container
+
+  alias Habitat.{Container, Modules, OS}
+
+  @requirements ["app.start"]
 
   @impl true
   def run(args) do
-    blueprint().containers()
-    |> Enum.filter(&(Enum.empty?(args) || &1.name in args))
-    |> Enum.each(&Container.sync/1)
+    for arg <- args, id = String.to_atom(arg) do
+      {:ok, blueprint} = Habitat.Blueprint.get_container(id)
+
+      OS.get(blueprint.os).pre_sync(id, blueprint)
+      Modules.pre_sync(id, blueprint)
+      Container.sync(id)
+    end
   end
 end

@@ -4,8 +4,8 @@ defmodule Mix.Tasks.Habitat.Reset do
   use Mix.Task
 
   @impl true
-  def run(args) do
-    Mix.Task.run("habitat.delete", args)
-    Mix.Task.run("habitat.create", args)
+  def run(names) do
+    Mix.Task.run("habitat.delete", names)
+    Mix.Task.run("habitat.create", names)
   end
 end

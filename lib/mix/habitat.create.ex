@@ -2,25 +2,15 @@ defmodule Mix.Tasks.Habitat.Create do
   @shortdoc "Create missing containers"
 
   use Mix.Task
-  import Mix.Habitat
-  alias Habitat.Container
+
+  @requirements ["app.start"]
 
   @impl true
   def run(args) do
-    {out, 0} = System.cmd("distrobox-host-exec", ["distrobox", "list", "--no-color"])
+    for arg <- args, id = String.to_atom(arg) do
+      {:ok, _} = Habitat.Blueprint.get_container(id)
 
-    created =
-      out
-      |> String.trim()
-      |> String.split("\n")
-      |> tl()
-      |> Enum.map(&String.split(&1, "|"))
-      |> Enum.map(fn [_id, name | _rest] -> String.trim(name) end)
-
-    blueprint().containers()
-    |> Enum.filter(fn c -> Enum.empty?(args) || c.name in args end)
-    |> tap(&Enum.each(&1, fn c -> File.mkdir_p!(c.root) end))
-    |> Enum.filter(&(&1.name not in created))
-    |> Enum.each(&Container.create/1)
+      Habitat.Container.create(id)
+    end
   end
 end

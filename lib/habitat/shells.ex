@@ -47,10 +47,7 @@ defmodule Habitat.Shells do
   end
 
   def sync(%{shells: shells} = container) do
-    user = Container.username(container)
     default = hd(shells)
-
-    # Use sudo and username because otherwise this won't work inside distrobox
-    Container.cmd(container, ["sudo", "chsh", "--shell", "/usr/bin/#{default}", String.trim(user)])
+    Container.chsh(container, "/usr/bin/#{default}")
   end
 end

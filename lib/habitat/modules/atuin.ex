@@ -1,12 +1,14 @@
 defmodule Habitat.Modules.Atuin do
   use Habitat.Module
-  alias Habitat.Shells
 
-  def pre_sync(container, _) do
-    install(container, "atuin")
+  def pre_sync(container_id, opts, _) do
+    install(container_id, "atuin")
 
-    container
-    |> Shells.put(:bash, "atuin", "eval \"$(atuin init bash)\"")
-    |> Shells.put(:zsh, "atuin", "eval \"$(atuin init zsh)\"")
+    if config = Keyword.get(opts, :config) do
+      put_string(container_id, "~/.config/atuin/config.toml", toml(config))
+    end
+
+    append(container_id, "~/.bashrc", "eval \"$(atuin init bash)\"")
+    append(container_id, "~/.zshrc", "eval \"$(atuin init zsh)\"")
   end
 end

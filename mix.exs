@@ -13,13 +13,15 @@ defmodule Habitat.MixProject do
 
   def application do
     [
-      extra_applications: [:logger]
+      mod: {Habitat.Application, []},
+      extra_applications: [:inets, :logger, :ssl]
     ]
   end
 
   defp deps do
     [
-      {:json, "~> 1.4"}
+      {:json, "~> 1.4"},
+      {:temp, "~> 0.4"}
     ]
   end
 end

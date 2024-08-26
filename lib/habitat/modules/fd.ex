@@ -1,7 +1,7 @@
-defmodule Habitat.Modules.Fzf do
+defmodule Habitat.Modules.Fd do
   use Habitat.Module
 
   def pre_sync(container, _, _) do
-    install(container, "fzf")
+    install(container, "fd")
   end
 end

@@ -1,39 +1,11 @@
 defmodule Habitat.Files do
   require Logger
 
-  def init(container) do
-    Map.put_new(container, :files, [])
-  end
-
-  def put(container, from, to) do
-    update_in(container, [:files], &[{from, to} | &1])
-  end
-
-  def put(container, mappings) do
-    update_in(container, [:files], &(&1 ++ mappings))
-  end
-
-  def put_string(container, string, to) do
-    put(container, {:string, string}, to)
-  end
-
-  def put_dir(container, dir) do
-    update_in(container, [:files], &(&1 ++ [{nil, {:dir, expand(dir, container.root)}}]))
-  end
-
-  def put_symlink(container, src, target) do
-    full_target = target |> expand(container.root) |> Path.expand()
-    full_src = src |> expand(container.root) |> Path.expand()
-
-    update_in(container, [:files], &(&1 ++ [{full_src, {:symlink, full_target}}]))
-  end
-
-  def pre_sync(container), do: container
-
   def sync(container) do
     Logger.info("Syncing files")
+    Logger.debug(inspect(container.files))
 
-    for {src, target} <- container.files, do: sync_path(container, src, target)
+    for {target, src} <- container.files, do: sync_path(container, src, target)
   end
 
   def sync_path(container, src, target) do
@@ -42,6 +14,7 @@ defmodule Habitat.Files do
         create_path(container, target)
 
       match?({:string, _}, src) && is_binary(target) ->
+        create_path(container, {:dir, Path.dirname(target)})
         write_string(container, elem(src, 1), target)
 
       File.dir?(src) ->

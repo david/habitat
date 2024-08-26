@@ -1,7 +1,11 @@
 defmodule Habitat.Modules.Neovim do
   use Habitat.Module
 
-  def pre_sync(container, _) do
-    install(container, "neovim")
+  def pre_sync(container_id, opts, _) do
+    install(container_id, "neovim")
+
+    if config = Keyword.get(opts, :config) do
+      put_path(container_id, "~/.config/nvim", config)
+    end
   end
 end

@@ -1,41 +1,31 @@
 defmodule Habitat.Modules.Mysql do
-  alias Habitat.Container
+  use Habitat.Module
 
-  def pre_sync(container, _) do
-    container
-    # |> Packages.put(["libaio", "numactl"])
+  def pre_sync(container_id, _, _) do
+    install(container_id, "libaio")
+    install(container_id, {"mysql", url()})
   end
 
   def post_sync(container, _) do
-    fix_ncurses(container)
     initialize_database(container)
-  end
-
-  defp fix_ncurses(container) do
-    # TODO: Look into starting a server inside the container
-    # instead of having to do these kinds of things
-    Container.cmd(container, [
-      "sudo",
-      "ln",
-      "-sf",
-      "/usr/lib64/libncursesw.so.6",
-      "/usr/lib64/libncurses.so.6"
-    ])
   end
 
   def initialize_database(container) do
     datadir = Path.join([container.root, ".local", "share", "mysql-data"])
 
     unless File.exists?(datadir) do
-      # Mise.exec(
-      #  container,
-      #  "mysql",
-      #  [
-      #    "mysqld",
-      #    "--initialize-insecure",
-      #    "--datadir=#{datadir}"
-      #  ]
-      # )
+      Container.cmd(
+        container,
+        [
+          "mysqld",
+          "--initialize-insecure",
+          "--datadir=#{datadir}"
+        ]
+      )
     end
+  end
+
+  def url() do
+    "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-8.0.39-linux-glibc2.28-x86_64.tar.xz"
   end
 end

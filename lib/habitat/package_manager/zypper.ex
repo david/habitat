@@ -3,27 +3,15 @@ defmodule Habitat.PackageManager.Zypper do
 
   require Logger
 
-  def install(container, packages, opts \\ []) when is_list(packages) do
-    zypper(
-      container,
-      "install",
-      [] ++ if(Keyword.get(opts, :force), do: ["--force-resolution"], else: []) ++ packages
-    )
+  def install(container_id, packages, opts \\ []) when is_list(packages) do
+    zypper(container_id, "install", packages)
   end
 
-  defp zypper(container, command, args) do
-    cmd = ["zypper", "--non-interactive"] ++ [command] ++ args
+  defp zypper(container_id, command, args) do
+    cmd = ["zypper", "--non-interactive"] ++ [command, "--force-resolution"] ++ args
 
     Logger.debug("[zypper] Running `#{Enum.join(cmd, " ")}`")
 
-    case Container.cmd(container, cmd, root: true) do
-      {_, 0} ->
-        :ok
-
-      {error, code} ->
-        Logger.debug("[zypper] Return value: #{code}")
-
-        {:error, error}
-    end
+    Container.cmd(container_id, cmd, root: true)
   end
 end
