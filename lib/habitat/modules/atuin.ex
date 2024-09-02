@@ -10,5 +10,11 @@ defmodule Habitat.Modules.Atuin do
 
     append(container_id, "~/.bashrc", "eval \"$(atuin init bash)\"")
     append(container_id, "~/.zshrc", "eval \"$(atuin init zsh)\"")
+
+    append(
+      container_id,
+      "~/.config/fish/config.fish",
+      "if status is-interactive; atuin init fish | source; end"
+    )
   end
 end

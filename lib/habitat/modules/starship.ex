@@ -12,5 +12,11 @@ defmodule Habitat.Modules.Starship do
 
     append(container_id, "~/.bashrc", "eval \"$(starship init bash)\"")
     append(container_id, "~/.zshrc", "eval \"$(starship init zsh)\"")
+
+    append(
+      container_id,
+      "~/.config/fish/config.fish",
+      "if status is-interactive; starship init fish | source; end"
+    )
   end
 end

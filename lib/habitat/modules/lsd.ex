@@ -19,6 +19,7 @@ defmodule Habitat.Modules.Lsd do
 
         append(container_id, "~/.bashrc", aliases)
         append(container_id, "~/.zshrc", aliases)
+        append(container_id, "~/.config/fish/config.fish", aliases)
 
       nil ->
         nil
