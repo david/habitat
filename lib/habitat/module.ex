@@ -7,13 +7,6 @@ defmodule Habitat.Module do
     end
   end
 
-  def from(url) do
-  end
-
-  def into(%{src_dir: src_dir}, container, package_name) do
-    container
-  end
-
   defdelegate append(container_id, path, contents), to: Container
   defdelegate put_string(container_id, path, contents), to: Container
 
