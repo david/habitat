@@ -8,11 +8,10 @@ defmodule Habitat.Modules.Bash do
       container_id,
       "~/.bash_profile",
       """
-      <%= profile %>
+      <%= @profile %>
 
       source ~/.bashrc
-      """,
-      defaults: [profile: ""]
+      """
     )
 
     insert(
@@ -21,9 +20,8 @@ defmodule Habitat.Modules.Bash do
       """
       [[ $- == *i* ]] || return
 
-      <%= interactive %>
-      """,
-      defaults: [interactive: ""]
+      <%= @interactive %>
+      """
     )
   end
 end

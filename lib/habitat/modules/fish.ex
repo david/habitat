@@ -26,15 +26,14 @@ defmodule Habitat.Modules.Fish do
       container_id,
       "~/.config/fish/config.fish",
       """
-      <%= profile %>
+      <%= @profile %>
 
       if status is-interactive
         #{editing}
 
-        <%= interactive %>
+        <%= @interactive %>
       end
-      """,
-      defaults: [profile: "", interactive: ""]
+      """
     )
   end
 end

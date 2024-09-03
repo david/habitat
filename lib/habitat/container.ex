@@ -47,10 +47,6 @@ defmodule Habitat.Container do
     GenServer.cast(id, {:insert, path, content})
   end
 
-  def insert(id, path, content, opts) do
-    GenServer.cast(id, {:insert, path, content, opts})
-  end
-
   ###
 
   def handle_call(:create, _, %{os: os} = container) do
@@ -79,18 +75,6 @@ defmodule Habitat.Container do
        fn
          nil -> {content, []}
          {_, tags} -> {content, tags}
-       end
-     )}
-  end
-
-  def handle_cast({:insert, path, content, opts}, container) when is_binary(content) do
-    {:noreply,
-     update_in(
-       container,
-       [:files, String.replace(path, ~r/^~/, container.root)],
-       fn
-         nil -> {content, Keyword.get(opts, :defaults, [])}
-         {_, tags} -> {content, opts |> Keyword.get(:defaults, []) |> Keyword.merge(tags)}
        end
      )}
   end
@@ -130,7 +114,7 @@ defmodule Habitat.Container do
       container
       |> update_in([:files], fn files ->
         for {path, {content, tags}} <- files, !is_nil(content) do
-          {path, {:string, EEx.eval_string(content, tags)}}
+          {path, {:string, EEx.eval_string(content, assigns: tags)}}
         end
       end)
 

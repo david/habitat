@@ -8,14 +8,14 @@ defmodule Habitat.Modules.Zsh do
       container_id,
       "~/.zprofile",
       """
+      <%= @profile %>
+
       source ~/.zshrc
-      <%= profile %>
-      """,
-      defaults: [profile: ""]
+      """
     )
 
     insert(container_id, "~/.zshrc", """
-    <%= interactive %>
+    <%= @interactive %>
     """)
   end
 end
