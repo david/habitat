@@ -1,6 +1,4 @@
 defmodule Habitat.Blueprint do
-  alias Habitat.{Container, Modules}
-
   defmacro __using__(_) do
     quote do
       Application.put_env(:habitat, :blueprint, __MODULE__)

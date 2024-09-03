@@ -3,8 +3,6 @@ defmodule Habitat.Builder do
 
   require Logger
 
-  use GenServer
-
   @package_dir "/usr/local/habitat"
 
   def start_link(opts \\ []) do
