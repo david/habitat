@@ -3,7 +3,19 @@ defmodule Habitat.Modules.Zsh do
 
   def pre_sync(container_id, _, _) do
     install(container_id, "zsh")
-    put_string(container_id, "~/.zprofile", "source ~/.zshrc")
-    put_string(container_id, "~/.zshrc", "")
+
+    insert(
+      container_id,
+      "~/.zprofile",
+      """
+      source ~/.zshrc
+      <%= profile %>
+      """,
+      defaults: [profile: ""]
+    )
+
+    insert(container_id, "~/.zshrc", """
+    <%= interactive %>
+    """)
   end
 end

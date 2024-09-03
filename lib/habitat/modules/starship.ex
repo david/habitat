@@ -1,22 +1,15 @@
 defmodule Habitat.Modules.Starship do
   use Habitat.Module
 
-  alias Habitat.Shells
-
   def pre_sync(container_id, opts, _) do
     install(container_id, "starship")
 
     if config = Keyword.get(opts, :config) do
-      put_string(container_id, "~/.config/starship.toml", toml(config))
+      insert(container_id, "~/.config/starship.toml", toml(config))
     end
 
-    append(container_id, "~/.bashrc", "eval \"$(starship init bash)\"")
-    append(container_id, "~/.zshrc", "eval \"$(starship init zsh)\"")
-
-    append(
-      container_id,
-      "~/.config/fish/config.fish",
-      "if status is-interactive; starship init fish | source; end"
-    )
+    insert(container_id, "~/.bashrc", interactive: "eval \"$(starship init bash)\"")
+    insert(container_id, "~/.zshrc", interactive: "eval \"$(starship init zsh)\"")
+    insert(container_id, "~/.config/fish/config.fish", interactive: "starship init fish | source")
   end
 end

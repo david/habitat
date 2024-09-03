@@ -35,10 +35,6 @@ defmodule Habitat.Container do
 
   ###
 
-  def append(id, path, contents) do
-    GenServer.cast(id, {:append, path, contents})
-  end
-
   def export(id, apps) do
     GenServer.cast(id, {:export, apps})
   end
@@ -47,27 +43,15 @@ defmodule Habitat.Container do
     GenServer.cast(id, {:install, packages})
   end
 
-  def put_file(id, target, src) do
-    GenServer.cast(id, {:put_file, target, src})
+  def insert(id, path, content) do
+    GenServer.cast(id, {:insert, path, content})
   end
 
-  def put_string(id, path, contents) do
-    GenServer.cast(id, {:put_string, path, contents})
+  def insert(id, path, content, opts) do
+    GenServer.cast(id, {:insert, path, content, opts})
   end
 
   ###
-
-  def handle_cast({:append, path, contents}, container) do
-    {:noreply,
-     update_in(
-       container,
-       [:files, String.replace(path, ~r/^~/, container.root)],
-       fn
-         nil -> {[], nil, [[contents]]}
-         {pre, main, post} -> {pre, main, post ++ [[contents]]}
-       end
-     )}
-  end
 
   def handle_call(:create, _, %{os: os} = container) do
     :ok = Distrobox.create(container)
@@ -85,6 +69,45 @@ defmodule Habitat.Container do
     Logger.debug("[#{id}] Queueing #{inspect(apps)} for export")
 
     {:noreply, update_in(container, [:exports], &(&1 ++ apps))}
+  end
+
+  def handle_cast({:insert, path, content}, container) when is_binary(content) do
+    {:noreply,
+     update_in(
+       container,
+       [:files, String.replace(path, ~r/^~/, container.root)],
+       fn
+         nil -> {content, []}
+         {_, tags} -> {content, tags}
+       end
+     )}
+  end
+
+  def handle_cast({:insert, path, content, opts}, container) when is_binary(content) do
+    {:noreply,
+     update_in(
+       container,
+       [:files, String.replace(path, ~r/^~/, container.root)],
+       fn
+         nil -> {content, Keyword.get(opts, :defaults, [])}
+         {_, tags} -> {content, opts |> Keyword.get(:defaults, []) |> Keyword.merge(tags)}
+       end
+     )}
+  end
+
+  def handle_cast({:insert, path, tags}, container) when is_list(tags) do
+    {:noreply,
+     update_in(
+       container,
+       [:files, String.replace(path, ~r/^~/, container.root)],
+       fn
+         nil ->
+           {nil, tags}
+
+         {content, original_tags} ->
+           {content, Keyword.merge(original_tags, tags, fn _, va, vb -> va <> "\n" <> vb end)}
+       end
+     )}
   end
 
   def handle_cast({:install, packages}, %{id: id} = container) do
@@ -106,17 +129,8 @@ defmodule Habitat.Container do
     container =
       container
       |> update_in([:files], fn files ->
-        for {k, v} <- files, !is_tuple(k) || (is_tuple(k) && !is_nil(elem(k, 1))) do
-          case v do
-            {pre, {:file, path}, post} ->
-              {k, {:string, Enum.join(pre, "\n") <> path <> "\n" <> Enum.join(post, "\n")}}
-
-            {pre, main, post} ->
-              {k, {:string, Enum.join(pre, "\n") <> main <> "\n" <> Enum.join(post, "\n")}}
-
-            val ->
-              {k, val}
-          end
+        for {path, {content, tags}} <- files, !is_nil(content) do
+          {path, {:string, EEx.eval_string(content, tags)}}
         end
       end)
 
@@ -125,32 +139,6 @@ defmodule Habitat.Container do
     sync_exports(container)
 
     {:reply, :ok, container}
-  end
-
-  def handle_cast({:put_file, target, src}, container) do
-    {:noreply,
-     update_in(
-       container,
-       # TODO: DRY path expansion
-       [:files, String.replace(target, ~r/^~/, container.root)],
-       fn
-         nil -> {[], {:file, src}, []}
-         {pre, _, post} -> {pre, {:file, src}, post}
-       end
-     )}
-  end
-
-  def handle_cast({:put_string, path, contents}, container) do
-    {:noreply,
-     update_in(
-       container,
-       # TODO: DRY path expansion
-       [:files, String.replace(path, ~r/^~/, container.root)],
-       fn
-         nil -> {[], contents, []}
-         {pre, _, post} -> {pre, contents, post}
-       end
-     )}
   end
 
   ###

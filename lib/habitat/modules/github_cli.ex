@@ -8,7 +8,7 @@ defmodule Habitat.Modules.GithubCli do
     install(container_id, {"gh", url()})
 
     if config = Keyword.get(opts, :config) do
-      put_string(container_id, "~/.config/gh/config.yml", yaml(config))
+      insert(container_id, "~/.config/gh/config.yml", yaml(config))
     end
   end
 

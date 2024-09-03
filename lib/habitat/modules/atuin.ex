@@ -5,16 +5,11 @@ defmodule Habitat.Modules.Atuin do
     install(container_id, "atuin")
 
     if config = Keyword.get(opts, :config) do
-      put_string(container_id, "~/.config/atuin/config.toml", toml(config))
+      insert(container_id, "~/.config/atuin/config.toml", toml(config))
     end
 
-    append(container_id, "~/.bashrc", "eval \"$(atuin init bash)\"")
-    append(container_id, "~/.zshrc", "eval \"$(atuin init zsh)\"")
-
-    append(
-      container_id,
-      "~/.config/fish/config.fish",
-      "if status is-interactive; atuin init fish | source; end"
-    )
+    insert(container_id, "~/.bashrc", interactive: "eval \"$(atuin init bash)\"")
+    insert(container_id, "~/.zshrc", interactive: "eval \"$(atuin init zsh)\"")
+    insert(container_id, "~/.config/fish/config.fish", interactive: "atuin init fish | source")
   end
 end
