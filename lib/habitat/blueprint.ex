@@ -23,7 +23,9 @@ defmodule Habitat.Blueprint do
   end
 
   defp get do
-    Code.require_file("blueprint.exs")
+    if File.exists?("blueprint.exs") do
+      Code.require_file("blueprint.exs")
+    end
 
     case Application.fetch_env(:habitat, :blueprint) do
       {:ok, mod} -> mod
