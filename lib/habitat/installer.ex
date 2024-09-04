@@ -1,17 +1,13 @@
-defmodule Habitat.Builder do
+defmodule Habitat.Installer do
   alias Habitat.{Container, Distrobox}
 
   require Logger
 
   @package_dir "/usr/local/habitat"
 
-  def start_link(opts \\ []) do
-    GenServer.start_link(__MODULE__, [], opts)
-  end
-
   def sync(container_id, packages) do
-    for {src, package} <- packages do
-      sync_pkg(container_id, src, package)
+    for {package, src} <- packages do
+      sync_pkg(container_id, package, src)
     end
   end
 

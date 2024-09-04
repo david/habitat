@@ -1,5 +1,5 @@
 defmodule Habitat.Container do
-  alias Habitat.{Builder, Distrobox, Exports, Files, OS}
+  alias Habitat.{Distrobox, Exports, Files, Installer, OS}
 
   require Logger
 
@@ -146,7 +146,7 @@ defmodule Habitat.Container do
     Logger.debug("[#{id}] #{inspect(packages)}")
 
     OS.get(os).install(id, for(p <- packages, !is_tuple(p), do: p))
-    Builder.sync(id, for(p <- packages, is_tuple(p), do: p))
+    Installer.sync(id, for(p <- packages, is_tuple(p), do: p))
   end
 
   def sync_exports(%{id: id, exports: exports}) do
