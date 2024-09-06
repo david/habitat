@@ -16,7 +16,7 @@ defmodule Habitat.Blueprint do
   end
 
   def get_container(id) do
-    case Enum.find(containers(), &(&1.id == id)) do
+    case Enum.find(containers(), &(Keyword.get(&1, :id) == id)) do
       nil -> {:error, :not_found}
       val -> {:ok, val}
     end

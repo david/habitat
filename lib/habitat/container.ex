@@ -5,8 +5,12 @@ defmodule Habitat.Container do
 
   use GenServer
 
-  def start_link(%{id: id, os: os, root: root} = meta) do
-    GenServer.start_link(__MODULE__, %{id: id, os: os, root: root}, name: id)
+  def start_link(meta) do
+    GenServer.start_link(
+      __MODULE__,
+      Map.new(Keyword.take(meta, [:id, :os, :root])),
+      name: Keyword.get(meta, :id)
+    )
   end
 
   def init(meta) do

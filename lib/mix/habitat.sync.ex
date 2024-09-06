@@ -11,7 +11,9 @@ defmodule Mix.Tasks.Habitat.Sync do
     for arg <- args, id = String.to_atom(arg) do
       {:ok, blueprint} = Habitat.Blueprint.get_container(id)
 
-      OS.get(blueprint.os).pre_sync(id, blueprint)
+      os = Keyword.get(blueprint, :os)
+
+      OS.get(os).pre_sync(id, blueprint)
       Modules.pre_sync(id, blueprint)
       Container.sync(id)
     end
