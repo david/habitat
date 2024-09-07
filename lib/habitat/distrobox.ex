@@ -1,30 +1,30 @@
 defmodule Habitat.Distrobox do
   alias Habitat.OS
+  require Logger
 
   def cmd(id, args, opts \\ []) do
-    cmd =
-      ["distrobox", "enter", "--name", to_string(id), "--", "env"] ++
-        if(Keyword.get(opts, :root), do: ["sudo"], else: []) ++
-        args
+    cmd = ["distrobox", "enter", "--name", to_string(id), "--"] ++ args
 
-    case System.cmd("distrobox-host-exec", cmd) do
-      {_, 0} -> :ok
-      {err, _} -> {:error, err}
+    Logger.debug("Running `#{Enum.join(cmd, " ")}`")
+
+    case System.cmd("distrobox-host-exec", cmd, stderr_to_stdout: true) do
+      {_, 0} ->
+        :ok
+
+      {err, _} ->
+        Logger.debug(err)
+        {:error, err}
     end
   end
 
-  def create(%{id: id, os: os, root: root}) do
+  def create(name, image, home) do
     result =
-      System.cmd("distrobox-host-exec", [
-        "distrobox",
-        "create",
-        "--image",
-        to_string(OS.get(os).image()) <> ":latest",
-        "--name",
-        to_string(id),
-        "--home",
-        root
-      ])
+      System.cmd(
+        "distrobox-host-exec",
+        ["distrobox", "create", "--image", "#{image}:latest", "--name", name, "--home", home]
+      )
+
+    result = {"ok", 0}
 
     case result do
       {_, 0} -> :ok
@@ -32,15 +32,15 @@ defmodule Habitat.Distrobox do
     end
   end
 
-  def delete(%{id: id}) do
-    case System.cmd("distrobox-host-exec", ["distrobox", "rm", to_string(id)]) do
+  def delete(id) do
+    case System.cmd("distrobox-host-exec", ["distrobox", "rm", id]) do
       {_, 0} -> :ok
       {err, _} -> {:error, err}
     end
   end
 
-  def stop(%{id: id}) do
-    case System.cmd("distrobox-host-exec", ["distrobox", "stop", to_string(id)]) do
+  def stop(id) do
+    case System.cmd("distrobox-host-exec", ["distrobox", "stop", id]) do
       {_, 0} -> :ok
       {err, _} -> {:error, err}
     end

@@ -8,10 +8,10 @@ defmodule Habitat.PackageManager.Zypper do
   end
 
   defp zypper(container_id, command, args) do
-    cmd = ["zypper", "--non-interactive"] ++ [command, "--force-resolution"] ++ args
+    cmd = ["sudo", "zypper", "--non-interactive"] ++ [command, "--force-resolution"] ++ args
 
-    Logger.debug("[zypper] Running `#{Enum.join(cmd, " ")}`")
+    Logger.debug("Running `#{Enum.join(cmd, " ")}`")
 
-    Container.cmd(container_id, cmd, root: true)
+    Distrobox.cmd(container_id, cmd)
   end
 end

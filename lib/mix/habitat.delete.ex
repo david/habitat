@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Habitat.Delete do
 
   use Mix.Task
 
-  alias Habitat.{Blueprint, Container}
+  alias Habitat.{Blueprint, Distrobox}
 
   @requirements ["app.start"]
 
@@ -12,8 +12,8 @@ defmodule Mix.Tasks.Habitat.Delete do
     for arg <- args, id = String.to_atom(arg) do
       {:ok, _} = Blueprint.get_container(id)
 
-      Container.stop(id)
-      Container.delete(id)
+      Distrobox.stop(arg)
+      Distrobox.delete(arg)
     end
   end
 end

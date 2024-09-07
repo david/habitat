@@ -21,18 +21,6 @@ defmodule Habitat.Container do
 
   ###
 
-  def create(id) do
-    GenServer.call(id, :create, :infinity)
-  end
-
-  def delete(id) do
-    GenServer.call(id, :delete)
-  end
-
-  def stop(id) do
-    GenServer.call(id, :stop)
-  end
-
   def sync(id) do
     GenServer.call(id, :sync, :infinity)
   end
@@ -52,18 +40,6 @@ defmodule Habitat.Container do
   end
 
   ###
-
-  def handle_call(:create, _, %{os: os} = container) do
-    :ok = Distrobox.create(container)
-
-    {:reply, :ok, container}
-  end
-
-  def handle_call(:delete, _, container) do
-    :ok = Distrobox.delete(container)
-
-    {:reply, :ok, container}
-  end
 
   def handle_cast({:export, apps}, %{id: id} = container) do
     Logger.debug("[#{id}] Queueing #{inspect(apps)} for export")
