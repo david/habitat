@@ -18,8 +18,7 @@ defmodule Habitat.Host do
     Logger.info("Creating container #{container.name}")
 
     Distrobox.create(container)
-
-    OS.get(container.os).post_create(container)
+    container.os.post_create(container)
   end
 
   def delete_container(container) do

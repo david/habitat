@@ -26,8 +26,8 @@ defmodule Habitat.Module do
     Container.export(container, [app])
   end
 
-  def install(container, package) do
-    Container.install(container, [package])
+  def install(container, package, opts \\ []) do
+    Container.install(container, [{package, opts}])
   end
 
   def toml(content) do

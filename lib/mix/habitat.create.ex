@@ -8,15 +8,14 @@ defmodule Mix.Tasks.Habitat.Create do
   @requirements ["app.start"]
 
   @impl true
-  def run(args) do
-    for arg <- args, id = String.to_atom(arg) do
-      {:ok, container} = Habitat.Blueprint.get_container(id)
+  def run(names) do
+    for name <- names, id = String.to_atom(name) do
+      {:ok, %{os: os, root: root}} = Habitat.Blueprint.get_container(id)
 
-      os = Keyword.get(container, :os)
-      root = Keyword.get(container, :root)
+      IO.puts(os)
 
-      Distrobox.create(arg, to_string(os), root)
-      OS.get(os).post_create(id)
+      Distrobox.create(name, os.image(), root)
+      os.post_create(id)
     end
   end
 end

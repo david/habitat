@@ -1,4 +1,6 @@
 defmodule Habitat.Blueprint do
+  alias Habitat.OS
+
   defmacro __using__(_) do
     quote do
       Application.put_env(:habitat, :blueprint, __MODULE__)
@@ -17,8 +19,13 @@ defmodule Habitat.Blueprint do
 
   def get_container(id) do
     case Enum.find(containers(), &(Keyword.get(&1, :id) == id)) do
-      nil -> {:error, :not_found}
-      val -> {:ok, val}
+      nil ->
+        {:error, :not_found}
+
+      val ->
+        map = Map.new(val)
+
+        {:ok, Map.put(map, :os, OS.get(map.os))}
     end
   end
 

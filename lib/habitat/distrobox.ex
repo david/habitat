@@ -2,6 +2,10 @@ defmodule Habitat.Distrobox do
   alias Habitat.OS
   require Logger
 
+  def shell(id, args) do
+    cmd(id, ["bash", "-c"] ++ args)
+  end
+
   def cmd(id, args, opts \\ []) do
     cmd = ["distrobox", "enter", "--name", to_string(id), "--"] ++ args
 

@@ -8,8 +8,8 @@ defmodule Habitat.Container do
   def start_link(meta) do
     GenServer.start_link(
       __MODULE__,
-      Map.new(Keyword.take(meta, [:id, :os, :root])),
-      name: Keyword.get(meta, :id)
+      Map.new(Map.take(meta, [:id, :os, :root])),
+      name: meta.id
     )
   end
 
@@ -121,12 +121,11 @@ defmodule Habitat.Container do
     String.trim(user)
   end
 
-  defp sync_packages(%{id: id, os: os, packages: packages}) do
+  defp sync_packages(%{id: id, os: os, packages: packages} = state) do
     Logger.info("[#{id}] Syncing packages")
     Logger.debug("[#{id}] #{inspect(packages)}")
 
-    OS.get(os).install(id, for(p <- packages, !is_tuple(p), do: p))
-    Installer.sync(id, for(p <- packages, is_tuple(p), do: p))
+    Installer.install(state, packages)
   end
 
   def sync_exports(%{id: id, exports: exports}) do

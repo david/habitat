@@ -20,8 +20,7 @@ defmodule Habitat.Modules do
   end
 
   defp modules(spec) do
-    spec
-    |> Keyword.get(:modules)
+    spec.modules
     |> Enum.map(&normalize/1)
     |> Enum.uniq()
   end
