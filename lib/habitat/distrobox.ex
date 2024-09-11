@@ -1,5 +1,4 @@
 defmodule Habitat.Distrobox do
-  alias Habitat.OS
   require Logger
 
   def shell(id, args) do
@@ -27,8 +26,6 @@ defmodule Habitat.Distrobox do
         "distrobox-host-exec",
         ["distrobox", "create", "--image", image, "--name", name, "--home", home]
       )
-
-    result = {"ok", 0}
 
     case result do
       {_, 0} -> :ok
