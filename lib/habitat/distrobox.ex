@@ -25,7 +25,7 @@ defmodule Habitat.Distrobox do
     result =
       System.cmd(
         "distrobox-host-exec",
-        ["distrobox", "create", "--image", "#{image}:latest", "--name", name, "--home", home]
+        ["distrobox", "create", "--image", image, "--name", name, "--home", home]
       )
 
     result = {"ok", 0}
