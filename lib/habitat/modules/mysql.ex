@@ -2,8 +2,8 @@ defmodule Habitat.Modules.Mysql do
   use Habitat.Module
 
   def pre_sync(container_id, _, _) do
-    install(container_id, "libaio")
-    install(container_id, {"mysql", url()})
+    put_package(container_id, "libaio")
+    put_package(container_id, {"mysql", url()})
   end
 
   def post_sync(container, _) do

@@ -2,6 +2,6 @@ defmodule Habitat.Modules.WlClipboard do
   use Habitat.Module
 
   def pre_sync(container, _, _) do
-    install(container, "wl-clipboard")
+    put_package(container, "wl-clipboard")
   end
 end

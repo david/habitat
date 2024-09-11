@@ -2,7 +2,7 @@ defmodule Habitat.Modules.Fish do
   use Habitat.Module
 
   def pre_sync(container_id, _, blueprint) do
-    install(container_id, "fish", provider: Habitat.PackageManager.Brew)
+    put_package(container_id, "fish", provider: Habitat.PackageManager.Brew)
 
     editing = blueprint |> get_in([:editing, :mode]) |> editing_mode()
 

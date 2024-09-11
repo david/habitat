@@ -2,7 +2,7 @@ defmodule Habitat.Modules.Lsd do
   use Habitat.Module
 
   def pre_sync(container_id, opts, _) do
-    install(container_id, "lsd", provider: Habitat.PackageManager.Brew)
+    put_package(container_id, "lsd", provider: Habitat.PackageManager.Brew)
 
     if config = Keyword.get(opts, :config) do
       insert(container_id, "~/.config/lsd/config.yml", yaml(config))

@@ -2,7 +2,7 @@ defmodule Habitat.Modules.Heroku do
   use Habitat.Module
 
   def pre_sync(container_id, _, _) do
-    install(container_id, {"heroku", url()})
+    put_package(container_id, {"heroku", url()})
   end
 
   defp url() do

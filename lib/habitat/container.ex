@@ -31,8 +31,8 @@ defmodule Habitat.Container do
     GenServer.cast(id, {:export, apps})
   end
 
-  def install(id, packages) do
-    GenServer.cast(id, {:install, packages})
+  def put_package(id, packages) do
+    GenServer.cast(id, {:put_package, packages})
   end
 
   def insert(id, path, content) do
@@ -74,7 +74,7 @@ defmodule Habitat.Container do
      )}
   end
 
-  def handle_cast({:install, packages}, %{id: id} = container) do
+  def handle_cast({:put_package, packages}, %{id: id} = container) do
     Logger.debug("[#{id}] Queueing #{inspect(packages)} for installation")
 
     {:noreply, update_in(container, [:packages], &(&1 ++ packages))}

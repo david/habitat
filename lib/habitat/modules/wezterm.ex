@@ -2,7 +2,9 @@ defmodule Habitat.Modules.Wezterm do
   use Habitat.Module
 
   def pre_sync(container_id, opts, _) do
-    install(container_id, "wezterm",
+    put_package(
+      container_id,
+      "wezterm",
       repo: "https://apt.fury.io/wez/",
       key: "https://apt.fury.io/wez/gpg.key"
     )
