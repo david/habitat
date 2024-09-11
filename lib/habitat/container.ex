@@ -1,5 +1,5 @@
 defmodule Habitat.Container do
-  alias Habitat.{Distrobox, Exports, Files, Installer, OS}
+  alias Habitat.{Distrobox, Files, Installer}
 
   require Logger
 
@@ -121,7 +121,7 @@ defmodule Habitat.Container do
     String.trim(user)
   end
 
-  defp sync_packages(%{id: id, os: os, packages: packages} = state) do
+  defp sync_packages(%{id: id, packages: packages} = state) do
     Logger.info("[#{id}] Syncing packages")
     Logger.debug("[#{id}] #{inspect(packages)}")
 

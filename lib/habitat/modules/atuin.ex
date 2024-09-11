@@ -1,10 +1,8 @@
 defmodule Habitat.Modules.Atuin do
   use Habitat.Module
 
-  alias Habitat.PackageManager.Brew
-
   def pre_sync(container_id, opts, _) do
-    install(container_id, "atuin", provider: Brew)
+    install(container_id, "atuin", provider: Habitat.PackageManager.Brew)
 
     if config = Keyword.get(opts, :config) do
       insert(container_id, "~/.config/atuin/config.toml", toml(config))

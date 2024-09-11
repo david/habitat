@@ -2,7 +2,7 @@ defmodule Mix.Tasks.Habitat.Sync do
   @shortdoc "Update system configuration"
   use Mix.Task
 
-  alias Habitat.{Container, Modules, OS}
+  alias Habitat.{Container, Modules}
 
   @requirements ["app.start"]
 

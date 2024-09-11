@@ -1,5 +1,5 @@
 defmodule Habitat.Installer do
-  alias Habitat.{Container, Distrobox}
+  alias Habitat.Distrobox
 
   require Logger
 

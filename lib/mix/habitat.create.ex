@@ -3,7 +3,7 @@ defmodule Mix.Tasks.Habitat.Create do
 
   use Mix.Task
 
-  alias Habitat.{Distrobox, OS}
+  alias Habitat.Distrobox
 
   @requirements ["app.start"]
 
@@ -12,10 +12,7 @@ defmodule Mix.Tasks.Habitat.Create do
     for name <- names, id = String.to_atom(name) do
       {:ok, %{os: os, root: root}} = Habitat.Blueprint.get_container(id)
 
-      IO.puts(os)
-
       Distrobox.create(name, os.image(), root)
-      os.post_create(id)
     end
   end
 end
