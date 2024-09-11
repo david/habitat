@@ -5,11 +5,11 @@ defmodule Habitat.Modules.Atuin do
     put_package(container_id, "atuin", provider: Habitat.PackageManager.Brew)
 
     if config = Keyword.get(opts, :config) do
-      insert(container_id, "~/.config/atuin/config.toml", toml(config))
+      put_file(container_id, "~/.config/atuin/config.toml", toml(config))
     end
 
-    insert(container_id, "~/.bashrc", interactive: "eval \"$(atuin init bash)\"")
-    insert(container_id, "~/.zshrc", interactive: "eval \"$(atuin init zsh)\"")
-    insert(container_id, "~/.config/fish/config.fish", interactive: "atuin init fish | source")
+    put_file(container_id, "~/.bashrc", interactive: "eval \"$(atuin init bash)\"")
+    put_file(container_id, "~/.zshrc", interactive: "eval \"$(atuin init zsh)\"")
+    put_file(container_id, "~/.config/fish/config.fish", interactive: "atuin init fish | source")
   end
 end

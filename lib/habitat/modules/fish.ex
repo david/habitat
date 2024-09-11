@@ -6,7 +6,7 @@ defmodule Habitat.Modules.Fish do
 
     editing = blueprint |> get_in([:editing, :mode]) |> editing_mode()
 
-    insert(
+    put_file(
       container_id,
       "~/.config/fish/config.fish",
       """

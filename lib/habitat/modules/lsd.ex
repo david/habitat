@@ -5,7 +5,7 @@ defmodule Habitat.Modules.Lsd do
     put_package(container_id, "lsd", provider: Habitat.PackageManager.Brew)
 
     if config = Keyword.get(opts, :config) do
-      insert(container_id, "~/.config/lsd/config.yml", yaml(config))
+      put_file(container_id, "~/.config/lsd/config.yml", yaml(config))
     end
 
     case Keyword.get(opts, :alias) do
@@ -17,9 +17,9 @@ defmodule Habitat.Modules.Lsd do
         alias lla="lsd -la"
         """
 
-        insert(container_id, "~/.bashrc", interactive: aliases)
-        insert(container_id, "~/.zshrc", interactive: aliases)
-        insert(container_id, "~/.config/fish/config.fish", interactive: aliases)
+        put_file(container_id, "~/.bashrc", interactive: aliases)
+        put_file(container_id, "~/.zshrc", interactive: aliases)
+        put_file(container_id, "~/.config/fish/config.fish", interactive: aliases)
 
       nil ->
         nil

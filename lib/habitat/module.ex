@@ -7,10 +7,10 @@ defmodule Habitat.Module do
     end
   end
 
-  defdelegate insert(container_id, path, content), to: Container
+  defdelegate put_file(container_id, path, content), to: Container
 
   def put_file(container_id, target, src) do
-    insert(container_id, target, File.read!(src))
+    put_file(container_id, target, File.read!(src))
   end
 
   def put_path(container_id, target, src) do

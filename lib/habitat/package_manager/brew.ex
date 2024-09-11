@@ -13,10 +13,10 @@ defmodule Habitat.PackageManager.Brew do
   end
 
   def pre_sync(container_id) do
-    Habitat.Module.insert(container_id, "~/.bashrc", interactive: "eval \"$(#{cmd("bash")})\"")
-    Habitat.Module.insert(container_id, "~/.zshrc", interactive: "eval \"$(#{cmd("zsh")})\"")
+    Habitat.Module.put_file(container_id, "~/.bashrc", interactive: "eval \"$(#{cmd("bash")})\"")
+    Habitat.Module.put_file(container_id, "~/.zshrc", interactive: "eval \"$(#{cmd("zsh")})\"")
 
-    Habitat.Module.insert(
+    Habitat.Module.put_file(
       container_id,
       "~/.config/fish/config.fish",
       interactive: "#{cmd("fish")} | source"

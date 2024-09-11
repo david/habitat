@@ -9,7 +9,7 @@ defmodule Habitat.Modules.Readline do
       #{blueprint |> get_in([:editing, :mode]) |> editing_mode()}
       """
 
-    insert(container_id, "~/.inputrc", main)
+    put_file(container_id, "~/.inputrc", main)
   end
 
   defp editing_mode(:vi) do

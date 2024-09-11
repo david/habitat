@@ -5,11 +5,11 @@ defmodule Habitat.Modules.Starship do
     put_package(container_id, "starship", provider: Habitat.PackageManager.Brew)
 
     if config = Keyword.get(opts, :config) do
-      insert(container_id, "~/.config/starship.toml", toml(config))
+      put_file(container_id, "~/.config/starship.toml", toml(config))
     end
 
-    insert(container_id, "~/.bashrc", interactive: "eval \"$(starship init bash)\"")
-    insert(container_id, "~/.zshrc", interactive: "eval \"$(starship init zsh)\"")
-    insert(container_id, "~/.config/fish/config.fish", interactive: "starship init fish | source")
+    put_file(container_id, "~/.bashrc", interactive: "eval \"$(starship init bash)\"")
+    put_file(container_id, "~/.zshrc", interactive: "eval \"$(starship init zsh)\"")
+    put_file(container_id, "~/.config/fish/config.fish", interactive: "starship init fish | source")
   end
 end

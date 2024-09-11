@@ -5,7 +5,7 @@ defmodule Habitat.Modules.GithubCli do
     put_package(container_id, "gh", provider: Habitat.PackageManager.Brew)
 
     if config = Keyword.get(opts, :config) do
-      insert(container_id, "~/.config/gh/config.yml", yaml(config))
+      put_file(container_id, "~/.config/gh/config.yml", yaml(config))
     end
   end
 end

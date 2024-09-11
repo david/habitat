@@ -4,7 +4,7 @@ defmodule Habitat.Modules.Zsh do
   def pre_sync(container_id, _, _) do
     put_package(container_id, "zsh")
 
-    insert(
+    put_file(
       container_id,
       "~/.zprofile",
       """
@@ -14,7 +14,7 @@ defmodule Habitat.Modules.Zsh do
       """
     )
 
-    insert(container_id, "~/.zshrc", """
+    put_file(container_id, "~/.zshrc", """
     <%= @interactive %>
     """)
   end

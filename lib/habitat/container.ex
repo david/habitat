@@ -35,8 +35,8 @@ defmodule Habitat.Container do
     GenServer.cast(id, {:put_package, packages})
   end
 
-  def insert(id, path, content) do
-    GenServer.cast(id, {:insert, path, content})
+  def put_file(id, path, content) do
+    GenServer.cast(id, {:put_file, path, content})
   end
 
   ###
@@ -47,7 +47,7 @@ defmodule Habitat.Container do
     {:noreply, update_in(container, [:exports], &(&1 ++ apps))}
   end
 
-  def handle_cast({:insert, path, content}, container) when is_binary(content) do
+  def handle_cast({:put_file, path, content}, container) when is_binary(content) do
     {:noreply,
      update_in(
        container,
@@ -59,7 +59,7 @@ defmodule Habitat.Container do
      )}
   end
 
-  def handle_cast({:insert, path, tags}, container) when is_list(tags) do
+  def handle_cast({:put_file, path, tags}, container) when is_list(tags) do
     {:noreply,
      update_in(
        container,

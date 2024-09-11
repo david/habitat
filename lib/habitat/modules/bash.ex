@@ -4,7 +4,7 @@ defmodule Habitat.Modules.Bash do
   def pre_sync(container_id, _, _) do
     put_package(container_id, "bash")
 
-    insert(
+    put_file(
       container_id,
       "~/.bash_profile",
       """
@@ -14,7 +14,7 @@ defmodule Habitat.Modules.Bash do
       """
     )
 
-    insert(
+    put_file(
       container_id,
       "~/.bashrc",
       """
