@@ -1,6 +1,4 @@
 defmodule Habitat.Blueprint do
-  alias Habitat.OS
-
   defmacro __using__(_) do
     quote do
       Application.put_env(:habitat, :blueprint, __MODULE__)
@@ -9,35 +7,33 @@ defmodule Habitat.Blueprint do
     end
   end
 
-  def containers() do
-    if mod = get() do
-      mod.containers()
-    else
-      []
-    end
+  def container_path(%{root: root}, path) do
+    String.replace(path, ~r/^~/, root)
   end
 
-  def get_container(id) do
-    case Enum.find(containers(), &(Keyword.get(&1, :id) == id)) do
-      nil ->
-        {:error, :not_found}
-
-      val ->
-        map = Map.new(val)
-
-        {:ok, Map.put(map, :os, OS.get(map.os))}
-    end
-  end
-
-  defp get do
-    if File.exists?("blueprint.exs") do
-      Code.require_file("blueprint.exs")
+  def load(file_path \\ "blueprint.exs") do
+    if File.exists?(file_path) do
+      Code.require_file(file_path)
     end
 
     case Application.fetch_env(:habitat, :blueprint) do
-      {:ok, mod} -> mod
-      :error -> nil
+      {:ok, mod} -> {:ok, Enum.map(mod.containers(), &normalize/1)}
+      :error -> {:error, nil}
     end
+  end
+
+  defp normalize(blueprint) do
+    shell = Map.get(blueprint, :shell, :bash)
+    mods = Enum.map(blueprint.modules, &Habitat.Module.load/1)
+
+    mods =
+      if Enum.find(mods, fn {k, _} -> k == shell end) do
+        mods
+      else
+        mods ++ [Habitat.Module.load(shell)]
+      end
+
+    Map.put(blueprint, :modules, mods)
   end
 
   defmodule DSL do

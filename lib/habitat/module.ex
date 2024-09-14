@@ -3,31 +3,31 @@ defmodule Habitat.Module do
 
   defmacro __using__(_) do
     quote do
+      @behaviour unquote(__MODULE__.Behaviour)
       import unquote(__MODULE__)
     end
   end
 
-  defdelegate put_file(container_id, path, content), to: Container
+  defmodule Behaviour do
+    @callback files(map(), map()) :: list()
+    @callback packages() :: list()
 
-  def put_file(container_id, target, src) do
-    put_file(container_id, target, File.read!(src))
+    @optional_callbacks files: 2, packages: 0
   end
 
-  def put_path(container_id, target, src) do
-    case src do
-      {:dir, dir} ->
-        for p <- dir |> Path.join("**") |> Path.wildcard(), File.regular?(p) do
-          put_file(container_id, Path.join(target, String.replace(p, dir, "")), p)
-        end
-    end
-  end
+  def load({name, spec}) when is_atom(name), do: {from_atom(name), Map.new(spec)}
+  def load(name) when is_atom(name), do: {from_atom(name), %{}}
 
-  def export(container, app) do
-    Container.export(container, [app])
-  end
+  defp from_atom(name) do
+    mod =
+      name
+      |> to_string()
+      |> Macro.camelize()
+      |> then(&Module.concat("Habitat.Modules", &1))
 
-  def put_package(container, package, opts \\ []) do
-    Container.put_package(container, [{package, opts}])
+    {:module, _} = Code.ensure_loaded(mod)
+
+    mod
   end
 
   def toml(content) do

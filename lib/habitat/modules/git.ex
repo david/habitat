@@ -1,7 +1,7 @@
 defmodule Habitat.Modules.Git do
   use Habitat.Module
 
-  def pre_sync(container, _, _) do
-    put_package(container, "git")
+  def packages do
+    ["git"]
   end
 end

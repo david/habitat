@@ -7,12 +7,18 @@ defmodule Mix.Tasks.Habitat.Create do
 
   @requirements ["app.start"]
 
+  @images %{
+    ubuntu: "ghcr.io/david/habitat-ubuntu:latest"
+  }
+
   @impl true
   def run(names) do
-    for name <- names, id = String.to_atom(name) do
-      {:ok, %{os: os, root: root}} = Habitat.Blueprint.get_container(id)
+    ids = Enum.map(names, &String.to_atom/1)
 
-      Distrobox.create(name, os.image(), root)
+    {:ok, blueprints} = Habitat.Blueprint.load()
+
+    for %{id: id, os: os, root: root} <- blueprints, id in ids do
+      Distrobox.create(to_string(id), @images[os], root)
     end
   end
 end

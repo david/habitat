@@ -1,20 +1,20 @@
 defmodule Habitat.Modules.Readline do
   use Habitat.Module
 
-  def pre_sync(container_id, _, blueprint) do
-    main =
-      """
-      $include /etc/inputrc
+  def files(_, blueprint) do
+    main = """
+    $include /etc/inputrc
 
-      #{blueprint |> get_in([:editing, :mode]) |> editing_mode()}
-      """
+    #{blueprint |> get_in([:editing, :mode]) |> editing_mode()}
+    """
 
-    put_file(container_id, "~/.inputrc", main)
+    [{"~/.inputrc", main}]
   end
 
   defp editing_mode(:vi) do
     """
     set editing-mode vi
+
     set vi-cmd-mode-string "\\1\\e[2 q\\2"
     set vi-ins-mode-string "\\1\\e[6 q\\2"
     """

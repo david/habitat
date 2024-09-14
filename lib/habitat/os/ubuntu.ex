@@ -3,14 +3,6 @@ defmodule Habitat.OS.Ubuntu do
 
   def image(version \\ "latest"), do: "ghcr.io/david/habitat-ubuntu:#{version}"
 
-  def post_create(container_id) do
-    nil
-  end
-
-  def pre_sync(container_id, _) do
-    Brew.pre_sync(container_id)
-  end
-
   def install(container_id, packages) do
     for {pkg, opts} <- packages do
       case Keyword.take(opts, [:key, :repo]) do

@@ -1,7 +1,7 @@
-defmodule Habitat.Modules.Fd do
+defmodule Habitat.Modules.Gh do
   use Habitat.Module
 
   def packages do
-    ["fd"]
+    ["gh"]
   end
 end

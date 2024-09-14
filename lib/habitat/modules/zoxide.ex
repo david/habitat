@@ -1,11 +1,23 @@
 defmodule Habitat.Modules.Zoxide do
   use Habitat.Module
 
-  def pre_sync(container_id, _, _) do
-    put_package(container_id, "zoxide", provider: Habitat.PackageManager.Brew)
+  def packages do
+    ["zoxide"]
+  end
 
-    put_file(container_id, "~/.bashrc", interactive: "eval \"$(zoxide init bash)\"")
-    put_file(container_id, "~/.zshrc", interactive: "eval \"$(zoxide init zsh)\"")
-    put_file(container_id, "~/.config/fish/config.fish", interactive: "zoxide init fish | source")
+  def files(_, blueprint) do
+    shell_files(blueprint)
+  end
+
+  defp shell_files(%{shell: :bash}) do
+    [{"~/.bashrc", init: "eval \"$(zoxide init bash)\""}]
+  end
+
+  defp shell_files(%{shell: :fish}) do
+    [{"~/.config/fish/config.fish", init: "zoxide init fish | source"}]
+  end
+
+  defp shell_files(%{shell: :zsh}) do
+    [{"~/.zshrc", init: "eval \"$(zoxide init zsh)\""}]
   end
 end

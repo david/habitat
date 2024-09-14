@@ -1,8 +1,8 @@
 defmodule Habitat.PackageManager.Apt do
   alias Habitat.Distrobox
 
-  def install(container_id, packages) do
-    apt(container_id, ["install", "--no-install-recommends"] ++ packages)
+  def install(%{id: id}, packages) do
+    apt(id, ["install", "--no-install-recommends"] ++ packages)
   end
 
   defp apt(container_id, args) do

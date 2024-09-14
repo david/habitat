@@ -1,14 +1,19 @@
-defmodule Habitat.Files do
+defmodule Habitat.FileList do
   require Logger
 
   def sync(container) do
-    Logger.info("Syncing files")
-    Logger.debug(inspect(container.files))
+    files = Map.get(container, :files, %{})
 
-    for {target, src} <- container.files, do: sync_path(container, src, target)
+    Logger.info("Syncing files")
+    Logger.debug(inspect(files))
+
+    for {target, src} <- files, do: sync_path(container, target, src)
   end
 
-  def sync_path(container, src, target) do
+  defp normalize({nil, _}), do: nil
+  defp normalize({body, tags}), do: {:string, EEx.eval_string(body, assigns: tags)}
+
+  def sync_path(container, target, src) do
     cond do
       src == nil && match?({_, _}, target) ->
         create_path(container, target)

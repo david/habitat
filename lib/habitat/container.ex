@@ -1,111 +1,14 @@
 defmodule Habitat.Container do
-  alias Habitat.{Distrobox, Files, Installer}
-
   require Logger
 
-  use GenServer
-
-  def start_link(meta) do
-    GenServer.start_link(
-      __MODULE__,
-      Map.new(Map.take(meta, [:id, :os, :root])),
-      name: meta.id
-    )
-  end
-
-  def init(meta) do
-    meta
-    |> Map.merge(%{exports: [], files: %{}, packages: []})
-    |> then(&{:ok, &1})
-  end
-
-  ###
-
-  def sync(id) do
-    GenServer.call(id, :sync, :infinity)
-  end
-
-  ###
-
-  def export(id, apps) do
-    GenServer.cast(id, {:export, apps})
-  end
-
-  def put_package(id, packages) do
-    GenServer.cast(id, {:put_package, packages})
-  end
-
-  def put_file(id, path, content) do
-    GenServer.cast(id, {:put_file, path, content})
-  end
-
-  ###
-
-  def handle_cast({:export, apps}, %{id: id} = container) do
-    Logger.debug("[#{id}] Queueing #{inspect(apps)} for export")
-
-    {:noreply, update_in(container, [:exports], &(&1 ++ apps))}
-  end
-
-  def handle_cast({:put_file, path, content}, container) when is_binary(content) do
-    {:noreply,
-     update_in(
-       container,
-       [:files, String.replace(path, ~r/^~/, container.root)],
-       fn
-         nil -> {content, []}
-         {_, tags} -> {content, tags}
-       end
-     )}
-  end
-
-  def handle_cast({:put_file, path, tags}, container) when is_list(tags) do
-    {:noreply,
-     update_in(
-       container,
-       [:files, String.replace(path, ~r/^~/, container.root)],
-       fn
-         nil ->
-           {nil, tags}
-
-         {content, original_tags} ->
-           {content, Keyword.merge(original_tags, tags, fn _, va, vb -> va <> "\n" <> vb end)}
-       end
-     )}
-  end
-
-  def handle_cast({:put_package, packages}, %{id: id} = container) do
-    Logger.debug("[#{id}] Queueing #{inspect(packages)} for installation")
-
-    {:noreply, update_in(container, [:packages], &(&1 ++ packages))}
-  end
-
-  def handle_call(:stop, _, container) do
-    :ok = Distrobox.stop(container)
-
-    {:reply, :ok, container}
-  end
-
-  def handle_call(:sync, _, %{id: id} = container) do
+  def sync(%{id: id} = manifest) do
     Logger.info("[#{id}] Starting sync")
-    Logger.debug("[#{id}] #{inspect(container)}")
+    Logger.debug("[#{id}] #{inspect(manifest)}")
 
-    container =
-      container
-      |> update_in([:files], fn files ->
-        for {path, {content, tags}} <- files, !is_nil(content) do
-          {path, {:string, EEx.eval_string(content, assigns: tags)}}
-        end
-      end)
-
-    Files.sync(container)
-    sync_packages(container)
-    sync_exports(container)
-
-    {:reply, :ok, container}
+    Habitat.FileList.sync(manifest)
+    Habitat.PackageList.sync(manifest)
+    # sync_exports(c)
   end
-
-  ###
 
   def chsh(container, path) do
     cmd(container, ["sudo", "chsh", "--shell", path, userid(container)])
@@ -119,13 +22,6 @@ defmodule Habitat.Container do
     {user, 0} = __MODULE__.cmd(container, ["whoami"])
 
     String.trim(user)
-  end
-
-  defp sync_packages(%{id: id, packages: packages} = state) do
-    Logger.info("[#{id}] Syncing packages")
-    Logger.debug("[#{id}] #{inspect(packages)}")
-
-    Installer.install(state, packages)
   end
 
   def sync_exports(%{id: id, exports: exports}) do

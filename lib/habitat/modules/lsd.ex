@@ -1,28 +1,30 @@
 defmodule Habitat.Modules.Lsd do
   use Habitat.Module
 
-  def pre_sync(container_id, opts, _) do
-    put_package(container_id, "lsd", provider: Habitat.PackageManager.Brew)
+  @aliases """
+  alias ls=lsd
+  alias ll="lsd -l"
+  alias la="lsd -a"
+  alias lla="lsd -la"
+  """
 
-    if config = Keyword.get(opts, :config) do
-      put_file(container_id, "~/.config/lsd/config.yml", yaml(config))
-    end
+  def packages do
+    ["lsd"]
+  end
 
-    case Keyword.get(opts, :alias) do
-      :default ->
-        aliases = """
-        alias ls=lsd
-        alias ll="lsd -l"
-        alias la="lsd -a"
-        alias lla="lsd -la"
-        """
+  def files(%{config: config}, blueprint) do
+    [{"~/.config/lsd/config.yml", yaml(config)}] ++ shell_aliases(blueprint)
+  end
 
-        put_file(container_id, "~/.bashrc", interactive: aliases)
-        put_file(container_id, "~/.zshrc", interactive: aliases)
-        put_file(container_id, "~/.config/fish/config.fish", interactive: aliases)
+  defp shell_aliases(%{shell: :bash}) do
+    [{"~/.bashrc", init: @aliases}]
+  end
 
-      nil ->
-        nil
-    end
+  defp shell_aliases(%{shell: :fish}) do
+    [{"~/.config/fish/config.fish", init: @aliases}]
+  end
+
+  defp shell_aliases(%{shell: :zsh}) do
+    [{"~/.zshrc", init: @aliases}]
   end
 end

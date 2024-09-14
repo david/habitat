@@ -1,15 +1,23 @@
 defmodule Habitat.Modules.Atuin do
   use Habitat.Module
 
-  def pre_sync(container_id, opts, _) do
-    put_package(container_id, "atuin", provider: Habitat.PackageManager.Brew)
+  def packages do
+    ["atuin"]
+  end
 
-    if config = Keyword.get(opts, :config) do
-      put_file(container_id, "~/.config/atuin/config.toml", toml(config))
-    end
+  def files(%{config: config}, blueprint) do
+    [{"~/.config/atuin/config.toml", toml(config)}] ++ shell_files(blueprint)
+  end
 
-    put_file(container_id, "~/.bashrc", interactive: "eval \"$(atuin init bash)\"")
-    put_file(container_id, "~/.zshrc", interactive: "eval \"$(atuin init zsh)\"")
-    put_file(container_id, "~/.config/fish/config.fish", interactive: "atuin init fish | source")
+  defp shell_files(%{shell: :bash}) do
+    [{"~/.bashrc", init: "eval \"$(atuin init bash)\""}]
+  end
+
+  defp shell_files(%{shell: :fish}) do
+    [{"~/.config/fish/config.fish", init: "atuin init fish | source"}]
+  end
+
+  defp shell_files(%{shell: :zsh}) do
+    [{"~/.zshrc", init: "eval \"$(atuin init zsh)\""}]
   end
 end

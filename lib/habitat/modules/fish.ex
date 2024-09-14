@@ -1,24 +1,27 @@
 defmodule Habitat.Modules.Fish do
   use Habitat.Module
 
-  def pre_sync(container_id, _, blueprint) do
-    put_package(container_id, "fish", provider: Habitat.PackageManager.Brew)
+  def packages do
+    ["fish"]
+  end
 
+  def files(spec, blueprint) do
     editing = blueprint |> get_in([:editing, :mode]) |> editing_mode()
 
-    put_file(
-      container_id,
-      "~/.config/fish/config.fish",
-      """
-      <%= @profile %>
+    [
+      {
+        "~/.config/fish/config.fish",
+        """
+        <%= @profile %>
 
-      if status is-interactive
-        #{editing}
+        if status is-interactive
+          #{editing}
 
-        <%= @interactive %>
-      end
-      """
-    )
+          <%= @init %>
+        end
+        """
+      }
+    ]
   end
 
   defp editing_mode(:vi) do

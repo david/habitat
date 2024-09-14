@@ -10,7 +10,7 @@ defmodule Habitat.Distrobox do
 
     Logger.debug("Running `#{Enum.join(cmd, " ")}`")
 
-    case System.cmd("distrobox-host-exec", cmd, stderr_to_stdout: true) do
+    case System.cmd("distrobox-host-exec", cmd, [stderr_to_stdout: true] ++ opts) do
       {_, 0} ->
         :ok
 

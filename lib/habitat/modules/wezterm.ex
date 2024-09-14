@@ -1,20 +1,20 @@
 defmodule Habitat.Modules.Wezterm do
   use Habitat.Module
 
-  def pre_sync(container_id, opts, _) do
-    put_package(
-      container_id,
-      "wezterm",
-      repo: "https://apt.fury.io/wez/",
-      key: "https://apt.fury.io/wez/gpg.key"
-    )
-
-    if config = Keyword.get(opts, :config) do
-      put_path(container_id, "~/.config/wezterm", config)
-    end
-
-    if Keyword.get(opts, :export) do
-      export(container_id, "wezterm")
-    end
-  end
+  # @version "20240203-110809-5046fc22"
+  # @url "https://github.com/wez/wezterm/releases/download/#{@version}/wezterm-#{@version}.Ubuntu22.04.tar.xz"
+  #
+  # def pre_sync(container, opts, _) do
+  #   container
+  #   |> put_package("wezterm",
+  #     download: %{
+  #       url: @url,
+  #     },
+  #   )
+  #   # |> put_path("~/.config/wezterm", config)
+  #
+  #   # if Keyword.get(opts, :export) do
+  #   #   export(container_id, "wezterm")
+  #   # end
+  # end
 end

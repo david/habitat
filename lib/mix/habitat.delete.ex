@@ -8,12 +8,14 @@ defmodule Mix.Tasks.Habitat.Delete do
   @requirements ["app.start"]
 
   @impl true
-  def run(args) do
-    for arg <- args, id = String.to_atom(arg) do
-      {:ok, _} = Blueprint.get_container(id)
+  def run(names) do
+    ids = Enum.map(names, &String.to_atom/1)
 
-      Distrobox.stop(arg)
-      Distrobox.delete(arg)
+    {:ok, blueprints} = Habitat.Blueprint.load()
+
+    for %{id: id} <- blueprints, id in ids do
+      Distrobox.stop(to_string(id))
+      Distrobox.delete(to_string(id))
     end
   end
 end

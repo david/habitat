@@ -6,9 +6,7 @@ defmodule Habitat.Installer do
   @package_dir "/usr/local/habitat"
 
   def install(container, packages) do
-    packages
-    |> Enum.group_by(fn {pkg, opts} -> Keyword.get(opts, :provider, container.os) end)
-    |> then(&for {provider, pkgs} <- &1, do: provider.install(container.id, pkgs))
+    IO.inspect(packages)
   end
 
   defp sync_pkg(container_id, package, src) do

@@ -1,11 +1,16 @@
 defmodule Habitat.Modules.Neovim do
   use Habitat.Module
 
-  def pre_sync(container_id, opts, _) do
-    put_package(container_id, "neovim", provider: Habitat.PackageManager.Brew)
+  def packages do
+    ["neovim"]
+  end
 
-    if config = Keyword.get(opts, :config) do
-      put_path(container_id, "~/.config/nvim", config)
+  def files(%{config: config}) do
+    for file_name <- File.ls!(config) do
+      source_path = Path.join(config, file_name)
+      target_path = Path.join("~/.config/neovim", file_name)
+
+      [target_path, source_path]
     end
   end
 end

@@ -1,27 +1,28 @@
 defmodule Habitat.Modules.Bash do
   use Habitat.Module
 
-  def pre_sync(container_id, _, _) do
-    put_package(container_id, "bash")
+  def packages do
+    ["bash"]
+  end
 
-    put_file(
-      container_id,
-      "~/.bash_profile",
-      """
-      <%= @profile %>
+  def files(_, _) do
+    [
+      {
+        "~/.bash_profile",
+        """
+        <%= @profile %>
 
-      source ~/.bashrc
-      """
-    )
+        source ~/.bashrc
+        """
+      },
+      {
+        "~/.bashrc",
+        """
+        [[ $- == *i* ]] || return
 
-    put_file(
-      container_id,
-      "~/.bashrc",
-      """
-      [[ $- == *i* ]] || return
-
-      <%= @interactive %>
-      """
-    )
+        <%= @init %>
+        """
+      }
+    ]
   end
 end
