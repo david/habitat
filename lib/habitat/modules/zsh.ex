@@ -10,7 +10,7 @@ defmodule Habitat.Modules.Zsh do
       {
         "~/.zprofile",
         """
-        <%= @profile %>
+        <%= @env %>
 
         source ~/.zshrc
         """

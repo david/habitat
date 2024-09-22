@@ -1,7 +1,8 @@
 defmodule Habitat.Modules.Heroku do
   use Habitat.Module
 
-  def packages do
-    [{"heroku", [tap: "heroku/brew"]}]
+  def sync(manifest, spec, blueprint) do
+    manifest
+    |> add_package({:brew, "heroku", [tap: "heroku/brew"]})
   end
 end

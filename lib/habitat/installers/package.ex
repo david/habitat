@@ -57,7 +57,7 @@ defmodule Habitat.Installers.Package do
 
       base_args = ["--extract", "--file=#{archive_path}", "--directory=#{src_dir}"]
 
-      {_, 0} = System.cmd("tar", base_args ++ ["--strip-components=1"] )
+      {_, 0} = System.cmd("tar", base_args ++ ["--strip-components=1"])
 
       if File.ls!(src_dir) == [] do
         Logger.debug("Extracting without stripping top dir #{archive_path} to #{src_dir}")
@@ -107,10 +107,11 @@ defmodule Habitat.Installers.Package do
     Logger.debug("Installing #{source_dir}")
 
     for {from, to} <- mappings do
-      [path, opts] = case to do
-        [p | o] -> [p, o]
-        _ -> [to, []]
-      end
+      [path, opts] =
+        case to do
+          [p | o] -> [p, o]
+          _ -> [to, []]
+        end
 
       from_path = Path.join(source_dir, from)
       to_path = Path.join(@install_dir, path)

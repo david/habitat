@@ -1,23 +1,25 @@
 defmodule Habitat.Modules.Atuin do
   use Habitat.Module
 
-  def packages do
-    ["atuin"]
+  def sync(manifest, spec, blueprint) do
+    manifest
+    |> add_package("atuin")
+    |> add_files(files(spec, blueprint))
   end
 
-  def files(%{config: config}, blueprint) do
-    [{"~/.config/atuin/config.toml", toml(config)}] ++ shell_files(blueprint)
+  defp files(%{config: config}, blueprint) do
+    [{"~/.config/atuin/config.toml", toml(config)}, shell_init(blueprint)]
   end
 
-  defp shell_files(%{shell: :bash}) do
-    [{"~/.bashrc", init: "eval \"$(atuin init bash)\""}]
+  defp shell_init(%{shell: :bash}) do
+    {"~/.bashrc", init: "eval \"$(atuin init bash)\""}
   end
 
-  defp shell_files(%{shell: :fish}) do
-    [{"~/.config/fish/config.fish", init: "atuin init fish | source"}]
+  defp shell_init(%{shell: :fish}) do
+    {"~/.config/fish/config.fish", init: "atuin init fish | source"}
   end
 
-  defp shell_files(%{shell: :zsh}) do
-    [{"~/.zshrc", init: "eval \"$(atuin init zsh)\""}]
+  defp shell_init(%{shell: :zsh}) do
+    {"~/.zshrc", init: "eval \"$(atuin init zsh)\""}
   end
 end

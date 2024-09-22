@@ -1,7 +1,8 @@
 defmodule Habitat.Modules.Fzf do
   use Habitat.Module
 
-  def packages do
-    ["fzf"]
+  def sync(manifest, _, _) do
+    manifest
+    |> add_package("fzf")
   end
 end

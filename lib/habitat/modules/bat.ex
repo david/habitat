@@ -1,7 +1,8 @@
 defmodule Habitat.Modules.Bat do
   use Habitat.Module
 
-  def packages do
-    ["bat"]
+  def sync(manifest, _, _) do
+    manifest
+    |> add_package("bat")
   end
 end

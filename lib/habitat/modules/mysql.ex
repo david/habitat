@@ -1,5 +1,32 @@
 defmodule Habitat.Modules.Mysql do
   use Habitat.Module
+
+  def packages(%{version: version}) do
+    ["mysql@#{version}"]
+  end
+
+  def files(%{version: version}, blueprint) do
+    shell_files("/home/linuxbrew/.linuxbrew/opt/mysql@#{version}/bin", blueprint)
+  end
+
+  def post_install_hook(id) do
+    # Distrobox.cmd(id, mysqld(["--initialize-insecure", "--datadir="]))
+  end
+
+  defp shell_files(path, %{shell: :bash}) do
+    [{"~/.bash_profile", env: "PATH=#{path}:$PATH"}]
+  end
+
+  defp shell_files(path, %{shell: :fish}) do
+    [
+      {"~/.config/fish/config.fish", env: "fish_add_path --prepend --path #{path}"}
+    ]
+  end
+
+  defp shell_files(path, %{shell: :zsh}) do
+    [{"~/.zshrc", env: "PATH=#{path}:$PATH"}]
+  end
+
   #
   # def pre_sync(container_id, _, _) do
   #   put_package(container_id, "libaio")

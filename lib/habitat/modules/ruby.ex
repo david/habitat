@@ -1,15 +1,16 @@
 defmodule Habitat.Modules.Ruby do
   use Habitat.Module
 
-  # @url "https://cache.ruby-lang.org/pub/ruby/3.3/ruby-3.3.5.tar.gz"
-  #
-  # def pre_sync(container, _, _) do
-  #   container
-  #     |> put_package("ruby",
-  #     download: %{
-  #       archive: "ruby-3.3.5.tar.gz",
-  #       url: @url
-  #     }
-  #   )
-  # end
+  def sync(manifest, version, blueprint) when is_binary(version) do
+    sync(manifest, %{version: version}, blueprint)
+  end
+
+  def sync(manifest, %{version: version}, _) do
+    manifest
+    |> add_packages([
+      {:apt, "gcc-11"},
+      {:apt, "zlib1g-dev"},
+      {:brew, "ruby@#{version}"}
+    ])
+  end
 end

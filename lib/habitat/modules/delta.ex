@@ -1,7 +1,8 @@
 defmodule Habitat.Modules.Delta do
   use Habitat.Module
 
-  def packages do
-    ["git-delta"]
+  def sync(manifest, _, _) do
+    manifest
+    |> add_package("git-delta")
   end
 end

@@ -1,7 +1,7 @@
 defmodule Habitat.PackageList do
   require Logger
 
-  alias Habitat.Distrobox
+  alias Habitat.PackageManager.{Apt, Brew}
 
   @brew "/home/linuxbrew/.linuxbrew/bin/brew"
 
@@ -11,17 +11,24 @@ defmodule Habitat.PackageList do
 
     id = to_string(id)
 
-    for {_, opts} <- packages, tap = Keyword.get(opts, :tap), tap do
-      Distrobox.cmd(id, [@brew, "tap", "--shallow", tap])
-    end
+    packages
+    |> normalize()
+    |> Enum.group_by(&elem(&1, 0))
+    |> Enum.each(fn {provider_id, packages} ->
+      Habitat.PackageManager.get(provider_id).install(
+        id,
+        for({_, pkg, opts} <- packages, do: {pkg, opts})
+      )
+    end)
+  end
 
-    pkgs = for pkg <- packages do
-      case pkg do
-        p when is_binary(p) -> p
-        {p, _} -> p
+  defp normalize(packages) do
+    for p <- packages do
+      case p do
+        name when is_binary(name) -> {:brew, name, []}
+        {provider, name} when is_binary(name) -> {provider, name, []}
+        {_provider, _name, _opts} -> p
       end
     end
-
-    Distrobox.cmd(id, [@brew, "install"] ++ pkgs)
   end
 end

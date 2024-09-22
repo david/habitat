@@ -1,16 +1,18 @@
 defmodule Habitat.Modules.Bash do
   use Habitat.Module
 
-  def packages do
-    ["bash"]
+  def sync(manifest, _, _) do
+    manifest
+    |> add_package("bash")
+    |> add_files(files())
   end
 
-  def files(_, _) do
+  defp files do
     [
       {
         "~/.bash_profile",
         """
-        <%= @profile %>
+        <%= @env %>
 
         source ~/.bashrc
         """

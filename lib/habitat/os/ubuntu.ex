@@ -1,6 +1,8 @@
 defmodule Habitat.OS.Ubuntu do
   alias Habitat.PackageManager.{Apt, Brew}
 
+  def sync(manifest, _, _), do: manifest
+
   def image(version \\ "latest"), do: "ghcr.io/david/habitat-ubuntu:#{version}"
 
   def install(container_id, packages) do

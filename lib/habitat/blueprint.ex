@@ -7,6 +7,8 @@ defmodule Habitat.Blueprint do
     end
   end
 
+  require Logger
+
   def container_path(%{root: root}, path) do
     String.replace(path, ~r/^~/, root)
   end
@@ -17,31 +19,86 @@ defmodule Habitat.Blueprint do
     end
 
     case Application.fetch_env(:habitat, :blueprint) do
-      {:ok, mod} -> {:ok, Enum.map(mod.containers(), &normalize/1)}
-      :error -> {:error, nil}
+      {:ok, mod} ->
+        {:ok, Enum.map(host(mod) ++ mod.containers(), &normalize/1)}
+
+      :error ->
+        {:error, nil}
     end
   end
 
   defp normalize(blueprint) do
-    shell = Map.get(blueprint, :shell, :bash)
-    mods = Enum.map(blueprint.modules, &Habitat.Module.load/1)
+    modules = get_modules(blueprint)
+    shell = get_shell(blueprint)
+    xdg = get_xdg(blueprint)
 
-    mods =
-      if Enum.find(mods, fn {k, _} -> k == shell end) do
-        mods
-      else
-        mods ++ [Habitat.Module.load(shell)]
-      end
+    Map.put(blueprint, :modules, modules ++ [xdg, shell])
+  end
 
-    Map.put(blueprint, :modules, mods)
+  defp get_modules(%{modules: modules}) do
+    Enum.map(modules, &get_module/1)
+  end
+
+  defp get_modules(_), do: []
+
+  @host_defaults %{
+    id: :host
+  }
+
+  defp host(mod) do
+    if function_exported?(mod, :host, 0) do
+      [Map.merge(@host_defaults, mod.host())]
+    else
+      []
+    end
+  end
+
+  defp get_shell(blueprint) do
+    key = Map.get(blueprint, :shell, :bash)
+
+    {key, to_module(key, "Habitat.Modules"), %{}}
+  end
+
+  defp get_xdg(blueprint) do
+    spec = Map.get(blueprint, :xdg, %{})
+
+    {:xdg, Habitat.Xdg, spec}
+  end
+
+  defp get_module(key) when is_atom(key) do
+    {key, to_module(key, "Habitat.Modules"), %{}}
+  end
+
+  defp get_module({key, spec}) when is_list(spec) do
+    {key, to_module(key, "Habitat.Modules"), Map.new(spec)}
+  end
+
+  defp get_module({key, spec}) do
+    {key, to_module(key, "Habitat.Modules"), spec}
+  end
+
+  defp to_module(modish, namespace) do
+    name = to_string(modish)
+
+    with {:module, mod} <-
+           (if(String.match?(name, ~r/^Elixir\./)) do
+              modish
+            else
+              name
+              |> Macro.camelize()
+              |> then(&Module.concat(namespace, &1))
+            end)
+           |> Code.ensure_loaded() do
+      mod
+    else
+      {:error, :nofile} -> Logger.error("No module named #{modish}")
+    end
   end
 
   defmodule DSL do
-    def path(path) do
-      cond do
-        File.dir?(path) -> {:dir, path}
-        File.regular?(path) -> {:file, path}
-      end
+    def glob(path) do
+      # TODO
+      []
     end
   end
 end

@@ -1,14 +1,14 @@
 defmodule Habitat.FileBuilder do
-  def build({body, slots}) do
-    IO.inspect([body, slots, merge_slots(slots)])
+  def update(nil, {_, body}) when is_binary(body) do
+    {:string, body}
+  end
+
+  def update({nil, slots}, {_, body}) when is_binary(body) do
     {:string, EEx.eval_string(body, assigns: merge_slots(slots))}
   end
 
-  def update(nil, {_, body}) when is_binary(body), do: {body, []}
-  def update({_, slots}, {_, body}) when is_binary(body), do: {body, slots}
-
   def update(nil, {_, slots}) when is_list(slots), do: {nil, slots}
-  def update({body, old_slots}, {_, slots}) when is_list(slots), do: {body, old_slots ++ slots}
+  def update({nil, old_slots}, {_, slots}) when is_list(slots), do: {nil, old_slots ++ slots}
 
   defp merge_slots(lst) do
     lst

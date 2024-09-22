@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Habitat.Sync do
     for arg <- args, id = String.to_atom(arg) do
       blueprints
       |> Enum.find(&(&1.id == id))
-      |> Manifest.build()
+      |> Manifest.new()
       |> Container.sync()
     end
   end

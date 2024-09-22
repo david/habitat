@@ -1,8 +1,15 @@
 defmodule Habitat.PackageManager.Apt do
   alias Habitat.Distrobox
 
-  def install(%{id: id}, packages) do
-    apt(id, ["install", "--no-install-recommends"] ++ packages)
+  @sources_path "/etc/apt/sources.list.d"
+  @keyring_path "/usr/share/keyrings"
+
+  def install(container_id, packages) do
+    for {pkg, opts} <- packages, Keyword.get(opts, :repo) do
+      add_repo(container_id, pkg, Map.new(opts))
+    end
+
+    apt(container_id, ["install"] ++ for({p, _} <- packages, do: p))
   end
 
   defp apt(container_id, args) do
@@ -11,27 +18,20 @@ defmodule Habitat.PackageManager.Apt do
     Distrobox.cmd(container_id, cmd)
   end
 
-  def add_repo(container_id, repo, key) do
-    :ok =
-      Distrobox.shell(
-        container_id,
-        [
-          "curl -fsSL https://apt.fury.io/wez/gpg.key" <>
-            " | " <>
-            "sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg"
-        ]
-      )
+  def add_repo(container_id, package_name, opts) do
+    %{repo: repo, distribution: distribution, component1: component1, key: key} = opts
+
+    key_path = Path.join(@keyring_path, "#{package_name}.gpg")
 
     :ok =
-      Distrobox.shell(
-        container_id,
-        [
-          "echo deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ \\* \\*" <>
-            " | " <>
-            "sudo tee /etc/apt/sources.list.d/wezterm.list"
-        ]
-      )
+      Distrobox.shell(container_id, [
+        "curl -fsSL #{repo}/gpg.key | sudo gpg --yes --dearmor -o #{key_path}"
+      ])
 
+    source_path = Path.join(@sources_path, "#{package_name}.list")
+    deb_str = "deb [signed-by=#{key_path}] #{repo} #{distribution} #{component1}"
+
+    :ok = Distrobox.shell(container_id, ["echo \'#{deb_str}\' | sudo tee #{source_path}"])
     :ok = Distrobox.cmd(container_id, ["sudo", "apt-get", "update"])
   end
 end

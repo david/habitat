@@ -1,7 +1,8 @@
 defmodule Habitat.Modules.Ripgrep do
   use Habitat.Module
 
-  def packages do
-    ["ripgrep"]
+  def sync(manifest, _, _) do
+    manifest
+    |> add_package("ripgrep")
   end
 end

@@ -2,7 +2,7 @@ defmodule Habitat.Distrobox do
   require Logger
 
   def shell(id, args) do
-    cmd(id, ["bash", "-c"] ++ args)
+    cmd(id, ["bash", "-c", "#{Enum.join(args, " ")}"])
   end
 
   def cmd(id, args, opts \\ []) do
