@@ -1,16 +1,22 @@
 defmodule Habitat.Modules.Mysql do
   use Habitat.Module
 
-  def packages(%{version: version}) do
-    ["mysql@#{version}"]
+  def sync(manifest, version, blueprint) when is_binary(version) do
+    sync(manifest, %{version: version}, blueprint)
   end
 
-  def files(%{version: version}, blueprint) do
+  def sync(manifest, %{version: version}, blueprint) do
+    manifest
+    |> add_package("mysql@#{version}")
+    |> add_files(files(version, blueprint))
+  end
+
+  def files(version, blueprint) do
     shell_files("/home/linuxbrew/.linuxbrew/opt/mysql@#{version}/bin", blueprint)
   end
 
   def post_install_hook(id) do
-    # Distrobox.cmd(id, mysqld(["--initialize-insecure", "--datadir="]))
+    # Distrobox.cmd(id, mysqld("--initialize-insecure", "--datadir="))
   end
 
   defp shell_files(path, %{shell: :bash}) do

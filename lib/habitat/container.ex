@@ -1,13 +1,12 @@
 defmodule Habitat.Container do
   require Logger
 
-  def sync(%{id: id} = manifest) do
-    Logger.info("[#{id}] Starting sync")
-    Logger.debug("[#{id}] #{inspect(manifest)}")
+  def install(%{id: id}, {:apt, package, opts}) do
+    Habitat.PackageManager.Apt.install(id, package, opts)
+  end
 
-    Habitat.FileList.sync(manifest)
-    Habitat.PackageList.sync(manifest)
-    # sync_exports(c)
+  def install(%{id: id}, {:brew, package, opts}) do
+    Habitat.PackageManager.Brew.install(id, package, opts)
   end
 
   def chsh(container, path) do

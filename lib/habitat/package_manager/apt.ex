@@ -4,12 +4,12 @@ defmodule Habitat.PackageManager.Apt do
   @sources_path "/etc/apt/sources.list.d"
   @keyring_path "/usr/share/keyrings"
 
-  def install(container_id, packages) do
-    for {pkg, opts} <- packages, Keyword.get(opts, :repo) do
-      add_repo(container_id, pkg, Map.new(opts))
+  def install(container_id, package, opts) do
+    if Keyword.get(opts, :repo) do
+      add_repo(container_id, package, Map.new(opts))
     end
 
-    apt(container_id, ["install"] ++ for({p, _} <- packages, do: p))
+    apt(container_id, ["install", package])
   end
 
   defp apt(container_id, args) do

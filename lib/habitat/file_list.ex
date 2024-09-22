@@ -1,41 +1,44 @@
 defmodule Habitat.FileList do
   require Logger
 
-  def sync(container) do
-    files = Map.get(container, :files, %{})
+  def init(manifest, %{files: files}), do: Map.put(manifest, :files, files)
+  def init(manifest, _), do: init(manifest, %{files: %{}})
+
+  def sync(manifest, container) do
+    files = Map.get(manifest, :files)
 
     Logger.info("Syncing files")
     Logger.debug(inspect(files))
 
-    for {target, src} <- files, do: sync_path(container, target, src)
+    for {target, src} <- files, do: sync_path(manifest, target, src, container)
   end
 
-  defp normalize({nil, _}), do: nil
-  defp normalize({body, tags}), do: {:string, EEx.eval_string(body, assigns: tags)}
+  def sync_path(_manifest, _target, _src, _container) do
+  end
 
-  def sync_path(container, target, src) do
+  def _sync_path(manifest, target, src, _container) do
     cond do
       src == nil && match?({_, _}, target) ->
-        create_path(container, target)
+        create_path(manifest, target)
 
       match?({:string, _}, src) && is_binary(target) ->
-        create_path(container, {:dir, Path.dirname(target)})
-        write_string(container, elem(src, 1), target)
+        create_path(manifest, {:dir, Path.dirname(target)})
+        write_string(manifest, elem(src, 1), target)
 
       File.dir?(src) ->
-        sync_dir(container, Path.expand(src), target)
+        sync_dir(manifest, Path.expand(src), target)
 
       File.regular?(src) ->
-        sync_file(container, Path.expand(src), target)
+        sync_file(manifest, Path.expand(src), target)
     end
   end
 
-  defp create_path(container, {:dir, target}) do
-    target |> expand(container.root) |> File.mkdir_p!()
+  defp create_path(%{blueprint: %{root: root}}, {:dir, target}) do
+    target |> expand(root) |> File.mkdir_p!()
   end
 
-  defp write_string(container, contents, target) do
-    target = expand(target, container.root)
+  defp write_string(%{blueprint: %{root: root}} = manifest, contents, target) do
+    target = expand(target, root)
 
     case File.lstat(target) do
       {:ok, %{type: :symlink}} ->
@@ -43,7 +46,7 @@ defmodule Habitat.FileList do
         Logger.warning("Boldly replacing symlink from #{target} to #{linked} with a plain file")
 
         File.rm!(target)
-        write_string(container, contents, target)
+        write_string(manifest, contents, target)
 
       {:ok, %{type: :directory}} ->
         Logger.warning("Cowardly refusing to replace directory #{target} with a file")
@@ -53,8 +56,8 @@ defmodule Habitat.FileList do
     end
   end
 
-  defp sync_file(container, src, target) do
-    target = expand(target, container.root)
+  defp sync_file(%{blueprint: %{root: root}} = manifest, src, target) do
+    target = expand(target, root)
 
     case File.lstat(target) do
       {:ok, %{type: :regular}} ->
@@ -73,7 +76,7 @@ defmodule Habitat.FileList do
           )
 
           File.rm(target)
-          sync_file(container, src, target)
+          sync_file(manifest, src, target)
         end
 
       _ ->
@@ -81,8 +84,8 @@ defmodule Habitat.FileList do
     end
   end
 
-  defp sync_dir(container, src, {:symlink, target}) do
-    target = expand(target, container.root)
+  defp sync_dir(%{blueprint: %{root: root}}, src, {:symlink, target}) do
+    target = expand(target, root)
 
     case File.lstat(target) do
       {:ok, %{type: :regular}} ->
@@ -97,8 +100,8 @@ defmodule Habitat.FileList do
     end
   end
 
-  defp sync_dir(container, src, target) do
-    target = expand(target, container.root)
+  defp sync_dir(%{blueprint: %{root: root}} = manifest, src, target) do
+    target = expand(target, root)
 
     case File.lstat(target) do
       {:ok, %{type: :symlink}} ->
@@ -106,7 +109,7 @@ defmodule Habitat.FileList do
         Logger.warning("Boldly replacing symlink from #{target} to #{linked} with a directory")
 
         File.rm!(target)
-        sync_dir(container, target, src)
+        sync_dir(manifest, target, src)
 
       {:ok, %{type: :regular}} ->
         Logger.warning("Cowardly refusing to replace file #{target} with a directory")
@@ -116,9 +119,10 @@ defmodule Habitat.FileList do
 
         for f <- File.ls!(src) do
           sync_path(
-            container,
+            manifest,
             Path.join(src, f),
-            Path.join(target, f)
+            Path.join(target, f),
+            %{}
           )
         end
     end

@@ -23,12 +23,14 @@ defmodule Habitat.PackageManager.Brew do
     )
   end
 
-  def install(container_id, packages) when is_list(packages) do
-    for {_, opts} <- packages, tap = Keyword.get(opts, :tap) do
-      Distrobox.cmd(container_id, [@bin, "tap", tap])
-    end
+  def install(container_id, package, opts) do
+    if tap = Keyword.get(opts, :tap), do: add_tap(container_id, tap)
 
-    for {p, _} <- packages, do: Distrobox.cmd(container_id, [@bin, "install", p])
+    Distrobox.cmd(container_id, [@bin, "install", package])
+  end
+
+  defp add_tap(container_id, tap) do
+    Distrobox.cmd(container_id, [@bin, "tap", tap])
   end
 
   defp cmd(shell), do: "#{@bin} shellenv #{shell}"

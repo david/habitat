@@ -15,15 +15,13 @@ defmodule Sys.Blueprint do
           atuin(),
           :bat,
           :delta,
-          :elixir,
           :fd,
           :fzf,
           :gh,
-          # :git,
+          :git,
           :heroku,
           :lazygit,
           lsd(),
-          # neovim(),
           :readline,
           :ripgrep,
           starship(:test),
@@ -31,6 +29,9 @@ defmodule Sys.Blueprint do
           :wl_clipboard,
           :zoxide,
           ruby: "3.3"
+        ],
+        packages: [
+          "elixir"
         ]
       }
     ]
@@ -57,16 +58,6 @@ defmodule Sys.Blueprint do
      ]}
   end
 
-  defp gh do
-    {:github_cli,
-     [
-       config: [
-         git_protocol: "https",
-         version: "1"
-       ]
-     ]}
-  end
-
   defp lsd do
     {:lsd,
      [
@@ -81,10 +72,6 @@ defmodule Sys.Blueprint do
          ]
        ]
      ]}
-  end
-
-  defp neovim do
-    {:neovim, config: "config/nvim"}
   end
 
   defp starship(id) do

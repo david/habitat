@@ -16,7 +16,7 @@ defmodule Habitat.Module do
   end
 
   def add_packages(manifest, packages) when is_list(packages) do
-    update_in(manifest, [:packages], &(&1 ++ packages))
+    Habitat.PackageList.update(manifest, packages)
   end
 
   def add_file(manifest, file) do

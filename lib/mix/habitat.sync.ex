@@ -1,5 +1,6 @@
 defmodule Mix.Tasks.Habitat.Sync do
   @shortdoc "Update system configuration"
+
   use Mix.Task
 
   alias Habitat.{Container, Manifest}
@@ -11,10 +12,11 @@ defmodule Mix.Tasks.Habitat.Sync do
     {:ok, blueprints} = Habitat.Blueprint.load()
 
     for arg <- args, id = String.to_atom(arg) do
-      blueprints
-      |> Enum.find(&(&1.id == id))
+      blueprint = Enum.find(blueprints, &(&1.id == id))
+
+      blueprint
       |> Manifest.new()
-      |> Container.sync()
+      |> Manifest.sync(Map.take(blueprint, [:id, :root]))
     end
   end
 end
