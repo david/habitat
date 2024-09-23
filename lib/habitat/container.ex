@@ -1,4 +1,6 @@
 defmodule Habitat.Container do
+  alias Habitat.Distrobox
+
   require Logger
 
   def install(%{id: id}, {:apt, package, opts}) do
@@ -7,6 +9,15 @@ defmodule Habitat.Container do
 
   def install(%{id: id}, {:brew, package, opts}) do
     Habitat.PackageManager.Brew.install(id, package, opts)
+  end
+
+  def write(%{root: root}, target, body) do
+    target |> Path.dirname() |> File.mkdir_p!()
+    File.write!(target, body)
+  end
+
+  defp expand_path(root, path) do
+    String.replace(path, ~r/^~/, root)
   end
 
   def chsh(container, path) do
@@ -23,14 +34,12 @@ defmodule Habitat.Container do
     String.trim(user)
   end
 
-  def sync_exports(%{id: id, exports: exports}) do
-    Logger.info("[#{id}] Syncing exports")
-    Logger.debug("[#{id}] #{inspect(exports)}")
+  def export(%{id: id}, export) do
+    Logger.info("[#{id}] Exporting export")
+    Logger.debug("[#{id}] #{inspect(export)}")
 
-    for app <- exports do
-      Distrobox.cmd(id, ["distrobox-export", "--delete", "--app", app])
+    Distrobox.cmd(id, ["distrobox-export", "--delete", "--app", export])
 
-      :ok = Distrobox.cmd(id, ["distrobox-export", "--app", app])
-    end
+    :ok = Distrobox.cmd(id, ["distrobox-export", "--app", export])
   end
 end

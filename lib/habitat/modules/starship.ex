@@ -1,13 +1,11 @@
 defmodule Habitat.Modules.Starship do
   use Habitat.Module
 
-  def sync(manifest, spec, blueprint) do
-    manifest
-    |> add_package("starship")
-    |> add_files(files(spec, blueprint))
+  def packages(_, _) do
+    ["starship"]
   end
 
-  defp files(%{config: config}, blueprint) do
+  def files(%{config: config}, blueprint) do
     [{"~/.config/starship.toml", toml(config)}, shell_init(blueprint)]
   end
 

@@ -1,12 +1,7 @@
 defmodule Habitat.Modules.Readline do
   use Habitat.Module
 
-  def sync(manifest, _, blueprint) do
-    manifest
-    |> add_files(files(blueprint))
-  end
-
-  defp files(blueprint) do
+  def files(_, blueprint) do
     main = """
     $include /etc/inputrc
 

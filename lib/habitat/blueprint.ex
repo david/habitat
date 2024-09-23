@@ -9,10 +9,6 @@ defmodule Habitat.Blueprint do
 
   require Logger
 
-  def container_path(%{root: root}, path) do
-    String.replace(path, ~r/^~/, root)
-  end
-
   def load(file_path \\ "blueprint.exs") do
     if File.exists?(file_path) do
       Code.require_file(file_path)

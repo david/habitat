@@ -1,14 +1,21 @@
 defmodule Habitat.Manifest do
   require Logger
 
+  alias Habitat.{ExportList, FileList, PackageList}
+
   def new(%{modules: modules} = blueprint) do
     manifest =
       %{blueprint: blueprint}
-      |> Habitat.FileList.init(blueprint)
-      |> Habitat.PackageList.init(blueprint)
+      |> ExportList.init(blueprint)
+      |> FileList.init(blueprint)
+      |> PackageList.init(blueprint)
 
     for {_, mod, spec} <- modules, reduce: manifest do
-      m -> mod.sync(m, spec, blueprint)
+      m ->
+        m
+        |> ExportList.update(mod, spec, blueprint)
+        |> FileList.update(mod, spec, blueprint)
+        |> PackageList.update(mod, spec, blueprint)
     end
   end
 
@@ -18,6 +25,6 @@ defmodule Habitat.Manifest do
 
     Habitat.FileList.sync(manifest, container)
     Habitat.PackageList.sync(manifest, container)
-    # sync_exports(c)
+    Habitat.ExportList.sync(manifest, container)
   end
 end

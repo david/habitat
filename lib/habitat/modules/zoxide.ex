@@ -1,10 +1,12 @@
 defmodule Habitat.Modules.Zoxide do
   use Habitat.Module
 
-  def sync(manifest, _, blueprint) do
-    manifest
-    |> add_package("zoxide")
-    |> add_file(shell_init(blueprint))
+  def packages(_, _) do
+    ["zoxide"]
+  end
+
+  def files(_, blueprint) do
+    shell_init(blueprint)
   end
 
   defp shell_init(%{shell: :bash}) do

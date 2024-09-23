@@ -1,13 +1,11 @@
 defmodule Habitat.Modules.Bash do
   use Habitat.Module
 
-  def sync(manifest, _, _) do
-    manifest
-    |> add_package("bash")
-    |> add_files(files())
+  def packages(_, _) do
+    ["bash"]
   end
 
-  defp files do
+  def files(_, _) do
     [
       {
         "~/.bash_profile",

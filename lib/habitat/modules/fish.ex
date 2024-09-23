@@ -1,13 +1,11 @@
 defmodule Habitat.Modules.Fish do
   use Habitat.Module
 
-  def sync(manifest, _, blueprint) do
-    manifest
-    |> add_package("fish")
-    |> add_files(files(blueprint))
+  def packages(_, _) do
+    ["fish"]
   end
 
-  defp files(blueprint) do
+  def files(_, blueprint) do
     editing = blueprint |> get_in([:editing, :mode]) |> editing_mode()
 
     [

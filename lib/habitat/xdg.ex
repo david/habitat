@@ -1,17 +1,12 @@
 defmodule Habitat.Xdg do
   use Habitat.Module
 
-  def sync(manifest, spec, _) do
-    manifest
-    |> add_files(user_dirs(spec))
-  end
-
-  defp user_dirs(%{user_dirs: false}) do
+  def files(spec, _) do
     [
       {
         "~/.config/user-dirs.conf",
         """
-        enabled=False
+        enabled=#{if(Map.get(spec, :user_dirs), do: "True", else: "False")}
         """
       }
     ]

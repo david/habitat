@@ -9,8 +9,14 @@ defmodule Habitat.PackageList do
 
   def init(manifest, _), do: init(manifest, %{packages: []})
 
-  def update(manifest, packages) do
-    update_in(manifest, [:packages], fn pkgs -> pkgs ++ Enum.map(packages, &normalize/1) end)
+  def update(manifest, mod, spec, blueprint) do
+    if function_exported?(mod, :packages, 2) do
+      update_in(manifest, [:packages], fn packages ->
+        packages ++ Enum.map(mod.packages(spec, blueprint), &normalize/1)
+      end)
+    else
+      manifest
+    end
   end
 
   def sync(%{packages: packages}, %{id: id} = container) do

@@ -1,7 +1,7 @@
 defmodule Habitat.Modules.Zsh do
   use Habitat.Module
 
-  def packages do
+  def packages(_, _) do
     ["zsh"]
   end
 

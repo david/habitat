@@ -1,14 +1,12 @@
 defmodule Habitat.Modules.Mysql do
   use Habitat.Module
 
-  def sync(manifest, version, blueprint) when is_binary(version) do
-    sync(manifest, %{version: version}, blueprint)
+  def packages(version, blueprint) when is_binary(version) do
+    packages(%{version: version}, blueprint)
   end
 
-  def sync(manifest, %{version: version}, blueprint) do
-    manifest
-    |> add_package("mysql@#{version}")
-    |> add_files(files(version, blueprint))
+  def packages(%{version: version}, _) do
+    ["mysql@#{version}"]
   end
 
   def files(version, blueprint) do

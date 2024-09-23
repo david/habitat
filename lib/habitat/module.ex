@@ -19,20 +19,17 @@ defmodule Habitat.Module do
     Habitat.PackageList.update(manifest, packages)
   end
 
-  def add_file(manifest, file) do
-    add_files(manifest, [file])
+  def add_file(manifest, {target, content}) do
+    add_file(manifest, target, content)
+  end
+
+  def add_file(manifest, target, content) do
+    Habitat.FileList.update(manifest, target, content)
   end
 
   def add_files(manifest, files) do
-    for {path, _} = entry <- files, reduce: manifest do
-      m ->
-        cpath = Habitat.Blueprint.container_path(manifest.blueprint, path)
-
-        update_in(
-          m,
-          [:files],
-          fn fs -> Map.put(fs, cpath, Habitat.FileBuilder.update(fs[cpath], entry)) end
-        )
+    for {target, content} <- files, reduce: manifest do
+      m -> add_file(m, target, content)
     end
   end
 

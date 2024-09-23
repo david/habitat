@@ -8,13 +8,11 @@ defmodule Habitat.Modules.Lsd do
   alias lla="lsd -la"
   """
 
-  def sync(manifest, spec, blueprint) do
-    manifest
-    |> add_package("lsd")
-    |> add_files(files(spec, blueprint))
+  def packages(_, _) do
+    ["lsd"]
   end
 
-  defp files(%{config: config}, blueprint) do
+  def files(%{config: config}, blueprint) do
     [{"~/.config/lsd/config.yml", yaml(config)}] ++ shell_aliases(blueprint)
   end
 
