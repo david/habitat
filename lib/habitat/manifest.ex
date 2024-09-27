@@ -5,13 +5,15 @@ defmodule Habitat.Manifest do
 
   def new(%{modules: modules} = blueprint) do
     manifest =
-      %{blueprint: blueprint}
+      %{}
       |> ExportList.init(blueprint)
       |> FileList.init(blueprint)
       |> PackageList.init(blueprint)
 
     for {_, mod, spec} <- modules, reduce: manifest do
       m ->
+        IO.inspect([mod, spec])
+
         m
         |> ExportList.update(mod, spec, blueprint)
         |> FileList.update(mod, spec, blueprint)
@@ -21,7 +23,6 @@ defmodule Habitat.Manifest do
 
   def sync(manifest, %{id: id} = container) do
     Logger.info("[#{id}] Starting sync")
-    Logger.debug("[#{id}] #{inspect(manifest)}")
 
     Habitat.FileList.sync(manifest, container)
     Habitat.PackageList.sync(manifest, container)

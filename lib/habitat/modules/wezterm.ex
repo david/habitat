@@ -1,6 +1,10 @@
 defmodule Habitat.Modules.Wezterm do
   use Habitat.Module
 
+  def files(%{config: config}, _) do
+    [{"~/.config/wezterm/wezterm.lua", config}]
+  end
+
   def packages(_, _) do
     [
       {

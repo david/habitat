@@ -1,5 +1,5 @@
 defmodule Habitat.Host do
-  alias Habitat.{Distrobox, OS}
+  alias Habitat.Distrobox
 
   require Logger
 

@@ -1,15 +1,13 @@
 defmodule Habitat.Modules.Nodejs do
-  def pre_sync(container, spec, _) do
-    container
-    |> put_yarn(spec)
+  use Habitat.Module
+
+  def packages(version, blueprint) when is_binary(version) do
+    packages(%{version: version}, blueprint)
   end
 
-  defp put_yarn(container, spec) do
-    if Keyword.get(spec, :package_manager) == :yarn do
-      # Mise.put(container, "npm:yarn")
-      container
-    else
-      container
-    end
+  def packages(%{version: version} = config, _) do
+    [{:brew, "node@#{version}"}, put_package_manager(config)]
   end
+
+  defp put_package_manager(%{package_manager: :yarn}), do: {:brew, "yarn"}
 end

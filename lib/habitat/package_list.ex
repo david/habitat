@@ -11,9 +11,13 @@ defmodule Habitat.PackageList do
 
   def update(manifest, mod, spec, blueprint) do
     if function_exported?(mod, :packages, 2) do
-      update_in(manifest, [:packages], fn packages ->
-        packages ++ Enum.map(mod.packages(spec, blueprint), &normalize/1)
-      end)
+      update_in(
+        manifest,
+        [:packages],
+        fn packages ->
+          packages ++ for(p <- mod.packages(spec, blueprint), p, do: normalize(p))
+        end
+      )
     else
       manifest
     end

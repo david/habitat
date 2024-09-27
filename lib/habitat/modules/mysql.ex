@@ -6,29 +6,42 @@ defmodule Habitat.Modules.Mysql do
   end
 
   def packages(%{version: version}, _) do
-    ["mysql@#{version}"]
+    [{:brew, "mysql@#{version}"}]
   end
 
   def files(version, blueprint) do
-    shell_files("/home/linuxbrew/.linuxbrew/opt/mysql@#{version}/bin", blueprint)
+    [shell_env("/home/linuxbrew/.linuxbrew/opt/mysql@#{version}", blueprint)]
   end
 
   def post_install_hook(id) do
     # Distrobox.cmd(id, mysqld("--initialize-insecure", "--datadir="))
   end
 
-  defp shell_files(path, %{shell: :bash}) do
-    [{"~/.bash_profile", env: "PATH=#{path}:$PATH"}]
+  defp shell_env(path, %{shell: :bash}) do
+    {"~/.bash_profile",
+     env: """
+     export PATH=#{path}/bin:$PATH
+     export LDFLAGS="$LDFLAGS -L#{path}/lib"
+     export CPPFLAGS="$CPPFLAGS -I#{path}/include"
+     """}
   end
 
-  defp shell_files(path, %{shell: :fish}) do
-    [
-      {"~/.config/fish/config.fish", env: "fish_add_path --prepend --path #{path}"}
-    ]
+  defp shell_env(path, %{shell: :fish}) do
+    {"~/.config/fish/config.fish",
+     env: """
+     fish_add_path --prepend --path #{path}/bin
+     set -gx LDFLAGS "$LDFLAGS -L#{path}/lib"
+     set -gx CPPFLAGS "$CPPFLAGS -I#{path}/include"
+     """}
   end
 
-  defp shell_files(path, %{shell: :zsh}) do
-    [{"~/.zshrc", env: "PATH=#{path}:$PATH"}]
+  defp shell_env(path, %{shell: :zsh}) do
+    {"~/.zshrc",
+     env: """
+     export PATH=#{path}/bin:$PATH
+     export LDFLAGS="$LDFLAGS -L#{path}/lib"
+     export CPPFLAGS="$CPPFLAGS -I#{path}/include"
+     """}
   end
 
   #

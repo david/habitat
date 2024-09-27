@@ -11,6 +11,4 @@ defmodule Habitat.Xdg do
       }
     ]
   end
-
-  defp user_dirs(_), do: []
 end

@@ -9,19 +9,25 @@ defmodule Habitat.Modules.Bash do
     [
       {
         "~/.bash_profile",
-        """
-        <%= @env %>
+        {
+          """
+          <%= @env %>
 
-        source ~/.bashrc
-        """
+          source ~/.bashrc
+          """,
+          env: ""
+        }
       },
       {
         "~/.bashrc",
-        """
-        [[ $- == *i* ]] || return
+        {
+          """
+          [[ $- == *i* ]] || return
 
-        <%= @init %>
-        """
+          <%= @init %>
+          """,
+          init: ""
+        }
       }
     ]
   end

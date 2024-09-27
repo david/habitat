@@ -6,20 +6,27 @@ defmodule Habitat.Modules.Fish do
   end
 
   def files(_, blueprint) do
-    editing = blueprint |> get_in([:editing, :mode]) |> editing_mode()
+    editing = blueprint |> get_in([:editing, :style]) |> editing_mode()
 
     [
       {
         "~/.config/fish/config.fish",
-        """
-        <%= @profile %>
+        {
+          """
+          <%= @env %>
 
-        if status is-interactive
-          #{editing}
+          fish_add_path --prepend --path ~/.local/bin
 
-          <%= @init %>
-        end
-        """
+          if status is-interactive
+            set -U fish_greeting ""
+
+            #{editing}
+
+            <%= @init %>
+          end
+          """,
+          env: "", init: ""
+        }
       }
     ]
   end

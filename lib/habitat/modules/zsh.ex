@@ -9,17 +9,23 @@ defmodule Habitat.Modules.Zsh do
     [
       {
         "~/.zprofile",
-        """
-        <%= @env %>
+        {
+          """
+          <%= @env %>
 
-        source ~/.zshrc
-        """
+          source ~/.zshrc
+          """,
+          env: ""
+        }
       },
       {
         "~/.zshrc",
-        """
-        <%= @interactive %>
-        """
+        {
+          """
+          <%= @init %>
+          """,
+          init: ""
+        }
       }
     ]
   end

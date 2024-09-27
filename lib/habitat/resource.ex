@@ -1,20 +1,36 @@
 defmodule Habitat.Resource do
-  def merge(_, body) when is_binary(body), do: {:string, body}
-  def merge(nil, variables) when is_list(variables), do: {:string, nil, variables}
+  require Logger
 
-  def merge({:string, nil, oldvars}, variables) when is_list(variables) do
-    {:string, nil, oldvars ++ variables}
+  def merge(nil, body) when is_binary(body), do: normalize(body)
+  def merge(nil, variables) when is_list(variables), do: normalize(variables)
+  def merge(nil, {:link, path}), do: {:link, path}
+  def merge(nil, {template, variables}), do: normalize({template, variables})
+
+  def merge({:string, _, variables}, body) when is_binary(body) do
+    normalize({body, variables})
   end
 
-  def merge(nil, {template, defaults}), do: {:string, template, defaults}
-
-  def merge({:string, nil, variables}, {template, defaults}) do
-    {:string, template, defaults ++ variables}
+  def merge({:string, body, old_vars}, new_vars) when is_list(new_vars) do
+    normalize({body, old_vars ++ new_vars})
   end
 
+  def merge({:string, _, variables}, {template, defaults}) do
+    normalize({template, defaults ++ variables})
+  end
+
+  def normalize({:link, path}), do: {:link, path}
+  def normalize(body) when is_binary(body), do: {:string, body}
+  def normalize(variables) when is_list(variables), do: {:string, nil, variables}
+  def normalize({template, variables}), do: {:string, template, variables}
+
+  def prepare({:link, path}), do: {:link, path}
   def prepare({:string, content}), do: {:string, content}
 
   def prepare({:string, template, variables}) do
+    Logger.debug("Bulding file from template")
+    Logger.debug(inspect(template))
+    Logger.debug(inspect(variables))
+
     merged_vars =
       variables
       |> Keyword.keys()

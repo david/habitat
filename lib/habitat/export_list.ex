@@ -1,6 +1,4 @@
 defmodule Habitat.ExportList do
-  alias Habitat.Container
-
   require Logger
 
   def init(manifest, %{exports: exports}) do
@@ -17,7 +15,7 @@ defmodule Habitat.ExportList do
     end
   end
 
-  def sync(%{exports: exports} = manifest, container) do
+  def sync(%{exports: exports}, container) do
     Logger.info("Exporting applications")
     Logger.debug(inspect(exports))
 

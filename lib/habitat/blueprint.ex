@@ -9,6 +9,9 @@ defmodule Habitat.Blueprint do
 
   require Logger
 
+  @default_os :ubuntu
+  @default_image "ghcr.io/david/habitat-ubuntu"
+
   def load(file_path \\ "blueprint.exs") do
     if File.exists?(file_path) do
       Code.require_file(file_path)
@@ -24,11 +27,16 @@ defmodule Habitat.Blueprint do
   end
 
   defp normalize(blueprint) do
+    brew = {:brew, to_module(Habitat.PackageManager.Brew), %{}}
     modules = get_modules(blueprint)
     shell = get_shell(blueprint)
     xdg = get_xdg(blueprint)
 
-    Map.put(blueprint, :modules, modules ++ [xdg, shell])
+    blueprint
+    |> Map.put_new(:os, @default_os)
+    |> Map.put_new(:image, @default_image)
+    |> update_in([:root], &Path.expand/1)
+    |> Map.put(:modules, [brew] ++ modules ++ [xdg, shell])
   end
 
   defp get_modules(%{modules: modules}) do
@@ -37,8 +45,23 @@ defmodule Habitat.Blueprint do
 
   defp get_modules(_), do: []
 
+  defp get_module(key) when is_atom(key) do
+    {key, to_module(key), %{}}
+  end
+
+  defp get_module({key, spec}) when is_list(spec) do
+    {key, to_module(key), Map.new(spec)}
+  end
+
+  defp get_module({key, spec}) do
+    {key, to_module(key), spec}
+  end
+
   @host_defaults %{
-    id: :host
+    id: :host,
+    os: @default_os,
+    image: @default_image,
+    modules: []
   }
 
   defp host(mod) do
@@ -61,19 +84,7 @@ defmodule Habitat.Blueprint do
     {:xdg, Habitat.Xdg, spec}
   end
 
-  defp get_module(key) when is_atom(key) do
-    {key, to_module(key, "Habitat.Modules"), %{}}
-  end
-
-  defp get_module({key, spec}) when is_list(spec) do
-    {key, to_module(key, "Habitat.Modules"), Map.new(spec)}
-  end
-
-  defp get_module({key, spec}) do
-    {key, to_module(key, "Habitat.Modules"), spec}
-  end
-
-  defp to_module(modish, namespace) do
+  defp to_module(modish, namespace \\ "Habitat.Modules") do
     name = to_string(modish)
 
     with {:module, mod} <-
@@ -92,9 +103,28 @@ defmodule Habitat.Blueprint do
   end
 
   defmodule DSL do
-    def glob(path) do
-      # TODO
-      []
+    def file(path) do
+      {:file, path}
+    end
+
+    def link(path) when is_binary(path) do
+      {:link, path}
+    end
+
+    def link(paths) when is_list(paths) do
+      for path <- paths do
+        cond do
+          File.regular?(path) -> {:file, path}
+          File.dir?(path) -> {:dir, path}
+        end
+      end
+    end
+
+    def glob(glob) do
+      glob
+      |> Path.expand()
+      |> Path.wildcard()
+      |> Enum.sort()
     end
   end
 end

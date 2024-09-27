@@ -9,7 +9,7 @@ defmodule Habitat.PackageManager.Apt do
       add_repo(container_id, package, Map.new(opts))
     end
 
-    apt(container_id, ["install", package])
+    apt(container_id, ["install", "--no-install-recommends", package])
   end
 
   defp apt(container_id, args) do
@@ -25,7 +25,7 @@ defmodule Habitat.PackageManager.Apt do
 
     :ok =
       Distrobox.shell(container_id, [
-        "curl -fsSL #{repo}/gpg.key | sudo gpg --yes --dearmor -o #{key_path}"
+        "curl -fsSL #{key} | sudo gpg --yes --dearmor -o #{key_path}"
       ])
 
     source_path = Path.join(@sources_path, "#{package_name}.list")
