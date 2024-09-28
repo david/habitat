@@ -1,5 +1,5 @@
-defmodule Mix.Tasks.Habitat.Sync do
-  @shortdoc "Update system configuration"
+defmodule Mix.Tasks.Habitat.Container.Sync do
+  @shortdoc "Update container configuration"
 
   require Logger
 

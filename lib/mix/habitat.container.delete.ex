@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Habitat.Delete do
+defmodule Mix.Tasks.Habitat.Container.Delete do
   @shortdoc "Delete one or more containers"
 
   use Mix.Task

@@ -1,4 +1,4 @@
-defmodule Mix.Tasks.Habitat.Create do
+defmodule Mix.Tasks.Habitat.Container.Create do
   @shortdoc "Create missing containers"
 
   use Mix.Task
