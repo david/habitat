@@ -19,7 +19,16 @@ defmodule Habitat.Blueprint do
 
     case Application.fetch_env(:habitat, :blueprint) do
       {:ok, mod} ->
-        {:ok, Enum.map(host(mod) ++ mod.containers(), &normalize/1)}
+        {:ok, erl_hostname} = :inet.gethostname()
+        ex_hostname = to_string(erl_hostname)
+
+        if host = Enum.find(mod.hosts(), &(&1.name == ex_hostname)) do
+          host
+          |> update_in([:containers], fn cs -> Enum.map(cs, &normalize/1) end)
+          |> then(&{:ok, &1})
+        else
+          {:error, :host_not_found}
+        end
 
       :error ->
         {:error, nil}

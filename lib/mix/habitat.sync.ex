@@ -1,6 +1,8 @@
 defmodule Mix.Tasks.Habitat.Sync do
   @shortdoc "Update system configuration"
 
+  require Logger
+
   use Mix.Task
 
   alias Habitat.{Container, Manifest}
@@ -9,14 +11,16 @@ defmodule Mix.Tasks.Habitat.Sync do
 
   @impl true
   def run(args) do
-    {:ok, blueprints} = Habitat.Blueprint.load()
+    {:ok, blueprint} = Habitat.Blueprint.load()
 
     for arg <- args, id = String.to_atom(arg) do
-      blueprint = Enum.find(blueprints, &(&1.id == id))
-
-      blueprint
-      |> Manifest.new()
-      |> Manifest.sync(Map.take(blueprint, [:id, :root]))
+      if container_blueprint = Enum.find(blueprint.containers, &(&1.id == id)) do
+        container_blueprint
+        |> Manifest.new()
+        |> Manifest.sync(Map.take(container_blueprint, [:id, :root]))
+      else
+        Logger.warn("Container `#{id}' not found")
+      end
     end
   end
 end

@@ -11,9 +11,9 @@ defmodule Mix.Tasks.Habitat.Create do
   def run(names) do
     ids = Enum.map(names, &String.to_atom/1)
 
-    {:ok, blueprints} = Habitat.Blueprint.load()
+    {:ok, blueprint} = Habitat.Blueprint.load()
 
-    for %{id: id, image: image, root: root} <- blueprints, id in ids do
+    for %{id: id, image: image, root: root} <- blueprint.containers, id in ids do
       Distrobox.create(to_string(id), image, root)
     end
   end
