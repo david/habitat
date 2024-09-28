@@ -13,8 +13,12 @@ defmodule Habitat.Modules.Mysql do
     [shell_env("/home/linuxbrew/.linuxbrew/opt/mysql@#{version}", blueprint)]
   end
 
-  def post_install_hook(id) do
-    # Distrobox.cmd(id, mysqld("--initialize-insecure", "--datadir="))
+  def post_sync(%{id: id, root: root}, spec) do
+    datadir = Path.join([root, ".local", "share", "mysql-data"])
+
+    if !File.dir?(datadir) do
+      Habitat.Distrobox.cmd(id, [mysqld(spec), "--initialize-insecure", "--datadir=#{datadir}"])
+    end
   end
 
   defp shell_env(path, %{shell: :bash}) do
@@ -44,32 +48,7 @@ defmodule Habitat.Modules.Mysql do
      """}
   end
 
-  #
-  # def pre_sync(container_id, _, _) do
-  #   put_package(container_id, "libaio")
-  #   put_package(container_id, {"mysql", url()})
-  # end
-  #
-  # def post_sync(container, _) do
-  #   initialize_database(container)
-  # end
-  #
-  # def initialize_database(container) do
-  #   datadir = Path.join([container.root, ".local", "share", "mysql-data"])
-  #
-  #   unless File.exists?(datadir) do
-  #     Container.cmd(
-  #       container,
-  #       [
-  #         "mysqld",
-  #         "--initialize-insecure",
-  #         "--datadir=#{datadir}"
-  #       ]
-  #     )
-  #   end
-  # end
-  #
-  # def url() do
-  #   "https://cdn.mysql.com/Downloads/MySQL-8.0/mysql-8.0.39-linux-glibc2.28-x86_64.tar.xz"
-  # end
+  defp mysqld(version) when is_binary(version) do
+    "/home/linuxbrew/.linuxbrew/opt/mysql@#{version}/bin/mysqld"
+  end
 end
