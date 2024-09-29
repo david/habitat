@@ -1,21 +1,45 @@
 # Habitat
 
-**TODO: Add description**
+Declarative configuration for the Linux distro you already use.
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `habitat` to your list of dependencies in `mix.exs`:
+## Example Usage
 
 ```elixir
-def deps do
-  [
-    {:habitat, "~> 0.1.0"}
+defmodule Sys.Blueprint do
+  use Habitat.Blueprint
+
+  def hosts do
+    [
+      [
+        name: "timbuktu",
+        containers: containers()
+      ]
+    ]
+  end
+
+  defp containers do
+    [
+      [
+        id: :my_ruby_on_rails_project,
+        root: "~/sys",
+        editing: [
+          style: :vi
+        ],
+        modules: [
+          mysql: "8.0",
+          nodejs: [
+            version: "18"
+            package_manager: :yarn
+          ],
+          ruby: "3.3",
+        ]
+      # Plus several additional half-supported, clumsily-implemented
+      # modules and options...
+    ]
   ]
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/habitat>.
+## Installation
 
+I haven't considered that yet.
