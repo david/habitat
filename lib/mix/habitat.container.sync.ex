@@ -17,7 +17,7 @@ defmodule Mix.Tasks.Habitat.Container.Sync do
       if container_blueprint = Enum.find(blueprint.containers, &(&1.id == id)) do
         container_blueprint
         |> Manifest.new()
-        |> Manifest.sync(Map.take(container_blueprint, [:id, :root]))
+        |> Manifest.sync(container_blueprint)
       else
         Logger.warn("Container `#{id}' not found")
       end
