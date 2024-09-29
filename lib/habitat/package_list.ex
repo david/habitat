@@ -1,8 +1,6 @@
 defmodule Habitat.PackageList do
   require Logger
 
-  @brew "/home/linuxbrew/.linuxbrew/bin/brew"
-
   def init(manifest, %{packages: packages}) do
     Map.put(manifest, :packages, Enum.map(packages, &normalize/1))
   end
