@@ -17,8 +17,6 @@ defmodule Habitat.HookList do
     Logger.info("[#{id}] Running hooks")
     Logger.debug("[#{id}] #{inspect(hooks)}")
 
-    id = to_string(id)
-
     for {hk, mod, spec} <- hooks, hk == hook, do: mod.post_sync(container, spec)
   end
 end
