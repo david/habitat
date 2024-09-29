@@ -38,6 +38,7 @@ defmodule Habitat.Blueprint do
   defp normalize(blueprint) do
     brew = {:brew, to_module(Habitat.PackageManager.Brew), %{}}
     modules = get_modules(blueprint)
+    service_manager = get_service_manager(blueprint)
     shell = get_shell(blueprint)
     xdg = get_xdg(blueprint)
 
@@ -45,7 +46,7 @@ defmodule Habitat.Blueprint do
     |> Map.put_new(:os, @default_os)
     |> Map.put_new(:image, @default_image)
     |> update_in([:root], &Path.expand/1)
-    |> Map.put(:modules, [brew] ++ modules ++ [xdg, shell])
+    |> Map.put(:modules, [brew] ++ modules ++ service_manager ++ [xdg, shell])
   end
 
   defp get_modules(%{modules: modules}) do
@@ -65,6 +66,12 @@ defmodule Habitat.Blueprint do
   defp get_module({key, spec}) do
     {key, to_module(key), spec}
   end
+
+  defp get_service_manager(%{service_manager: :process_compose}) do
+    [{:process_compose, Habitat.Modules.ProcessCompose, []}]
+  end
+
+  defp get_service_manager(_), do: []
 
   @host_defaults %{
     id: :host,
