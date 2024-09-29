@@ -25,8 +25,6 @@ defmodule Habitat.PackageList do
     Logger.info("[#{id}] Syncing packages")
     Logger.debug("[#{id}] #{inspect(packages)}")
 
-    id = to_string(id)
-
     for package <- packages, do: Habitat.Container.install(container, package)
   end
 
