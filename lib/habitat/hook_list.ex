@@ -5,7 +5,7 @@ defmodule Habitat.HookList do
     Map.put(manifest, :hooks, [])
   end
 
-  def update(manifest, mod, spec, blueprint) do
+  def update(manifest, mod, spec, _) do
     if function_exported?(mod, :post_sync, 2) do
       update_in(manifest, [:hooks], &(&1 ++ [{:post_sync, mod, spec}]))
     else
