@@ -1,20 +1,18 @@
 defmodule Habitat.Formats.YAML do
-  def from_code(content, indent) do
-    String.duplicate(" ", indent * 2) <>
-      for {k, v} <- content, into: "" do
-        cond do
-          Keyword.keyword?(v) ->
-            """
-            #{k}:
-            #{from_code(v, indent + 1)}
-            """
+  def from_code(content, indent \\ 0) do
+    indent_str = String.duplicate(" ", indent * 2)
 
-          is_binary(v) ->
-            "#{k}: \"#{v}\"\n"
-
-          true ->
-            "#{k}: #{v}\n"
+    cond do
+      Keyword.keyword?(content) ->
+        for {k, v} <- content, into: "" do
+          "\n#{indent_str}#{k}: #{from_code(v, indent + 1)}"
         end
-      end <> "\n"
+
+      is_binary(content) ->
+        "\"#{content}\""
+
+      true ->
+        "#{content}"
+    end
   end
 end
