@@ -21,11 +21,18 @@ defmodule Habitat.PackageList do
     end
   end
 
-  def sync(%{packages: packages}, %{id: id} = container) do
+  def sync(%{packages: packages}, %{id: id}) do
     Logger.info("[#{id}] Syncing packages")
     Logger.debug("[#{id}] #{inspect(packages)}")
 
-    for package <- packages, do: Habitat.Container.install(container, package)
+    packages
+    |> Enum.group_by(&elem(&1, 0))
+    |> Enum.each(fn {k, pkgs} ->
+      Habitat.PackageManager.get(k).install(
+        id,
+        for({_, pkg, opts} <- pkgs, do: {pkg, opts})
+      )
+    end)
   end
 
   defp normalize(package_name) when is_binary(package_name), do: {:brew, package_name, []}

@@ -3,14 +3,6 @@ defmodule Habitat.Container do
 
   require Logger
 
-  def install(%{id: id}, {:apt, package, opts}) do
-    Habitat.PackageManager.Apt.install(id, package, opts)
-  end
-
-  def install(%{id: id}, {:brew, package, opts}) do
-    Habitat.PackageManager.Brew.install(id, package, opts)
-  end
-
   def write(%{root: root}, target, body) do
     target = expand_path(root, target)
 

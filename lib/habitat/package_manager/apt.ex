@@ -4,12 +4,18 @@ defmodule Habitat.PackageManager.Apt do
   @sources_path "/etc/apt/sources.list.d"
   @keyring_path "/usr/share/keyrings"
 
-  def install(container_id, package, opts) do
-    if Keyword.get(opts, :repo) do
-      add_repo(container_id, package, Map.new(opts))
+  def install(container_id, packages) do
+    for {pkg, opts} <- packages, Keyword.get(opts, :repo) do
+      add_repo(container_id, pkg, Map.new(opts))
     end
 
-    apt(container_id, ["install", "--no-install-recommends", package])
+    :ok = apt(container_id, ["update"])
+
+    :ok =
+      apt(
+        container_id,
+        ["install", "--no-install-recommends"] ++ for({pkg, _} <- packages, do: pkg)
+      )
   end
 
   defp apt(container_id, args) do
@@ -32,6 +38,5 @@ defmodule Habitat.PackageManager.Apt do
     deb_str = "deb [signed-by=#{key_path}] #{repo} #{distribution} #{component1}"
 
     :ok = Distrobox.shell(container_id, ["echo \'#{deb_str}\' | sudo tee #{source_path}"])
-    :ok = Distrobox.cmd(container_id, ["sudo", "apt-get", "update"])
   end
 end
