@@ -19,6 +19,6 @@ defmodule Habitat.HookList do
 
     id = to_string(id)
 
-    for {hook, mod, spec} <- hooks, hook == :post_sync, do: mod.post_sync(container, spec)
+    for {hk, mod, spec} <- hooks, hk == hook, do: mod.post_sync(container, spec)
   end
 end
