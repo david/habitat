@@ -22,8 +22,9 @@ defmodule Habitat.Blueprint do
         {:ok, erl_hostname} = :inet.gethostname()
         ex_hostname = to_string(erl_hostname)
 
-        if host = Enum.find(mod.hosts(), &(&1.name == ex_hostname)) do
+        if host = Enum.find(mod.hosts(), &(Keyword.get(&1, :name) == ex_hostname)) do
           host
+          |> Map.new()
           |> update_in([:containers], fn cs -> Enum.map(cs, &normalize/1) end)
           |> then(&{:ok, &1})
         else
@@ -36,6 +37,7 @@ defmodule Habitat.Blueprint do
   end
 
   defp normalize(blueprint) do
+    blueprint = Map.new(blueprint)
     brew = {:brew, to_module(Habitat.PackageManager.Brew), %{}}
     modules = get_modules(blueprint)
     service_manager = get_service_manager(blueprint)
