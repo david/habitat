@@ -38,7 +38,7 @@ defmodule Habitat.Blueprint do
 
   defp normalize(blueprint) do
     blueprint = Map.new(blueprint)
-    brew = {:brew, to_module(Habitat.PackageManager.Brew), %{}}
+    brew = {:brew, to_module(Habitat.PackageManager.Brew), []}
     modules = get_modules(blueprint)
     service_manager = get_service_manager(blueprint)
     shell = get_shell(blueprint)
