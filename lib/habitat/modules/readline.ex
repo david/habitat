@@ -5,13 +5,13 @@ defmodule Habitat.Modules.Readline do
     main = """
     $include /etc/inputrc
 
-    #{blueprint |> get_in([:editing, :mode]) |> editing_mode()}
+    #{blueprint |> get_in([:editing, :style]) |> editing_style()}
     """
 
     [{"~/.inputrc", main}]
   end
 
-  defp editing_mode(:vi) do
+  defp editing_style(:vi) do
     """
     set editing-mode vi
 
@@ -20,15 +20,11 @@ defmodule Habitat.Modules.Readline do
     """
   end
 
-  defp editing_mode(:emacs) do
+  defp editing_style(:emacs) do
     """
     set editing-mode emacs
     """
   end
 
-  defp editing_mode(nil), do: ""
-
-  defp editing_mode(mode) do
-    raise "Invalid editing mode: #{inspect(mode)}"
-  end
+  defp editing_style(nil), do: ""
 end
