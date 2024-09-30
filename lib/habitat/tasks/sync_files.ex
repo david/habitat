@@ -1,4 +1,4 @@
-defmodule Habitat.FileList do
+defmodule Habitat.Tasks.SyncFiles do
   alias Habitat.{Container, Resource}
 
   require Logger

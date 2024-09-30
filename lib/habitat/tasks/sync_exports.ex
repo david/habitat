@@ -1,4 +1,4 @@
-defmodule Habitat.ExportList do
+defmodule Habitat.Tasks.SyncExports do
   require Logger
 
   def init(manifest, %{exports: exports}) do

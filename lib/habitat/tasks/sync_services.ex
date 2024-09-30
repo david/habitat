@@ -1,4 +1,4 @@
-defmodule Habitat.ServiceList do
+defmodule Habitat.Tasks.SyncServices do
   alias Habitat.Formats.YAML
 
   require Logger

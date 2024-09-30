@@ -1,25 +1,25 @@
 defmodule Habitat.Manifest do
   require Logger
 
-  alias Habitat.{ExportList, FileList, HookList, PackageList, ServiceList}
+  alias Habitat.Tasks.{SyncExports, SyncFiles, RunHooks, SyncPackages, SyncServices}
 
   def new(%{modules: modules} = blueprint) do
     manifest =
       %{}
-      |> ExportList.init(blueprint)
-      |> FileList.init(blueprint)
-      |> PackageList.init(blueprint)
-      |> HookList.init(blueprint)
-      |> ServiceList.init(blueprint)
+      |> SyncExports.init(blueprint)
+      |> SyncFiles.init(blueprint)
+      |> SyncPackages.init(blueprint)
+      |> RunHooks.init(blueprint)
+      |> SyncServices.init(blueprint)
 
     for {_, mod, spec} <- modules, reduce: manifest do
       m ->
         m
-        |> ExportList.update(mod, spec, blueprint)
-        |> FileList.update(mod, spec, blueprint)
-        |> PackageList.update(mod, spec, blueprint)
-        |> HookList.update(mod, spec, blueprint)
-        |> ServiceList.update(mod, spec, blueprint)
+        |> SyncExports.update(mod, spec, blueprint)
+        |> SyncFiles.update(mod, spec, blueprint)
+        |> SyncPackages.update(mod, spec, blueprint)
+        |> RunHooks.update(mod, spec, blueprint)
+        |> SyncServices.update(mod, spec, blueprint)
     end
   end
 
@@ -27,10 +27,10 @@ defmodule Habitat.Manifest do
     Logger.info("[#{id}] Starting sync")
     Logger.debug("[#{id}] #{inspect(container)}")
 
-    FileList.sync(manifest, container)
-    PackageList.sync(manifest, container)
-    ExportList.sync(manifest, container)
-    ServiceList.sync(manifest, container)
-    HookList.sync(:post_sync, manifest, container)
+    SyncFiles.sync(manifest, container)
+    SyncPackages.sync(manifest, container)
+    SyncExports.sync(manifest, container)
+    SyncServices.sync(manifest, container)
+    RunHooks.sync(:post_sync, manifest, container)
   end
 end

@@ -1,4 +1,4 @@
-defmodule Habitat.HookList do
+defmodule Habitat.Tasks.RunHooks do
   require Logger
 
   def init(manifest, _) do
