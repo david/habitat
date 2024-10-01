@@ -5,7 +5,7 @@ defmodule Mix.Tasks.Habitat.Container.Sync do
 
   use Mix.Task
 
-  alias Habitat.{Container, Manifest}
+  alias Habitat.{Blueprint, Container, Manifest}
 
   @requirements ["app.start"]
 
@@ -15,9 +15,10 @@ defmodule Mix.Tasks.Habitat.Container.Sync do
 
     for arg <- args, id = String.to_atom(arg) do
       if container_blueprint = Enum.find(blueprint.containers, &(&1.id == id)) do
-        container_blueprint
-        |> Manifest.new()
-        |> Manifest.sync(container_blueprint)
+        Manifest.sync(
+          Blueprint.get_container_manifest(blueprint, id),
+          container_blueprint
+        )
       else
         Logger.warn("Container `#{id}' not found")
       end
