@@ -37,11 +37,17 @@ defmodule Habitat.Blueprint do
   end
 
   def get_container_blueprint(blueprint, id) do
-    Enum.find(blueprint.containers, &(&1.id == id))
+    case Enum.find(blueprint.containers, &(&1.id == id)) do
+      nil -> {:error, :container_not_found}
+      container -> {:ok, container}
+    end
   end
 
   def get_container_manifest(blueprint, container_id) do
-    for c <- blueprint.containers, c.id == container_id, reduce: nil, do: (_ -> Habitat.Manifest.new(c))
+    case get_container_blueprint(blueprint, container_id) do
+      {:ok, container} -> {:ok, Habitat.Manifest.new(container)}
+      otherwise -> otherwise
+    end
   end
 
   defp normalize(blueprint) do
