@@ -22,7 +22,7 @@ defmodule Habitat.Blueprint do
         {:ok, erl_hostname} = :inet.gethostname()
         ex_hostname = to_string(erl_hostname)
 
-        if host = Enum.find(mod.hosts(), &(Keyword.get(&1, :name) == ex_hostname)) do
+        if host = Enum.find(mod.hosts(), &(Keyword.get(&1, :hostname) == ex_hostname)) do
           host
           |> Map.new()
           |> update_in([:containers], fn cs -> Enum.map(cs, &normalize/1) end)
