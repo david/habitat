@@ -20,7 +20,7 @@ defmodule Mix.Tasks.Habitat.Container.Sync do
           container_blueprint
         )
       else
-        Logger.warn("Container `#{id}' not found")
+        Logger.warning("Container `#{id}' not found")
       end
     end
   end
