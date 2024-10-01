@@ -5,7 +5,7 @@ defmodule Mix.Tasks.Habitat.Container.Sync do
 
   use Mix.Task
 
-  alias Habitat.{Blueprint, Container, Manifest}
+  alias Habitat.{Blueprint, Manifest}
 
   @requirements ["app.start"]
 
