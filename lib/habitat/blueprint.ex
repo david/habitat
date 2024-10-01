@@ -36,6 +36,10 @@ defmodule Habitat.Blueprint do
     end
   end
 
+  def get_container_blueprint(blueprint, id) do
+    Enum.find(blueprint.containers, &(&1.id == id))
+  end
+
   def get_container_manifest(blueprint, container_id) do
     for c <- blueprint.containers, c.id == container_id, reduce: nil, do: (_ -> Habitat.Manifest.new(c))
   end

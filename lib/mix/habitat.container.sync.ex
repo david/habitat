@@ -14,7 +14,7 @@ defmodule Mix.Tasks.Habitat.Container.Sync do
     {:ok, blueprint} = Habitat.Blueprint.load()
 
     for arg <- args, id = String.to_atom(arg) do
-      if container_blueprint = Enum.find(blueprint.containers, &(&1.id == id)) do
+      if container_blueprint = Blueprint.get_container_blueprint(blueprint, id) do
         Manifest.sync(
           Blueprint.get_container_manifest(blueprint, id),
           container_blueprint
