@@ -11,7 +11,7 @@ defmodule Mix.Tasks.Habitat.Container.Sync do
 
   @impl true
   def run(args) do
-    {:ok, blueprint} = Habitat.Blueprint.load()
+    {:ok, blueprint} = Blueprint.load()
 
     for arg <- args, id = String.to_atom(arg) do
       if container_blueprint = Blueprint.get_container_blueprint(blueprint, id) do
