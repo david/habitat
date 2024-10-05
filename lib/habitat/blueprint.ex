@@ -53,25 +53,56 @@ defmodule Habitat.Blueprint do
   end
 
   defp normalize(blueprint) do
-    blueprint = Map.new(blueprint)
-    brew = {:brew, Mod.get_module(Habitat.PackageManager.Brew), []}
-    modules = get_modules(blueprint)
-    service_manager = get_service_manager(blueprint)
-    shell = get_shell(blueprint)
-    xdg = get_xdg(blueprint)
+    blueprint
+    |> Map.new()
+    |> canonicalize_root()
+    |> normalize_os()
+    |> normalize_modules()
+    |> normalize_homebrew()
+    |> normalize_shell()
+    |> normalize_service_manager()
+    |> normalize_xdg()
+  end
 
+  defp normalize_homebrew(blueprint) do
+    brew = {:brew, Mod.get_module(Habitat.PackageManager.Brew), []}
+
+    update_in(blueprint, [:modules], &[brew | &1])
+  end
+
+  defp normalize_modules(%{modules: modules} = blueprint) do
+    put_in(blueprint, [:modules], Enum.map(modules, &get_module/1))
+  end
+
+  defp normalize_os(blueprint) do
     blueprint
     |> Map.put_new(:os, @default_os)
     |> Map.put_new(:image, @default_image)
-    |> update_in([:root], &Path.expand/1)
-    |> Map.put(:modules, [brew] ++ modules ++ service_manager ++ [xdg, shell])
   end
 
-  defp get_modules(%{modules: modules}) do
-    Enum.map(modules, &get_module/1)
+  defp canonicalize_root(blueprint) do
+    update_in(blueprint, [:root], &Path.expand/1)
   end
 
-  defp get_modules(_), do: []
+  defp normalize_service_manager(%{service_manager: sm} = blueprint) when not is_nil(sm) do
+    update_in(blueprint, [:modules], &(&1 ++ [get_module(sm)]))
+  end
+
+  defp normalize_service_manager(blueprint), do: blueprint
+
+  defp normalize_shell(%{shell: shell} = blueprint) do
+    update_in(blueprint, [:modules], &(&1 ++ [get_module(shell)]))
+  end
+
+  defp normalize_shell(blueprint) do
+    blueprint
+    |> put_in([:shell], :bash)
+    |> update_in([:modules], &(&1 ++ [get_module(:bash)]))
+  end
+
+  defp normalize_xdg(blueprint) do
+    update_in(blueprint, [:modules], &(&1 ++ [{:xdg, Habitat.Xdg, %{}}]))
+  end
 
   defp get_module(key) when is_atom(key) do
     {key, Mod.get_module(key), %{}}
@@ -84,12 +115,6 @@ defmodule Habitat.Blueprint do
   defp get_module({key, spec}) do
     {key, Mod.get_module(key), spec}
   end
-
-  defp get_service_manager(%{service_manager: :process_compose}) do
-    [{:process_compose, Habitat.Modules.ProcessCompose, []}]
-  end
-
-  defp get_service_manager(_), do: []
 
   @host_defaults %{
     id: :host,
@@ -104,18 +129,6 @@ defmodule Habitat.Blueprint do
     else
       []
     end
-  end
-
-  defp get_shell(blueprint) do
-    key = Map.get(blueprint, :shell, :bash)
-
-    {key, Mod.get_module(key), %{}}
-  end
-
-  defp get_xdg(blueprint) do
-    spec = Map.get(blueprint, :xdg, %{})
-
-    {:xdg, Habitat.Xdg, spec}
   end
 
   defmodule DSL do
