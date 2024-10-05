@@ -7,6 +7,8 @@ defmodule Habitat.Blueprint do
     end
   end
 
+  alias Habitat.Module, as: Mod
+
   require Logger
 
   @default_os :ubuntu
@@ -52,7 +54,7 @@ defmodule Habitat.Blueprint do
 
   defp normalize(blueprint) do
     blueprint = Map.new(blueprint)
-    brew = {:brew, to_module(Habitat.PackageManager.Brew), []}
+    brew = {:brew, Mod.get_module(Habitat.PackageManager.Brew), []}
     modules = get_modules(blueprint)
     service_manager = get_service_manager(blueprint)
     shell = get_shell(blueprint)
@@ -72,15 +74,15 @@ defmodule Habitat.Blueprint do
   defp get_modules(_), do: []
 
   defp get_module(key) when is_atom(key) do
-    {key, to_module(key), %{}}
+    {key, Mod.get_module(key), %{}}
   end
 
   defp get_module({key, spec}) when is_list(spec) do
-    {key, to_module(key), Map.new(spec)}
+    {key, Mod.get_module(key), Map.new(spec)}
   end
 
   defp get_module({key, spec}) do
-    {key, to_module(key), spec}
+    {key, Mod.get_module(key), spec}
   end
 
   defp get_service_manager(%{service_manager: :process_compose}) do
@@ -107,31 +109,13 @@ defmodule Habitat.Blueprint do
   defp get_shell(blueprint) do
     key = Map.get(blueprint, :shell, :bash)
 
-    {key, to_module(key, "Habitat.Modules"), %{}}
+    {key, Mod.get_module(key), %{}}
   end
 
   defp get_xdg(blueprint) do
     spec = Map.get(blueprint, :xdg, %{})
 
     {:xdg, Habitat.Xdg, spec}
-  end
-
-  defp to_module(modish, namespace \\ "Habitat.Modules") do
-    name = to_string(modish)
-
-    with {:module, mod} <-
-           (if(String.match?(name, ~r/^Elixir\./)) do
-              modish
-            else
-              name
-              |> Macro.camelize()
-              |> then(&Module.concat(namespace, &1))
-            end)
-           |> Code.ensure_loaded() do
-      mod
-    else
-      {:error, :nofile} -> Logger.error("No module named #{modish}")
-    end
   end
 
   defmodule DSL do
