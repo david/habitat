@@ -4,8 +4,6 @@ defmodule Habitat.PackageManager.Brew do
   @bin "/home/linuxbrew/.linuxbrew/bin/brew"
 
   def files(_, %{shell: shell}) do
-    IO.inspect(shell)
-
     [
       case shell do
         :bash -> {"~/.bashrc", env: "eval \"$(#{@bin} shellenv)\""}
