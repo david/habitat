@@ -26,6 +26,7 @@ defmodule Habitat.Blueprint do
 
         if host = Enum.find(mod.hosts(), &(Keyword.get(&1, :hostname) == ex_hostname)) do
           host
+          |> normalize()
           |> Map.new()
           |> update_in([:containers], fn cs -> Enum.map(cs, &normalize/1) end)
           |> then(&{:ok, &1})
@@ -36,6 +37,10 @@ defmodule Habitat.Blueprint do
       :error ->
         {:error, nil}
     end
+  end
+
+  def to_manifest(blueprint) do
+    {:ok, Habitat.Manifest.new(blueprint)}
   end
 
   def get_container_blueprint(blueprint, id) do
@@ -72,6 +77,10 @@ defmodule Habitat.Blueprint do
 
   defp normalize_modules(%{modules: modules} = blueprint) do
     put_in(blueprint, [:modules], Enum.map(modules, &get_module/1))
+  end
+
+  defp normalize_modules(blueprint) do
+    put_in(blueprint, [:modules], [])
   end
 
   defp normalize_os(blueprint) do
