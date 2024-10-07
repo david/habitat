@@ -1,5 +1,5 @@
 defmodule Habitat.PackageManager.Brew do
-  alias Habitat.Distrobox
+  require Logger
 
   @bin "/home/linuxbrew/.linuxbrew/bin/brew"
 
@@ -13,19 +13,20 @@ defmodule Habitat.PackageManager.Brew do
     ]
   end
 
-  def install(container_id, packages) do
-    for {_, opts} <- packages, tap = Keyword.get(opts, :tap) do
-      add_tap(container_id, tap)
-    end
+  def install(packages) do
+    Logger.info("Installing packages (brew): #{inspect(packages)}")
 
-    brew(container_id, ["install"] ++ for({pkg, _} <- packages, do: pkg))
+    for {_, opts} <- packages, tap = Keyword.get(opts, :tap), do: add_tap(tap)
+
+    brew("install", for({pkg, _} <- packages, do: pkg))
+
   end
 
-  defp brew(container_id, args) do
-    Distrobox.cmd(container_id, [@bin] ++ args)
+  defp brew(command, args) do
+    System.cmd(@bin, [command] ++ args)
   end
 
-  defp add_tap(container_id, tap) do
-    Distrobox.cmd(container_id, [@bin, "tap", tap])
+  defp add_tap(tap) do
+    brew("tap", [tap])
   end
 end

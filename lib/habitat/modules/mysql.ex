@@ -13,20 +13,18 @@ defmodule Habitat.Modules.Mysql do
     [{:brew, "mysql@#{version}"}]
   end
 
-  def post_sync(%{id: id} = container, spec) do
-    datadir = datadir(container)
-
-    if !File.dir?(datadir) do
-      Habitat.Distrobox.cmd(id, [mysqld(spec), "--initialize-insecure", "--datadir=#{datadir}"])
+  def post_sync(spec) do
+    if !File.dir?(datadir()) do
+      System.cmd(mysqld(spec), ["--initialize-insecure", "--datadir=#{datadir()}"])
     end
   end
 
-  def services(_, container) do
-    [mysqld: [command: "mysqld --datadir=#{datadir(container)}"]]
+  def services(_) do
+    [mysqld: [command: "mysqld --datadir=#{datadir()}"]]
   end
 
-  defp datadir(%{root: root}) do
-    Path.join([root, ".local", "share", "mysql-data"])
+  defp datadir() do
+    Path.join([Path.expand("~"), ".local", "share", "mysql-data"])
   end
 
   defp shell_env(path, %{shell: :bash}) do

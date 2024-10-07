@@ -10,16 +10,16 @@ defmodule Mix.Tasks.Habitat.Container.Sync do
   @requirements ["app.start"]
 
   @impl true
-  def run(args) do
+  def run(_) do
     {:ok, blueprint} = Blueprint.load()
 
-    for arg <- args, id = String.to_atom(arg) do
-      with {:ok, container_blueprint} <- Blueprint.get_container_blueprint(blueprint, id),
-           {:ok, container_manifest} <- Blueprint.get_container_manifest(blueprint, id) do
-        Manifest.sync(container_manifest, container_blueprint)
-      else
-        {:error, :container_not_found} -> Logger.warning("Container `#{id}' not found")
-      end
+    id = String.to_atom(System.get_env("CONTAINER_ID"))
+
+    with {:ok, cb} <- Blueprint.get_container_blueprint(blueprint, id),
+         {:ok, cm} <- Blueprint.get_container_manifest(blueprint, id) do
+      Manifest.sync(cm, cb)
+    else
+      {:error, :container_not_found} -> Logger.warning("Container `#{id}' not found")
     end
   end
 end

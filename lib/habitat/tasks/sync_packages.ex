@@ -21,17 +21,13 @@ defmodule Habitat.Tasks.SyncPackages do
     end
   end
 
-  def sync(%{packages: packages}, %{id: id}) do
-    Logger.info("[#{id}] Syncing packages")
-    Logger.debug("[#{id}] #{inspect(packages)}")
+  def sync(%{packages: packages}) do
+    Logger.info("Syncing packages: #{inspect(packages)}")
 
     packages
     |> Enum.group_by(&elem(&1, 0))
     |> Enum.each(fn {k, pkgs} ->
-      Habitat.PackageManager.get(k).install(
-        id,
-        for({_, pkg, opts} <- pkgs, do: {pkg, opts})
-      )
+      Habitat.PackageManager.get(k).install(for({_, pkg, opts} <- pkgs, do: {pkg, opts}))
     end)
   end
 

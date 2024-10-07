@@ -17,12 +17,11 @@ defmodule Habitat.Tasks.SyncServices do
     end
   end
 
-  def sync(%{services: services}, %{id: id, root: root}) do
-    Logger.info("[#{id}] Configuring services")
-    Logger.debug("[#{id}] #{inspect(services)}")
+  def sync(%{services: services}) do
+    Logger.info("Configuring services: #{inspect(services)}")
 
     File.write!(
-      Path.join([root, ".config", "process-compose.yml"]),
+      Path.join([Path.expand("~"), ".config", "process-compose.yml"]),
       YAML.from_code([processes: services], 0)
     )
   end

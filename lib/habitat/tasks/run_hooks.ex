@@ -13,10 +13,10 @@ defmodule Habitat.Tasks.RunHooks do
     end
   end
 
-  def sync(hook, %{hooks: hooks}, %{id: id} = container) do
-    Logger.info("[#{id}] Running hooks")
-    Logger.debug("[#{id}] #{inspect(hooks)}")
+  def sync(hook, %{hooks: hooks}) do
+    Logger.info("Running hooks")
+    Logger.debug(inspect(hooks))
 
-    for {hk, mod, spec} <- hooks, hk == hook, do: mod.post_sync(container, spec)
+    for {hk, mod, spec} <- hooks, hk == hook, do: mod.post_sync(spec)
   end
 end

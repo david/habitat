@@ -23,14 +23,14 @@ defmodule Habitat.Manifest do
     end
   end
 
-  def sync(manifest, %{id: id} = container) do
-    Logger.info("[#{id}] Starting sync")
-    Logger.debug("[#{id}] #{inspect(container)}")
+  def sync(manifest, container) do
+    Logger.info("Starting sync")
+    Logger.debug(inspect(container))
 
-    SyncFiles.sync(manifest, container)
-    SyncPackages.sync(manifest, container)
-    SyncExports.sync(manifest, container)
-    SyncServices.sync(manifest, container)
-    RunHooks.sync(:post_sync, manifest, container)
+    SyncFiles.sync(manifest)
+    SyncPackages.sync(manifest)
+    SyncExports.sync(manifest)
+    SyncServices.sync(manifest)
+    RunHooks.sync(:post_sync, manifest)
   end
 end

@@ -1,14 +1,10 @@
 defmodule Habitat.Tasks.SyncFiles do
-  alias Habitat.{Container, Resource}
+  alias Habitat.Resource
 
   require Logger
 
   def init(manifest, %{files: files}) do
-    Map.put(
-      manifest,
-      :files,
-      normalize_all(files)
-    )
+    Map.put(manifest, :files, normalize_all(files))
   end
 
   def init(manifest, _), do: init(manifest, %{files: %{}})
@@ -28,7 +24,9 @@ defmodule Habitat.Tasks.SyncFiles do
   end
 
   defp normalize_all(files) do
-    for {target, source} <- files, into: %{}, do: {target, Resource.normalize(source)}
+    for {target, source} <- files, into: %{} do
+      {target, Resource.normalize(source)}
+    end
   end
 
   defp merge_all(files, new_files) do
@@ -46,22 +44,31 @@ defmodule Habitat.Tasks.SyncFiles do
     end
   end
 
-  def sync(%{files: files}, container) do
-    Logger.info("Syncing files")
+  def sync(%{files: files}) do
+    Logger.info("Syncing files: #{inspect(files)}")
 
     for {target, source} <- files do
-      Logger.info("Syncing #{inspect(target)}")
-      Logger.info("Syncing #{inspect(source)}")
-
-      sync_path(container, target, Habitat.Resource.prepare(source))
+      sync_path(Path.expand(target), Habitat.Resource.prepare(source))
     end
   end
 
-  def sync_path(container, target, {:string, body}) do
-    Container.write(container, target, body)
+  def sync_path(target, {:string, body}) do
+    Logger.debug("Writing to #{target}")
+    Logger.debug(body)
+
+    target |> Path.dirname() |> File.mkdir_p!()
+
+    File.write!(target, body)
   end
 
-  def sync_path(container, target, {:link, path}) do
-    Container.link(container, target, path)
+  def sync_path(target, {:link, path}) do
+    source = Path.join("/run/host", Path.expand(path))
+
+    Logger.debug("Linking #{source} to #{target}")
+
+    target |> Path.dirname() |> File.mkdir_p!()
+
+    File.rm_rf(target)
+    File.ln_s(source, target)
   end
 end

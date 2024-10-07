@@ -15,12 +15,12 @@ defmodule Habitat.Tasks.SyncExports do
     end
   end
 
-  def sync(%{exports: exports}, container) do
-    Logger.info("Exporting applications")
-    Logger.debug(inspect(exports))
+  def sync(%{exports: exports}) do
+    Logger.info("Exporting applications: #{inspect(exports)}")
 
     for export <- exports do
-      Habitat.Container.export(container, export)
+      System.cmd("distrobox-export", ["--delete", "--app", export])
+      {_, 0} = System.cmd("distrobox-export", ["--app", export])
     end
   end
 end
