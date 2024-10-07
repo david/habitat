@@ -10,7 +10,7 @@ defmodule Habitat.Distrobox do
 
     Logger.debug("Running `#{Enum.join(cmd, " ")}`")
 
-    case System.cmd("distrobox-host-exec", cmd, [stderr_to_stdout: true] ++ opts) do
+    case System.cmd(hd(cmd), tl(cmd), [stderr_to_stdout: true] ++ opts) do
       {_, 0} ->
         :ok
 
@@ -23,8 +23,8 @@ defmodule Habitat.Distrobox do
   def create(name, image, home) do
     result =
       System.cmd(
-        "distrobox-host-exec",
-        ["distrobox", "create", "--image", image, "--name", name, "--home", home]
+        "distrobox",
+        ["create", "--image", image, "--name", name, "--home", home]
       )
 
     case result do
@@ -34,14 +34,14 @@ defmodule Habitat.Distrobox do
   end
 
   def delete(id) do
-    case System.cmd("distrobox-host-exec", ["distrobox", "rm", id]) do
+    case System.cmd("distrobox", ["rm", id]) do
       {_, 0} -> :ok
       {err, _} -> {:error, err}
     end
   end
 
   def stop(id) do
-    case System.cmd("distrobox-host-exec", ["distrobox", "stop", id]) do
+    case System.cmd("distrobox", ["stop", id]) do
       {_, 0} -> :ok
       {err, _} -> {:error, err}
     end
