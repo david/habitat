@@ -36,10 +36,6 @@ defmodule Habitat.Modules.Fish do
     set fish_cursor_default block
     set fish_cursor_insert line
 
-    if [ $TERM_PROGRAM = "WezTerm" ]
-      set fish_vi_force_cursor 1
-    end
-
     fish_vi_key_bindings
     """
   end
