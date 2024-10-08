@@ -125,21 +125,6 @@ defmodule Habitat.Blueprint do
     {key, Mod.get_module(key), spec}
   end
 
-  @host_defaults %{
-    id: :host,
-    os: @default_os,
-    image: @default_image,
-    modules: []
-  }
-
-  defp host(mod) do
-    if function_exported?(mod, :host, 0) do
-      [Map.merge(@host_defaults, mod.host())]
-    else
-      []
-    end
-  end
-
   defmodule DSL do
     def file(path) do
       {:file, path}
