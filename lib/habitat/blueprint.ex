@@ -130,16 +130,13 @@ defmodule Habitat.Blueprint do
       {:file, path}
     end
 
-    def link(path) when is_binary(path) do
+    def link(path) do
       {:link, path}
     end
 
-    def link(paths) when is_list(paths) do
-      for path <- paths do
-        cond do
-          File.regular?(path) -> {:file, path}
-          File.dir?(path) -> {:dir, path}
-        end
+    def link(dest, glob) do
+      for path <- Path.wildcard(glob) do
+        {Path.join(dest, Path.basename(path)), {:link, path}}
       end
     end
 
