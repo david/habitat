@@ -16,6 +16,7 @@ module Habitat
         @exports = {}
         @links = {}
         @locales = []
+        @packages = []
         @repos = {}
         @volumes = {}
       end
@@ -45,7 +46,7 @@ module Habitat
       end
 
       def packages=(val)
-        @packages = val
+        @packages.concat(val)
       end
 
       def repo(name, **opts)
