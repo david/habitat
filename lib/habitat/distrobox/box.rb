@@ -31,8 +31,8 @@ module Habitat
         @image = val
       end
 
-      def locale=(val)
-        @locale = val
+      def locale(*vals)
+        @locales = vals
       end
 
       def export(app, **opts)
