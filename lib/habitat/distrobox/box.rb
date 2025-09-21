@@ -117,6 +117,8 @@ module Habitat
             desktop.join("\n") + "\n"
           )
         end
+
+        system "update-desktop-database"
       end
 
       private def sync_links
