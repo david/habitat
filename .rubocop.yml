@@ -1,6 +1,12 @@
 AllCops:
   TargetRubyVersion: 3.2
 
+Metrics:
+  Enabled: false
+
+Style/AccessModifierDeclarations:
+  EnforcedStyle: inline
+
 Style/Documentation:
   Enabled: false
 
