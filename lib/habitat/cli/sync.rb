@@ -11,11 +11,12 @@ module Habitat
       end
 
       def box(name, template: [], &)
-        @distrobox.
-          boxes[name].
-          tap { |b| Array(template).each { |t| @templates[t].call(b) } }.
-          tap(&).
-          sync
+        Config.new(
+          host: @distrobox.boxes[name],
+          active_template_names: template,
+          available_templates: @templates,
+          &
+        ).sync
       end
 
       def template(name, &block)
