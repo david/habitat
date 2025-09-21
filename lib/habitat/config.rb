@@ -16,11 +16,11 @@ module Habitat
       @host.export(name, **opts)
     end
 
-    def home=(val)
+    def home(val)
       @host.home = val
     end
 
-    def image=(val)
+    def image(val)
       @host.image = val
     end
 
@@ -32,7 +32,7 @@ module Habitat
       @host.locale(*locales)
     end
 
-    def packages=(*pkgs)
+    def packages(*pkgs)
       @host.packages = pkgs
     end
 
