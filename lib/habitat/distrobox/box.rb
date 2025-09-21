@@ -104,7 +104,7 @@ module Habitat
 
           desktop = output.lines.map { |line|
             if line =~ /^Exec=/
-              "Exec=#{command}"
+              "Exec=distrobox enter --no-workdir #{@name} -- #{command}"
             elsif line =~ /^Name=/
               "Name=#{label}"
             else
