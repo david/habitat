@@ -1,4 +1,5 @@
 require "fileutils"
+require "tempfile"
 
 module Habitat
   class Distrobox
@@ -14,6 +15,7 @@ module Habitat
         @image = image
         @exports = {}
         @links = {}
+        @locales = []
         @volumes = {}
       end
 
@@ -27,6 +29,10 @@ module Habitat
 
       def image=(val)
         @image = val
+      end
+
+      def locale=(val)
+        @locale = val
       end
 
       def export(app, **opts)
@@ -48,6 +54,7 @@ module Habitat
       def sync
         create if new?
 
+        sync_locales
         sync_packages
         sync_exports
         sync_links
@@ -77,6 +84,15 @@ module Habitat
         end
 
         output
+      end
+
+      private def sync_locales
+        locale_gen = @locales.map { |l| "#{l} UTF-8" }.join("\n") + "\n"
+
+        write "/etc/locale.gen", locale_gen, sudo: true
+        write "/etc/locale.conf", "LANG=#{@locales.first}\n", sudo: true
+
+        run "distrobox enter #{@name} -- sudo locale-gen"
       end
 
       private def sync_exports
@@ -161,6 +177,16 @@ module Habitat
 
       private def debug(*args)
         puts(*args)
+      end
+
+      private def write(path, content, sudo: false)
+        Tempfile.open do |file|
+          file.write(content)
+
+          host_path = "/run/host#{file.path}"
+
+          run "distrobox enter #{@name} -- #{sudo ? "sudo" : ""} cp #{host_path} #{path}"
+        end
       end
     end
   end
