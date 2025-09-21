@@ -1,0 +1,8 @@
+[tools]
+node = "24.8.0"
+ruby = "3.4.6"
+
+[tasks.console]
+description = "Open a local Rails console"
+run = "bin/console"
+alias = "c"
