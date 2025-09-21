@@ -186,13 +186,15 @@ module Habitat
       end
 
       private def write(path, content, sudo: false)
-        Tempfile.open do |file|
-          file.write(content)
+        host_path = nil
 
+        Tempfile.open do |file|
           host_path = "/run/host#{file.path}"
 
-          run "distrobox enter #{@name} -- #{sudo ? "sudo" : ""} cp #{host_path} #{path}"
+          file.write(content)
         end
+
+        run "distrobox enter #{@name} -- #{sudo ? "sudo" : ""} cp #{host_path} #{path}"
       end
     end
   end
