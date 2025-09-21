@@ -100,7 +100,7 @@ module Habitat
           opts => {command:, label:}
 
           debug "on #{@name}"
-          output = run("distrobox enter #{@name} -- cat /usr/share/applications/#{k}.desktop")
+          output = read("/usr/share/applications/#{k}.desktop")
 
           desktop = output.lines.map { |line|
             if line =~ /^Exec=/
@@ -179,6 +179,10 @@ module Habitat
 
       private def debug(*args)
         puts(*args)
+      end
+
+      private def read(path)
+        run("distrobox enter #{@name} -- cat #{path}")
       end
 
       private def write(path, content, sudo: false)
