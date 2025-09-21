@@ -7,13 +7,19 @@ module Habitat
 
       def initialize
         @distrobox = Distrobox.new
+        @templates = {}
       end
 
-      def box(name, &)
+      def box(name, template: [], &)
         @distrobox.
           boxes[name].
+          tap { |b| Array(template).each { |t| @templates[t].call(b) } }.
           tap(&).
           sync
+      end
+
+      def template(name, &block)
+        @templates[name] = block
       end
     end
   end
