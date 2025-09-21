@@ -16,6 +16,7 @@ module Habitat
         @exports = {}
         @links = {}
         @locales = []
+        @repos = {}
         @volumes = {}
       end
 
@@ -47,6 +48,10 @@ module Habitat
         @packages = val
       end
 
+      def repo(name, **opts)
+        @repos[name] = opts
+      end
+
       def volume(from, to)
         @volumes[from] = to
       end
@@ -54,6 +59,7 @@ module Habitat
       def sync
         create if new?
 
+        sync_repos
         sync_locales
         sync_packages
         sync_exports
@@ -84,6 +90,47 @@ module Habitat
         end
 
         output
+      end
+
+      private def sync_repos
+        @repos.each do |name, opts|
+          switches = [
+            ["--recv-key", opts[:key]],
+            ["--keyserver", opts[:keyserver]],
+          ]
+
+          run("distrobox enter #{@name} -- sudo pacman-key #{switches.flatten.join(" ")}")
+
+          switches = [
+            ["--lsign-key", opts[:key]]
+          ]
+
+          run("distrobox enter #{@name} -- sudo pacman-key #{switches.flatten.join(" ")}")
+
+          switches = [
+            "--needed",
+            "--noconfirm",
+            "--upgrade"
+          ]
+
+          packages = opts[:packages]
+          command = "distrobox enter #{@name} -- " \
+            "sudo pacman #{switches.flatten.join(" ")} #{packages.join(" ")}"
+
+          run(command)
+
+          pacman_conf = read("/etc/pacman.conf")
+
+          repo_alias = opts[:as] || name
+
+          if pacman_conf !~ /\[#{repo_alias}\]/
+            write(
+              "/etc/pacman.conf",
+              "#{pacman_conf}\n\n[#{repo_alias}]\nInclude = /etc/pacman.d/#{name}-mirrorlist\n",
+              sudo: true
+            )
+          end
+        end
       end
 
       private def sync_locales
