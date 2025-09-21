@@ -129,17 +129,18 @@ module Habitat
 
       private def sync_packages
         opts = [
-          "--sync",
+          "--noconfirm",
           "--refresh",
-          "--sysupgrade",
-          "--noconfirm"
+          "--sync",
+          "--sysupgrade"
         ]
 
         run "distrobox enter #{@name} -- sudo pacman #{opts.join(" ")}"
 
         opts = [
-          "--sync",
-          "--noconfirm"
+          "--needed",
+          "--noconfirm",
+          "--sync"
         ]
 
         run "distrobox enter #{@name} -- sudo pacman #{opts.join(" ")} #{@packages.join(" ")}"
