@@ -39,8 +39,10 @@ module Habitat
       @locales = locales
     end
 
-    def packages(*packages)
-      @packages = packages
+    def package(*packages, to: nil)
+      return unless to.nil?
+
+      @packages.concat(packages)
     end
 
     def repo(repo, **opts)

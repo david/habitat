@@ -2,4 +2,4 @@
 
 require "habitat"
 
-Habitat::CLI.call(ARGV)
+Habitat::CLI.new(ARGV).call
