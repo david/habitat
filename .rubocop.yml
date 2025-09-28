@@ -4,8 +4,17 @@ AllCops:
 Metrics:
   Enabled: false
 
+Layout/DotPosition:
+  EnforcedStyle: trailing
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
 Style/AccessModifierDeclarations:
   EnforcedStyle: inline
+
+Style/BlockDelimiters:
+  EnforcedStyle: semantic
 
 Style/Documentation:
   Enabled: false
