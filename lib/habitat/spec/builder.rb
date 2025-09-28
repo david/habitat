@@ -2,13 +2,10 @@ module Habitat
   class Spec
     class Builder
       def self.load(path)
-        pwd = File.dirname(File.expand_path(path))
-
-        new(pwd).tap { |builder| builder.instance_eval(File.read(path)) }
+        new.tap { |builder| builder.instance_eval(File.read(path)) }
       end
 
-      def initialize(pwd)
-        @pwd = pwd
+      def initialize
         @specs = {}
         @templates = {}
       end
@@ -16,7 +13,7 @@ module Habitat
       def box(name, template: [], &config)
         raise "box #{name} already exists" if @specs[name]
 
-        spec = @specs[name] = Spec.new(name, @pwd)
+        spec = @specs[name] = Spec.new(name)
 
         Array(template).each do |t| @templates[t].call(spec) end
         config.call(spec)
@@ -31,9 +28,8 @@ module Habitat
       end
 
       class Spec
-        def initialize(name, pwd)
+        def initialize(name)
           @name = name
-          @pwd = pwd
 
           @exports = []
           @links = []
@@ -64,7 +60,7 @@ module Habitat
         end
 
         def package(*packages, **opts)
-          @packages.concat(packages.map { |name| { name:, **opts } })
+          @packages.concat(packages.flatten.map { |name| { name:, **opts } })
         end
 
         def source(name, **opts)
@@ -86,13 +82,19 @@ module Habitat
         end
 
         private def expand_link(link)
-          xfrom = File.expand_path(link[:from], @pwd)
+          Dir[link[:from]].map { |from|
+            source = File.expand_path(from, Dir.pwd)
 
-          Dir[xfrom].map { |from|
-            to = link[:to].respond_to?(:call) ? link[:to].call(from) : link[:to]
-            to = File.expand_path(to, @pwd)
+            destination = link[:to].respond_to?(:call) ? link[:to].call(from) : link[:to]
+            destination = File.expand_path(destination, Dir.pwd)
+            destination =
+              if File.directory?(destination)
+                File.join(destination, File.basename(source))
+              else
+                destination
+              end
 
-            { from:, to: }
+            { source:, destination: }
           }
         end
       end

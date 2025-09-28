@@ -24,21 +24,14 @@ module Habitat
 
         def sync(spec)
           spec.links.each do |link|
-            destination =
-              if File.directory?(link.destination)
-                File.join(link.destination, File.basename(link.source))
-              else
-                link.destination
-              end
+            FileUtils.mkdir_p File.dirname(link.destination)
 
-            FileUtils.mkdir_p File.dirname(destination)
-
-            if !File.exist?(destination)
-              FileUtils.ln_s(link.source, destination)
-            elsif File.symlink?(destination)
+            if !File.exist?(link.destination)
+              FileUtils.ln_s(link.source, link.destination)
+            elsif File.symlink?(link.destination)
               next
             else
-              warn "Skipping #{destination}: file exists"
+              warn "Skipping #{link.destination}: file exists"
             end
           end
         end

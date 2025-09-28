@@ -107,7 +107,7 @@ module Habitat
           debug "on #{@name}"
           output = read("/usr/share/applications/#{k}.desktop")
 
-          desktop = output.lines.map do |line|
+          desktop = output.lines.map { |line|
             if line =~ /^Exec=/
               "Exec=distrobox enter --no-workdir #{@name} -- #{command}"
             elsif line =~ /^Name=/
@@ -115,7 +115,7 @@ module Habitat
             else
               line.strip
             end
-          end
+          }
 
           File.write(
             "#{ENV["HOME"]}/.local/share/applications/#{@name}-#{k}.desktop",

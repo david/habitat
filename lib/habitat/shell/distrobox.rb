@@ -1,14 +1,17 @@
-require "tempfile"
-
 module Habitat
   module Shell
-    class Local
-      def run(command, sudo: false)
-        system(*[sudo ? "sudo" : nil, *command].compact)
+    class Distrobox
+      def initialize(name, runner)
+        @name = name
+        @runner = runner
+      end
+
+      def run(command, **opts)
+        system("distrobox", "enter", @name, "--", *@runner.run(command, **opts))
       end
 
       def read(path)
-        `cat #{path}`
+        `#{["distrobox", "enter", @name, "--", "cat", path].join(" ")}`
       end
 
       def write(path, content, sudo: false)

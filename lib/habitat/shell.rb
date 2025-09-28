@@ -1,5 +1,6 @@
 module Habitat
   module Shell
-    autoload :Local, "habitat/shell/local"
+    autoload :Distrobox, "habitat/shell/distrobox"
+    autoload :Runner, "habitat/shell/runner"
   end
 end

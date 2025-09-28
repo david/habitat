@@ -7,10 +7,10 @@ module Habitat
     end
 
     def call
-      raise "No spec file given" unless @blueprint_path
-      raise "#{@blueprint_path} is not a file" unless File.file?(@blueprint_path)
+      raise "No spec file given" unless blueprint_path
+      raise "#{blueprint_path} is not a file" unless File.file?(blueprint_path)
 
-      builder = Spec::Builder.load(@blueprint_path)
+      builder = Spec::Builder.load(blueprint_path)
 
       specs =
         if container_id
@@ -19,7 +19,13 @@ module Habitat
           builder.specs
         end
 
-      specs.each { |spec| os.sync(spec) }
+      specs.each do |spec|
+        OS::ArchLinux.new(Shell::Distrobox.new(spec.name, Shell::Runner.new)).sync(spec)
+      end
+    end
+
+    private def blueprint_path
+      @blueprint_path ||= File.expand_path("Blueprint")
     end
 
     private def container_id
@@ -30,10 +36,10 @@ module Habitat
       @history ||= History.new
     end
 
-    private def os
+    private def os(shell)
       @os ||=
         if container_id
-          OS::ArchLinux.new(Shell::Local.new)
+          OS::ArchLinux.new(shell)
         else
           raise NotImplementedError
         end
@@ -42,7 +48,7 @@ module Habitat
     private def parse(argv)
       OptionParser.new { |parser|
         parser.on("-fBLUEPRINT", "--file=BLUEPRINT", "Path to blueprint file") do |path|
-          @blueprint_path = path
+          blueprint_path = path
         end
       }.parse!(argv)
     end

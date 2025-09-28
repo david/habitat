@@ -5,7 +5,7 @@ module Habitat
     autoload :Builder, "habitat/spec/builder"
 
     def initialize(name:, **state)
-      @name = name
+      @name = name.to_s
       @state = state
     end
 
@@ -26,9 +26,7 @@ module Habitat
     Source = Data.define(:key, :keyserver, :mirrorlist, :name, :packages)
 
     def links
-      @links ||= @state[:links].flat_map { |link|
-        Link.new(source: link[:from], destination: link[:to])
-      }
+      @links ||= @state[:links].flat_map { |link| Link.new(**link) }
     end
 
     def locales
