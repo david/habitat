@@ -9,30 +9,38 @@ module Habitat
       @state = state
     end
 
-    Locale = Data.define(:name) do
-      alias_method :to_s, :name
-    end
+    Link = Data.define(:source, :destination)
 
-    Package = Data.define(:name, :source, :to) do
+    Locale = Data.define(:name) {
+      alias_method :to_s, :name
+    }
+
+    Package = Data.define(:name, :source, :to) {
       def initialize(**opts)
         super(to: nil, **opts)
       end
 
       alias_method :to_s, :name
-    end
+    }
 
     Source = Data.define(:key, :keyserver, :mirrorlist, :name, :packages)
 
+    def links
+      @links ||= @state[:links].flat_map { |link|
+        Link.new(source: link[:from], destination: link[:to])
+      }
+    end
+
     def locales
-      @state[:locales].map { |locale| Locale.new(**locale) }
+      @locales ||= @state[:locales].map { |locale| Locale.new(**locale) }
     end
 
     def packages
-      @state[:packages].map { |pkg| Package.new(**pkg) }
+      @packages ||= @state[:packages].map { |pkg| Package.new(**pkg) }
     end
 
     def sources
-      @state[:sources].map { |src| Source.new(**src) }
+      @sources ||= @state[:sources].map { |src| Source.new(**src) }
     end
 
     def write(path)

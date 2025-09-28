@@ -4,6 +4,7 @@ module Habitat
       def initialize(shell)
         @shell = shell
 
+        @links = Links.new(shell)
         @locales = Locales.new(shell)
         @packages = Pacman.new(shell)
         @sources = Sources.new(shell)
@@ -13,6 +14,34 @@ module Habitat
         @locales.sync(spec)
         @sources.sync(spec)
         @packages.sync(spec)
+        @links.sync(spec)
+      end
+
+      class Links
+        def initialize(shell)
+          @shell = shell
+        end
+
+        def sync(spec)
+          spec.links.each do |link|
+            destination =
+              if File.directory?(link.destination)
+                File.join(link.destination, File.basename(link.source))
+              else
+                link.destination
+              end
+
+            FileUtils.mkdir_p File.dirname(destination)
+
+            if !File.exist?(destination)
+              FileUtils.ln_s(link.source, destination)
+            elsif File.symlink?(destination)
+              next
+            else
+              warn "Skipping #{destination}: file exists"
+            end
+          end
+        end
       end
 
       class Sources

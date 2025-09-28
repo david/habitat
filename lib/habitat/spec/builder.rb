@@ -2,14 +2,13 @@ module Habitat
   class Spec
     class Builder
       def self.load(path)
-        builder = new
+        pwd = File.dirname(File.expand_path(path))
 
-        builder.instance_eval(File.read(path))
-
-        builder
+        new(pwd).tap { |builder| builder.instance_eval(File.read(path)) }
       end
 
-      def initialize
+      def initialize(pwd)
+        @pwd = pwd
         @specs = {}
         @templates = {}
       end
@@ -17,9 +16,9 @@ module Habitat
       def box(name, template: [], &config)
         raise "box #{name} already exists" if @specs[name]
 
-        spec = @specs[name] = Spec.new(name)
+        spec = @specs[name] = Spec.new(name, @pwd)
 
-        Array(template).each { |t| @templates[t].call(spec) }
+        Array(template).each do |t| @templates[t].call(spec) end
         config.call(spec)
       end
 
@@ -32,8 +31,9 @@ module Habitat
       end
 
       class Spec
-        def initialize(name)
+        def initialize(name, pwd)
           @name = name
+          @pwd = pwd
 
           @exports = []
           @links = []
@@ -78,9 +78,21 @@ module Habitat
         def to_state
           {
             name: @name,
+            links: @links.flat_map { |link| expand_link(link) },
             locales: @locales,
             packages: @packages.map { |pkg| { source: :pacman, **pkg } },
             sources: @sources
+          }
+        end
+
+        private def expand_link(link)
+          xfrom = File.expand_path(link[:from], @pwd)
+
+          Dir[xfrom].map { |from|
+            to = link[:to].respond_to?(:call) ? link[:to].call(from) : link[:to]
+            to = File.expand_path(to, @pwd)
+
+            { from:, to: }
           }
         end
       end
