@@ -21,12 +21,18 @@ module Habitat
       alias_method :to_s, :name
     end
 
+    Source = Data.define(:key, :keyserver, :mirrorlist, :name, :packages)
+
     def locales
       @state[:locales].map { |locale| Locale.new(**locale) }
     end
 
     def packages
       @state[:packages].map { |pkg| Package.new(**pkg) }
+    end
+
+    def sources
+      @state[:sources].map { |src| Source.new(**src) }
     end
 
     def write(path)

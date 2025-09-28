@@ -80,6 +80,7 @@ module Habitat
             name: @name,
             locales: @locales,
             packages: @packages.map { |pkg| { source: :pacman, **pkg } },
+            sources: @sources
           }
         end
       end

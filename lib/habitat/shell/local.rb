@@ -7,6 +7,10 @@ module Habitat
         system(*[sudo ? "sudo" : nil, *command].compact)
       end
 
+      def read(path)
+        `cat #{path}`
+      end
+
       def write(path, content, sudo: false)
         tmp_path = nil
 
